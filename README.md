@@ -5,7 +5,7 @@ A comprehensive Point of Sale (POS) system for WordPress that integrates seamles
 ## Features
 
 - **Complete POS Interface**: Modern, responsive point of sale interface
-- **Product Management**: Easy product search, selection, and inventory management
+- **Product Management**: Easy product search, selection, and inventory management  
 - **Transaction Processing**: Secure payment processing with multiple payment methods
 - **Receipt Generation**: Automatic receipt creation and printing
 - **Sales Reports**: Comprehensive reporting and analytics
