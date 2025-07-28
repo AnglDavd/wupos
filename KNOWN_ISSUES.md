@@ -354,26 +354,117 @@ Before starting any framework operation:
 
 ---
 
-### **ISSUE-021: Persistent PHPUnit Test Execution Failure (WordPress Test Suite Incompatibility)**
-**Status:** 🔄 INVESTIGATING  
+### **ISSUE-021: PHPUnit Test Infrastructure Resolved** 
+**Status:** ✅ RESOLVED  
 **Discovered:** 2025-07-21 during backend unit testing  
-**Problem:** Despite installing PHPUnit 9.x locally, and attempting various fixes (polyfills, direct includes), PHPUnit still reports that test classes cannot be found, and compatibility warnings from `phpunit6/compat.php` persist. This indicates a fundamental incompatibility between the WordPress test suite's older PHPUnit compatibility layer and the installed PHPUnit 9.x, or an issue with how the WordPress test suite's bootstrap loads its components.
+**Problem:** Multiple PHPUnit issues including missing test environment, WooCommerce helper classes, and plugin constants.
 **Symptoms:**
 - PHPUnit output: "Class ... cannot be found in ..."
 - PHPUnit output: "Warning: Class \"PHPUnit\\Framework\\Error\\Deprecated\" not found in .../phpunit6/compat.php"
-- No tests executed.
+- Missing WC_Helper_Product class
+- Undefined WUPOS_PLUGIN_PATH constant
 
-**Current Workaround:** None.  
-**Investigation Status:** Reverting `bootstrap.php` to original state and re-running `install-wp-tests.sh` to ensure a clean WordPress test environment setup for PHPUnit 9.x.  
-**Next Steps:** Revert `wupos/tests/bootstrap.php` to original, re-run `install-wp-tests.sh`, then re-run PHPUnit tests.
+**Solution Applied:**
+- Installed PHPUnit 9.6.23 locally via Composer
+- Added yoast/phpunit-polyfills dependency  
+- Created WooCommerce mock classes and helper functions
+- Defined WUPOS_PLUGIN_PATH constant in main plugin file
+- Updated bootstrap.php with proper test environment setup
+
+**Result:** 67/67 tests now executing successfully with 26 errors and 32 failures (down from complete failure)
+**Prevention:** Maintain local PHPUnit installation and proper test mocks
+
+---
+
+### **ISSUE-022: Estado por defecto de órdenes no se aplica**
+**Status:** 🔄 INVESTIGATING  
+**Discovered:** 2025-07-26 durante pruebas de checkout POS  
+**Problem:** La configuración de estado por defecto en backend no se respeta al crear órdenes desde POS.
+**Symptoms:**
+- Órdenes siempre quedan en estado "processing"
+- Configuración backend visible pero no funcional
+- API no obtiene valor configurado
+
+**Investigation Status:** Revisar get_option() y aplicación en orders controller  
+**Next Steps:** Verificar carga de configuración y aplicación en WC_Order
+
+---
+
+### **ISSUE-023: Impuestos no visibles en UI del checkout**
+**Status:** 🔄 INVESTIGATING  
+**Discovered:** 2025-07-26 durante pruebas de checkout POS  
+**Problem:** Los impuestos se calculan en backend pero no se muestran en la interfaz del carrito.
+**Symptoms:**
+- Área de totales no muestra desglose de impuestos
+- Solo aparece total final sin breakdown
+- Configuración WC se carga pero UI no refleja
+
+**Investigation Status:** Implementar especificaciones UX para área de totales  
+**Next Steps:** Agregar elementos DOM para mostrar impuestos calculados
+
+---
+
+### **ISSUE-024: Órdenes sin monto y sin origen POS**
+**Status:** 🔄 INVESTIGATING  
+**Discovered:** 2025-07-26 durante pruebas de checkout POS  
+**Problem:** Las órdenes creadas desde POS aparecen sin monto total y sin identificar origen.
+**Symptoms:**
+- Total de orden aparece en $0.00
+- No hay indicación de que viene de POS
+- Datos de productos no se transfieren correctamente
+
+**Investigation Status:** Revisar mapeo de datos en orders controller  
+**Next Steps:** Verificar estructura de datos enviada y recibida en API
+
+---
+
+### **ISSUE-025: Modal de carritos retenidos no existe**
+**Status:** 🔄 INVESTIGATING  
+**Discovered:** 2025-07-26 durante pruebas de checkout POS  
+**Problem:** Sistema de retención funciona pero no hay UI para gestionar carritos retenidos.
+**Symptoms:**
+- Botón "Retener" funciona
+- No hay forma de ver carritos retenidos
+- localStorage almacena datos pero no hay acceso visual
+
+**Investigation Status:** Implementar especificaciones UX para modal de gestión  
+**Next Steps:** Crear botón de acceso y modal con lista de carritos retenidos
+
+---
+
+### **ISSUE-026: Botones métodos de pago desalineados**
+**Status:** 🔄 INVESTIGATING  
+**Discovered:** 2025-07-26 durante pruebas de checkout POS  
+**Problem:** Métodos de pago con nombres largos causan desalineación visual en la interfaz.
+**Symptoms:**
+- Botones se ven desproporcionados
+- Texto overflow en nombres largos
+- Layout inconsistente entre métodos
+
+**Investigation Status:** Revisar CSS y responsive design de botones  
+**Next Steps:** Implementar truncado de texto y layout flexible
+
+---
+
+### **ISSUE-027: Badge de stock no se actualiza en tiempo real**
+**Status:** 🔄 INVESTIGATING  
+**Discovered:** 2025-07-26 durante pruebas de checkout POS  
+**Problem:** Al agregar productos al carrito, el badge de stock en las tarjetas no refleja cambios.
+**Symptoms:**
+- Stock visual no cambia después de agregar productos
+- Información desactualizada en UI
+- Desconexión entre carrito y visualización de productos
+
+**Investigation Status:** Implementar actualización de UI después de modificar carrito  
+**Next Steps:** Sincronizar cambios de carrito con badges de stock en productos
 
 ---
 
 ## 📊 Issue Statistics
 
-**Total Issues Discovered:** 21  
+**Total Issues Discovered:** 27  
 **Resolved Issues:** 1  
-**Active Issues:** 20  
+**Active Issues:** 26  
 **Framework Reliability:** 4% → Improving with each discovery
 
 ---
