@@ -217,14 +217,14 @@ body {
     justify-self: start;
 }
 
-.wupos-search {
+.wupos-header-search {
     justify-self: center;
     width: 100%;
     max-width: 500px;
     position: relative;
 }
 
-.wupos-search input {
+.wupos-header-search .wupos-search-input {
     width: 100%;
     padding: var(--wupos-space-2) var(--wupos-space-4);
     border: 1px solid rgba(255,255,255,0.2);
@@ -235,30 +235,30 @@ body {
     placeholder-color: rgba(255,255,255,0.7);
 }
 
-.wupos-search input::placeholder {
+.wupos-header-search .wupos-search-input::placeholder {
     color: rgba(255,255,255,0.7);
 }
 
-.wupos-selectors-header {
+.wupos-header-controls {
     display: flex;
     align-items: center;
     gap: var(--wupos-space-6);
     justify-self: end;
 }
 
-.wupos-selector-header-group {
+.wupos-control-group {
     display: flex;
     align-items: center;
     gap: var(--wupos-space-2);
 }
 
-.wupos-header-label {
+.wupos-control-label {
     font-size: var(--wupos-text-sm);
     font-weight: 500;
     white-space: nowrap;
 }
 
-.wupos-header-select {
+.wupos-user-select {
     padding: var(--wupos-space-2) var(--wupos-space-3);
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: var(--wupos-radius-md);
@@ -268,7 +268,7 @@ body {
     width: 140px;
 }
 
-.wupos-header-select option {
+.wupos-user-select option {
     background: var(--wupos-gray-800);
     color: white;
 }
@@ -287,7 +287,7 @@ body {
     color: rgba(255,255,255,0.7);
 }
 
-.wupos-admin-btn {
+.wupos-admin-link {
     display: flex;
     align-items: center;
     gap: var(--wupos-space-2);
@@ -303,18 +303,18 @@ body {
     text-decoration: none;
 }
 
-.wupos-admin-btn:hover {
+.wupos-admin-link:hover {
     background: rgba(255,255,255,0.2);
     border-color: rgba(255,255,255,0.4);
 }
 
 /* Efectos hover para iconos del header */
-.wupos-logo:hover .fa-cash-register {
+.wupos-header-brand .wupos-logo:hover .fa-cash-register {
     color: #10b981;
     transition: color 0.2s ease;
 }
 
-.wupos-admin-btn:hover .fa-cog {
+.wupos-admin-link:hover .fa-cog {
     color: #f59e0b;
     transition: color 0.2s ease;
 }
@@ -327,16 +327,42 @@ body {
     grid-area: sidebar;
     background: white;
     border-right: 1px solid var(--wupos-gray-200);
-    padding: var(--wupos-space-4) var(--wupos-space-2);
+    padding: var(--wupos-space-4) 0;
     display: flex;
     flex-direction: column;
-    gap: var(--wupos-space-3);
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--wupos-space-4);
     overflow-y: auto;
+    width: 100px;
+    position: relative;
+    z-index: 10;
 }
 
-.wupos-category-btn {
-    width: 80px;
-    height: 56px;
+/* Remove list styling from navigation */
+.wupos-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--wupos-space-4);
+    width: 100%;
+}
+
+.wupos-nav-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.wupos-nav-btn {
+    width: 88px;
+    height: 64px;
     border: 1px solid var(--wupos-gray-200);
     border-radius: var(--wupos-radius-lg);
     background: white;
@@ -348,45 +374,52 @@ body {
     transition: all 0.15s ease;
     color: var(--wupos-gray-600);
     text-decoration: none;
+    box-shadow: var(--wupos-shadow-sm);
+    margin: 0 auto !important;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
 }
 
-.wupos-category-btn:hover {
+.wupos-nav-btn:hover {
     border-color: var(--wupos-primary);
     color: var(--wupos-primary);
     background: var(--wupos-primary-light);
+    box-shadow: var(--wupos-shadow-md);
 }
 
-.wupos-category-btn.active {
+.wupos-nav-btn--active {
     border-color: var(--wupos-primary);
     background: var(--wupos-primary);
     color: white;
+    box-shadow: var(--wupos-shadow-md);
 }
 
-.wupos-category-icon {
+.wupos-nav-icon {
     font-size: var(--wupos-text-lg);
     margin-bottom: var(--wupos-space-1);
     transition: color 0.2s ease;
 }
 
 /* Efectos hover específicos por icono de navegación */
-.wupos-category-btn:hover .wupos-category-icon .fa-cash-register {
+.wupos-nav-btn:hover .wupos-nav-icon .fa-cash-register {
     color: #10b981;
 }
-.wupos-category-btn:hover .wupos-category-icon .fa-box {
+.wupos-nav-btn:hover .wupos-nav-icon .fa-box {
     color: #3b82f6;
 }
-.wupos-category-btn:hover .wupos-category-icon .fa-shopping-cart {
+.wupos-nav-btn:hover .wupos-nav-icon .fa-shopping-cart {
     color: #f59e0b;
 }
-.wupos-category-btn:hover .wupos-category-icon .fa-users {
+.wupos-nav-btn:hover .wupos-nav-icon .fa-users {
     color: #8b5cf6;
 }
-.wupos-category-btn:hover .wupos-category-icon .fa-chart-bar {
+.wupos-nav-btn:hover .wupos-nav-icon .fa-chart-bar {
     color: #dc2626;
 }
 
-.wupos-category-text {
-    font-size: var(--wupos-text-xs);
+.wupos-nav-text {
+    font-size: 10px;
     font-weight: 500;
     text-align: center;
 }
@@ -513,7 +546,7 @@ body {
     color: #059669;
 }
 
-.wupos-view-btn.active {
+.wupos-view-btn--active {
     border-color: var(--wupos-primary);
     background: var(--wupos-primary);
     color: white;
@@ -532,12 +565,26 @@ body {
     background: white;
     border: 1px solid var(--wupos-gray-200);
     border-radius: var(--wupos-radius-lg);
-    padding: var(--wupos-space-4);
+    padding: 0;
     cursor: pointer;
     transition: all 0.15s ease;
     display: flex;
     flex-direction: column;
     height: 160px;
+    overflow: hidden;
+}
+
+.wupos-product-btn {
+    width: 100%;
+    height: 100%;
+    padding: var(--wupos-space-4);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
 }
 
 .wupos-product-card:hover {
@@ -563,18 +610,43 @@ body {
 /* Efectos hover específicos para iconos de productos */
 .wupos-product-card:hover .wupos-product-image .fa-hamburger {
     color: #dc2626;
+    transform: scale(1.1);
 }
 .wupos-product-card:hover .wupos-product-image .fa-pizza-slice {
     color: #ea580c;
+    transform: scale(1.1);
 }
 .wupos-product-card:hover .wupos-product-image .fa-mug-hot {
     color: #92400e;
+    transform: scale(1.1);
 }
 .wupos-product-card:hover .wupos-product-image .fa-ice-cream {
     color: #ec4899;
+    transform: scale(1.1);
 }
 .wupos-product-card:hover .wupos-product-image .fa-tint {
     color: #2563eb;
+    transform: scale(1.1);
+}
+
+/* Estados de productos */
+.wupos-product-card[data-in-cart="true"] {
+    border-color: #059669;
+    background-color: #ecfdf5;
+}
+
+.wupos-product-card[data-in-cart="true"] .wupos-product-image {
+    background-color: #d1fae5;
+}
+
+.wupos-product-card[data-out-of-stock="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.wupos-product-card[data-out-of-stock="true"]:hover {
+    transform: none;
+    box-shadow: none;
 }
 
 .wupos-product-name {
@@ -643,6 +715,18 @@ body {
     color: var(--wupos-gray-600);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+/* Cart header columns layout - single row */
+.wupos-cart-columns {
+    display: contents;
+}
+
+.wupos-cart-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .wupos-cart-items {
@@ -764,6 +848,17 @@ body {
 
 .wupos-qty-input[type=number] {
     -moz-appearance: textfield;
+}
+
+/* Estados de validación para inputs */
+.wupos-qty-input:invalid {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+.wupos-item-price-input:invalid {
+    border-color: #ef4444;
+    background-color: #fef2f2;
 }
 
 .wupos-item-total {
@@ -940,9 +1035,15 @@ body {
 }
 
 .wupos-note-btn.has-note {
-    border-color: var(--wupos-warning);
-    background-color: var(--wupos-warning-light);
-    color: var(--wupos-warning);
+    border-color: #f59e0b;
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.wupos-note-btn.has-note:hover {
+    border-color: #d97706;
+    background-color: #fde68a;
+    color: #78350f;
 }
 
 .wupos-final-buttons {
@@ -1041,26 +1142,26 @@ body {
     flex-shrink: 0;
 }
 
-.wupos-cart-tab.active {
+.wupos-cart-tab--active {
     border-color: var(--wupos-primary);
     background: var(--wupos-primary);
     color: white;
 }
 
-.wupos-cart-tab:hover:not(.active) {
+.wupos-cart-tab:hover:not(.wupos-cart-tab--active) {
     border-color: var(--wupos-primary);
     background: var(--wupos-primary-light);
     color: var(--wupos-primary);
 }
 
-.wupos-cart-tab.new-cart {
+.wupos-cart-tab--new {
     background: var(--wupos-gray-100);
     border-style: dashed;
     color: var(--wupos-gray-500);
 }
 
-.wupos-cart-tab.new-cart:hover {
-    background: var(--wupos-success-light);
+.wupos-cart-tab--new:hover {
+    background: #dcfce7;
     border-color: var(--wupos-success);
     color: var(--wupos-success);
     border-style: solid;
@@ -1109,19 +1210,19 @@ body {
     animation: pulse-green 2s infinite;
 }
 
-.wupos-status-dot.online {
+.wupos-status-dot--online {
     background: #22c55e;
     box-shadow: 0 0 4px rgba(34, 197, 94, 0.4);
     animation: pulse-green 2s infinite;
 }
 
-.wupos-status-dot.warning {
+.wupos-status-dot--warning {
     background: #f59e0b;
     box-shadow: 0 0 4px rgba(245, 158, 11, 0.4);
     animation: pulse-yellow 2s infinite;
 }
 
-.wupos-status-dot.error {
+.wupos-status-dot--error {
     background: #ef4444;
     box-shadow: 0 0 4px rgba(239, 68, 68, 0.4);
     animation: pulse-red 2s infinite;
@@ -1154,12 +1255,23 @@ body {
     }
     
     .wupos-sidebar {
-        width: 80px;
+        padding: var(--wupos-space-3) 0;
+        gap: var(--wupos-space-3);
     }
     
-    .wupos-category-btn {
-        padding: var(--wupos-space-3) var(--wupos-space-2);
-        font-size: var(--wupos-text-xs);
+    .wupos-nav-btn {
+        width: 68px;
+        height: 52px;
+        margin: 0 auto;
+    }
+    
+    .wupos-nav-icon {
+        font-size: var(--wupos-text-lg);
+        margin-bottom: var(--wupos-space-1);
+    }
+    
+    .wupos-nav-text {
+        font-size: 10px;
     }
     
     .wupos-header {
@@ -1222,11 +1334,22 @@ body {
     }
     
     .wupos-sidebar {
-        width: 120px;
+        padding: var(--wupos-space-6) 0;
+        gap: var(--wupos-space-6);
     }
     
-    .wupos-category-btn {
-        padding: var(--wupos-space-4) var(--wupos-space-3);
+    .wupos-nav-btn {
+        width: 100px;
+        height: 72px;
+        margin: 0 auto;
+    }
+    
+    .wupos-nav-icon {
+        font-size: var(--wupos-text-lg);
+        margin-bottom: var(--wupos-space-1);
+    }
+    
+    .wupos-nav-text {
         font-size: var(--wupos-text-sm);
     }
     
@@ -1254,8 +1377,74 @@ body {
     
     .wupos-products-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: var(--wupos-space-5);
+        gap: var(--wupos-space-6);
+        padding: var(--wupos-space-8);
     }
+    
+    .wupos-header {
+        grid-template-columns: 300px 1fr 700px;
+        padding: 0 var(--wupos-space-8);
+    }
+    
+    .wupos-sidebar {
+        padding: var(--wupos-space-8) 0;
+        gap: var(--wupos-space-8);
+    }
+    
+    .wupos-nav-btn {
+        width: 120px;
+        height: 80px;
+        margin: 0 auto;
+    }
+    
+    .wupos-nav-icon {
+        font-size: var(--wupos-text-lg);
+        margin-bottom: var(--wupos-space-1);
+    }
+    
+    .wupos-nav-text {
+        font-size: var(--wupos-text-base);
+        font-weight: 600;
+    }
+}
+
+/* =============================================================================
+   ACCESSIBILITY AND FOCUS STATES
+   ========================================================================== */
+
+/* Focus visible para elementos interactivos */
+.wupos-search-input:focus,
+.wupos-customer-search:focus,
+.wupos-user-select:focus,
+.wupos-nav-btn:focus,
+.wupos-view-btn:focus,
+.wupos-product-btn:focus,
+.wupos-payment-select:focus,
+.wupos-note-btn:focus,
+.wupos-process-sale-btn:focus,
+.wupos-discard-cart-btn:focus,
+.wupos-cart-tab:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Estados activos para navegación */
+.wupos-nav-btn[aria-pressed="true"] {
+    border-color: var(--wupos-primary);
+    background: var(--wupos-primary);
+    color: white;
+}
+
+.wupos-view-btn[aria-pressed="true"] {
+    border-color: var(--wupos-primary);
+    background: var(--wupos-primary);
+    color: white;
+}
+
+.wupos-cart-tab[aria-selected="true"] {
+    border-color: var(--wupos-primary);
+    background: var(--wupos-primary);
+    color: white;
 }
 
 /* =============================================================================
@@ -1284,4 +1473,13 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Clase para cursor de espera durante operaciones */
+.wupos-loading-cursor {
+    cursor: wait !important;
+}
+
+.wupos-loading-cursor * {
+    cursor: wait !important;
 }

@@ -123,6 +123,7 @@ final class WUPOS {
         add_action('init', array($this, 'init'), 0);
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
+        add_action('before_woocommerce_init', array($this, 'declare_wc_compatibility'));
     }
     
     /**
@@ -226,6 +227,16 @@ final class WUPOS {
      */
     public function plugin_path() {
         return untrailingslashit(plugin_dir_path(WUPOS_PLUGIN_FILE));
+    }
+    
+    /**
+     * Declare WooCommerce compatibility.
+     */
+    public function declare_wc_compatibility() {
+        if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', WUPOS_PLUGIN_FILE, true);
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', WUPOS_PLUGIN_FILE, true);
+        }
     }
 }
 
