@@ -660,7 +660,7 @@ const WUPOS_CART_CONFIG = {
     maxQuantityPerItem: 999,
     minQuantityPerItem: 1,
     currencySymbol: '<?php echo html_entity_decode(get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8'); ?>',
-    decimalPlaces: 2,
+    decimalPlaces: <?php echo wc_get_price_decimals(); ?>,
     storageKey: 'wupos_carts_data',
     currentCartKey: 'wupos_current_cart',
     taxCalculationEndpoint: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -850,7 +850,7 @@ function loadWooCommerceTaxSettings() {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = data.data.currency_symbol || '$';
                 WUPOS_CART_CONFIG.currencySymbol = tempDiv.textContent || tempDiv.innerText || '$';
-                WUPOS_CART_CONFIG.decimalPlaces = data.data.decimals || 2;
+                WUPOS_CART_CONFIG.decimalPlaces = data.data.decimals || <?php echo wc_get_price_decimals(); ?>;
                 
                 console.log('WUPOS: Tax settings loaded successfully:', WUPOS_TAX_SETTINGS);
                 resolve(WUPOS_TAX_SETTINGS);
