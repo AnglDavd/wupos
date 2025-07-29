@@ -1189,6 +1189,19 @@ function setupProductSearchEventListeners() {
  * @param {string} category - Category filter (default: '')
  */
 function loadWooCommerceProducts(page = 1, search = '', category = '') {
+    // Check if wupos_ajax is defined
+    if (typeof wupos_ajax === 'undefined') {
+        console.error('WUPOS Error: wupos_ajax object not defined');
+        showProductsError('Error de configuración: Variables AJAX no definidas');
+        return;
+    }
+    
+    if (!wupos_ajax.ajax_url || !wupos_ajax.nonce) {
+        console.error('WUPOS Error: wupos_ajax missing required properties', wupos_ajax);
+        showProductsError('Error de configuración: URL AJAX o nonce no definido');
+        return;
+    }
+    
     // Prevent multiple simultaneous requests
     if (WUPOS_PRODUCTS_STATE.isLoading) {
         return;
@@ -1216,6 +1229,9 @@ function loadWooCommerceProducts(page = 1, search = '', category = '') {
     };
 
     console.log('WUPOS: Loading products with params:', {page, search, category});
+    console.log('WUPOS: AJAX data being sent:', ajaxData);
+    console.log('WUPOS: AJAX URL:', wupos_ajax.ajax_url);
+    console.log('WUPOS: Nonce:', wupos_ajax.nonce);
 
     // Make AJAX request
     fetch(wupos_ajax.ajax_url, {
@@ -1225,9 +1241,14 @@ function loadWooCommerceProducts(page = 1, search = '', category = '') {
         },
         body: new URLSearchParams(ajaxData)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('WUPOS: Received response status:', response.status);
+        console.log('WUPOS: Response headers:', response.headers);
+        return response.json();
+    })
     .then(data => {
         WUPOS_PRODUCTS_STATE.isLoading = false;
+        console.log('WUPOS: Response data:', data);
         
         if (data.success) {
             // Update products cache and pagination
@@ -1248,12 +1269,14 @@ function loadWooCommerceProducts(page = 1, search = '', category = '') {
             announceToScreenReader(message);
             
         } else {
+            console.error('WUPOS Error: Request failed with data:', data);
             showProductsError(data.data || 'Error desconocido cargando productos');
         }
     })
     .catch(error => {
         WUPOS_PRODUCTS_STATE.isLoading = false;
-        console.error('WUPOS Error: Error loading products:', error);
+        console.error('WUPOS Error: Network/parsing error:', error);
+        console.error('WUPOS Error: Error stack:', error.stack);
         showProductsError('Error de conexión. Verifica tu conexión a internet.');
     });
 }
@@ -1389,15 +1412,9 @@ function createProductCard(product) {
     priceDiv.className = 'wupos-product-price';
     priceDiv.setAttribute('aria-label', formatCurrencyForAria(product.price));
     
-    // Format price with tax suffix if available
-    let priceText = formatCurrency(product.price);
-    const taxInfo = product.tax_info || {};
-    const taxEnabled = taxInfo.tax_enabled !== undefined ? taxInfo.tax_enabled : WUPOS_TAX_SETTINGS.tax_enabled;
-    const taxSuffix = taxInfo.tax_suffix || WUPOS_TAX_SETTINGS.tax_suffix;
-    
-    if (taxEnabled && taxSuffix) {
-        priceText += ` ${taxSuffix}`;
-    }
+    // Format price without tax suffix (clean product card appearance)
+    // Tax suffixes are shown only in cart, not on product cards
+    const priceText = formatCurrency(product.price);
     priceDiv.textContent = priceText;
     
     // Create stock badge
