@@ -1,0 +1,164 @@
+# === CORE FRAMEWORK .gitignore ===
+# This file defines what should NOT be in the repository
+# Goal: Keep only essential files for framework functionality
+
+# === DEVELOPMENT/INTERNAL FILES ===
+# Development workspace (internal use only)
+.dev_workspace/
+plan_de_trabajo.md
+roadmap_interno.md
+internal_planning.md
+
+# Claude and AI tool configurations
+.claude/
+.anthropic/
+.openai/
+claude_sessions/
+*.claude
+CLAUDE.md
+claude_instructions.md
+
+# === GENERATED/RUNTIME FILES ===
+# Framework logs and cache
+.ai_workflow/logs/
+.ai_workflow/cache/
+.ai_workflow/obsolete_files/
+.ai_workflow/audit_reports/
+.ai_workflow/backups/
+.ai_workflow/_project_state.log
+.ai_workflow/consolidation_*.md
+
+# Framework backup and analysis files
+.ai_workflow/analysis/
+.ai_workflow/precommit/backup_*/
+.ai_workflow/precommit/reports/
+.ai_workflow/precommit/backup_config/
+*.backup.*
+backup_*
+
+# User project runtime files
+*.log
+*.tmp
+*.temp
+*.cache
+*_backup*
+*_old*
+*_deprecated*
+*diagnostic_*.txt
+*_state.log
+consolidation_*.md
+
+# === TESTING/TEMPORARY FILES ===
+# Test production directory (internal development only)
+test_production/
+
+# Basic test files (keep integration tests)
+.ai_workflow/testing/test_*.md
+.ai_workflow/testing/simple_*.md
+.ai_workflow/testing/basic_*.md
+!.ai_workflow/testing/integration_test*.md
+!.ai_workflow/testing/edge_cases_test*.md
+
+# Generated reports (exclude from repository)
+integration_test_report.md
+*_test_report*.md
+.ai_workflow/reports/feedback_integration_*.md
+.ai_workflow/progress_report.md
+*_report_*.md
+
+# Development backup files
+ai-dev.original
+*.original
+*_backup_*
+
+# === CAPTURES AND MEDIA ===
+# Screenshots and captures
+capturas/
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.webp
+
+# === OS AND IDE SPECIFIC ===
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Linux
+*~
+.fuse_hidden*
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.kate-swp
+*.sublime-*
+.vim/
+
+# === LANGUAGE SPECIFIC ===
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === SECURITY AND CREDENTIALS ===
+# Environment variables
+.env*
+*.key
+*.pem
+*.cert
+*.crt
+secrets.json
+credentials.json
+
+# === BACKUP AND RECOVERY ===
+*.bak
+*.backup
+*.orig
+*.rej
+
+# === CACHE AND TEMPORARY DIRECTORIES ===
+.cache/
+.temp/
+.tmp/
+workflow_cache/
+temp_files/
