@@ -225,77 +225,51 @@ if (!defined('ABSPATH')) {
             
             <!-- Products Grid Container -->
             <section class="wupos-products-container" aria-label="<?php _e('Catálogo de productos disponibles', 'wupos'); ?>">
+                <!-- Loading State -->
+                <div class="wupos-products-loading" id="wupos-products-loading" style="display: none;">
+                    <div class="loading-spinner" aria-hidden="true"></div>
+                    <p><?php _e('Cargando productos...', 'wupos'); ?></p>
+                </div>
+                
+                <!-- Error State -->
+                <div class="wupos-products-error" id="wupos-products-error" style="display: none;">
+                    <div class="error-icon" aria-hidden="true">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3><?php _e('Error cargando productos', 'wupos'); ?></h3>
+                    <p id="wupos-error-message"></p>
+                    <button type="button" class="btn btn-primary" id="wupos-retry-products">
+                        <?php _e('Reintentar', 'wupos'); ?>
+                    </button>
+                </div>
+                
+                <!-- Empty State -->
+                <div class="wupos-products-empty" id="wupos-products-empty" style="display: none;">
+                    <div class="empty-icon" aria-hidden="true">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3><?php _e('No se encontraron productos', 'wupos'); ?></h3>
+                    <p><?php _e('Intenta con otro término de búsqueda o verifica que WooCommerce esté configurado correctamente.', 'wupos'); ?></p>
+                </div>
+                
+                <!-- Products Grid -->
                 <div class="wupos-products-grid" id="wupos-product-grid" role="grid" aria-label="<?php _e('Cuadrícula de productos', 'wupos'); ?>">
-                    <!-- Sample Product Items (to be populated dynamically) -->
-                    <article class="wupos-product-card" role="gridcell" data-product-id="1">
-                        <button type="button" class="wupos-product-btn" aria-describedby="product-1-details">
-                            <div class="wupos-product-image" role="img" aria-label="<?php _e('Hamburguesa Clásica', 'wupos'); ?>">
-                                <i class="fas fa-hamburger" aria-hidden="true"></i>
-                            </div>
-                            <div class="wupos-product-info">
-                                <h3 class="wupos-product-name"><?php _e('Hamburguesa Clásica', 'wupos'); ?></h3>
-                                <div class="wupos-product-price" aria-label="<?php _e('Precio: doce dólares con noventa y nueve centavos', 'wupos'); ?>">$12.99</div>
-                                <div class="wupos-stock-badge wupos-stock-high" aria-label="<?php _e('Stock alto: 25 unidades disponibles', 'wupos'); ?>"><?php _e('25 en stock', 'wupos'); ?></div>
-                            </div>
-                        </button>
-                        <span id="product-1-details" class="sr-only"><?php _e('Hamburguesa Clásica, precio $12.99, 25 unidades en stock', 'wupos'); ?></span>
-                    </article>
-
-                    <article class="wupos-product-card" role="gridcell" data-product-id="2">
-                        <button type="button" class="wupos-product-btn" aria-describedby="product-2-details">
-                            <div class="wupos-product-image" role="img" aria-label="<?php _e('Pizza Margherita', 'wupos'); ?>">
-                                <i class="fas fa-pizza-slice" aria-hidden="true"></i>
-                            </div>
-                            <div class="wupos-product-info">
-                                <h3 class="wupos-product-name"><?php _e('Pizza Margherita', 'wupos'); ?></h3>
-                                <div class="wupos-product-price" aria-label="<?php _e('Precio: dieciocho dólares con cincuenta centavos', 'wupos'); ?>">$18.50</div>
-                                <div class="wupos-stock-badge wupos-stock-medium" aria-label="<?php _e('Stock medio: 8 unidades disponibles', 'wupos'); ?>"><?php _e('8 en stock', 'wupos'); ?></div>
-                            </div>
-                        </button>
-                        <span id="product-2-details" class="sr-only"><?php _e('Pizza Margherita, precio $18.50, 8 unidades en stock', 'wupos'); ?></span>
-                    </article>
-
-                    <article class="wupos-product-card" role="gridcell" data-product-id="3">
-                        <button type="button" class="wupos-product-btn" aria-describedby="product-3-details">
-                            <div class="wupos-product-image" role="img" aria-label="<?php _e('Café Americano', 'wupos'); ?>">
-                                <i class="fas fa-mug-hot" aria-hidden="true"></i>
-                            </div>
-                            <div class="wupos-product-info">
-                                <h3 class="wupos-product-name"><?php _e('Café Americano', 'wupos'); ?></h3>
-                                <div class="wupos-product-price" aria-label="<?php _e('Precio: tres dólares con setenta y cinco centavos', 'wupos'); ?>">$3.75</div>
-                                <div class="wupos-stock-badge wupos-stock-low" aria-label="<?php _e('Stock bajo: 2 unidades disponibles', 'wupos'); ?>"><?php _e('2 en stock', 'wupos'); ?></div>
-                            </div>
-                        </button>
-                        <span id="product-3-details" class="sr-only"><?php _e('Café Americano, precio $3.75, 2 unidades en stock', 'wupos'); ?></span>
-                    </article>
-
-                    <article class="wupos-product-card" role="gridcell" data-product-id="4">
-                        <button type="button" class="wupos-product-btn" aria-describedby="product-4-details">
-                            <div class="wupos-product-image" role="img" aria-label="<?php _e('Helado Vainilla', 'wupos'); ?>">
-                                <i class="fas fa-ice-cream" aria-hidden="true"></i>
-                            </div>
-                            <div class="wupos-product-info">
-                                <h3 class="wupos-product-name"><?php _e('Helado Vainilla', 'wupos'); ?></h3>
-                                <div class="wupos-product-price" aria-label="<?php _e('Precio: cinco dólares con veinticinco centavos', 'wupos'); ?>">$5.25</div>
-                                <div class="wupos-stock-badge wupos-stock-high" aria-label="<?php _e('Stock alto: 15 unidades disponibles', 'wupos'); ?>"><?php _e('15 en stock', 'wupos'); ?></div>
-                            </div>
-                        </button>
-                        <span id="product-4-details" class="sr-only"><?php _e('Helado Vainilla, precio $5.25, 15 unidades en stock', 'wupos'); ?></span>
-                    </article>
-
-                    <article class="wupos-product-card" role="gridcell" data-product-id="5">
-                        <button type="button" class="wupos-product-btn" aria-describedby="product-5-details">
-                            <div class="wupos-product-image" role="img" aria-label="<?php _e('Agua Mineral', 'wupos'); ?>">
-                                <i class="fas fa-tint" aria-hidden="true"></i>
-                            </div>
-                            <div class="wupos-product-info">
-                                <h3 class="wupos-product-name"><?php _e('Agua Mineral', 'wupos'); ?></h3>
-                                <div class="wupos-product-price" aria-label="<?php _e('Precio: dos dólares', 'wupos'); ?>">$2.00</div>
-                                <div class="wupos-stock-badge wupos-stock-high" aria-label="<?php _e('Stock alto: 50 unidades disponibles', 'wupos'); ?>"><?php _e('50 en stock', 'wupos'); ?></div>
-                            </div>
-                        </button>
-                        <span id="product-5-details" class="sr-only"><?php _e('Agua Mineral, precio $2.00, 50 unidades en stock', 'wupos'); ?></span>
-                    </article>
+                    <!-- Products will be populated dynamically via AJAX from WooCommerce -->
+                </div>
+                
+                <!-- Pagination -->
+                <div class="wupos-products-pagination" id="wupos-products-pagination" style="display: none;">
+                    <button type="button" class="btn btn-outline-primary" id="wupos-prev-page" disabled>
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                        <?php _e('Anterior', 'wupos'); ?>
+                    </button>
+                    <span class="pagination-info" id="wupos-pagination-info">
+                        <?php _e('Página 1 de 1', 'wupos'); ?>
+                    </span>
+                    <button type="button" class="btn btn-outline-primary" id="wupos-next-page" disabled>
+                        <?php _e('Siguiente', 'wupos'); ?>
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </button>
                 </div>
             </section>
         </main>
@@ -440,9 +414,15 @@ if (!defined('ABSPATH')) {
                         <span class="wupos-total-amount" id="wupos-subtotal" aria-label="<?php _e('Subtotal: veintinueve dólares con setenta y tres centavos', 'wupos'); ?>">$29.73</span>
                     </div>
                     
-                    <div class="wupos-total-row">
-                        <span class="wupos-total-label"><?php _e('Impuestos (15%):', 'wupos'); ?></span>
-                        <span class="wupos-total-amount" id="wupos-tax" aria-label="<?php _e('Impuestos: cuatro dólares con cuarenta y seis centavos', 'wupos'); ?>">$4.46</span>
+                    <!-- Tax Breakdown Section -->
+                    <div id="wupos-tax-section" class="wupos-tax-section" style="display: none;">
+                        <!-- Dynamic tax breakdown will be inserted here -->
+                    </div>
+                    
+                    <!-- Fallback Single Tax Row (shown when taxes disabled or loading) -->
+                    <div id="wupos-tax-fallback" class="wupos-total-row">
+                        <span class="wupos-total-label" id="wupos-tax-label"><?php _e('Impuestos:', 'wupos'); ?></span>
+                        <span class="wupos-total-amount" id="wupos-tax" aria-label="<?php _e('Impuestos: cero dólares', 'wupos'); ?>">$0.00</span>
                     </div>
                     
                     <div class="wupos-total-row wupos-total-final">
@@ -679,30 +659,56 @@ const WUPOS_CART_CONFIG = {
     maxCarts: 10,
     maxQuantityPerItem: 999,
     minQuantityPerItem: 1,
-    taxRate: 0.15, // 15% tax rate
-    currencySymbol: '$',
+    currencySymbol: '<?php echo html_entity_decode(get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8'); ?>',
     decimalPlaces: 2,
     storageKey: 'wupos_carts_data',
-    currentCartKey: 'wupos_current_cart'
+    currentCartKey: 'wupos_current_cart',
+    taxCalculationEndpoint: '<?php echo admin_url('admin-ajax.php'); ?>',
+    nonce: '<?php echo wp_create_nonce('wupos_nonce'); ?>'
 };
+
+// WooCommerce tax settings (loaded asynchronously)
+let WUPOS_TAX_SETTINGS = {
+    tax_enabled: false,
+    tax_inclusive: false,
+    tax_suffix: '',
+    tax_display_cart: 'excl',
+    tax_display_shop: 'excl',
+    currency_symbol: '$',
+    currency_position: 'left',
+    decimals: 2,
+    loaded: false
+};
+
+// Tax calculation state
+let taxCalculationInProgress = false;
+let lastTaxCalculation = null;
 
 // Global cart storage - Multi-cart system
 let cartsData = {};
 let currentCartId = 1;
 
-// Sample product data (in production, this would come from the API)
-const SAMPLE_PRODUCTS = {
-    '1': { id: '1', name: 'Hamburguesa Clásica', price: 12.99, stock: 25 },
-    '2': { id: '2', name: 'Pizza Margherita', price: 18.50, stock: 8 },
-    '3': { id: '3', name: 'Café Americano', price: 3.75, stock: 2 },
-    '4': { id: '4', name: 'Helado Vainilla', price: 5.25, stock: 15 },
-    '5': { id: '5', name: 'Agua Mineral', price: 2.00, stock: 50 }
+// Dynamic products cache loaded from WooCommerce
+let WUPOS_PRODUCTS_CACHE = {};
+let WUPOS_PRODUCTS_PAGINATION = {
+    currentPage: 1,
+    totalPages: 1,
+    totalProducts: 0,
+    hasMore: false
+};
+
+// Product loading state management
+let WUPOS_PRODUCTS_STATE = {
+    isLoading: false,
+    lastSearchTerm: '',
+    lastCategory: '',
+    loadingTimeout: null
 };
 
 // Wait for DOM content to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize cart system first
-    initializeCartSystem();
+document.addEventListener('DOMContentLoaded', async function() {
+    // Initialize cart system first (async)
+    await initializeCartSystem();
     
     // Initialize POS interface
     initializePOSInterface();
@@ -712,6 +718,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Start system clock
     startSystemClock();
+    
+    // Load initial products
+    loadWooCommerceProducts();
     
     // Activate fullscreen mode
     activateFullscreenMode();
@@ -726,8 +735,11 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize the cart system with localStorage persistence
  * Following WordPress JavaScript standards for data management
  */
-function initializeCartSystem() {
+async function initializeCartSystem() {
     try {
+        // Load WooCommerce tax settings first
+        await loadWooCommerceTaxSettings();
+        
         // Load existing cart data from localStorage
         loadCartsFromStorage();
         
@@ -735,6 +747,9 @@ function initializeCartSystem() {
         if (!cartsData[currentCartId]) {
             cartsData[currentCartId] = createEmptyCart();
         }
+        
+        // Update existing carts with current tax settings if they don't have them
+        updateCartsWithTaxSettings();
         
         // Update UI with current cart data
         updateCartUI();
@@ -754,6 +769,26 @@ function initializeCartSystem() {
 }
 
 /**
+ * Update existing carts with current tax settings
+ */
+function updateCartsWithTaxSettings() {
+    Object.keys(cartsData).forEach(cartId => {
+        const cart = cartsData[cartId];
+        
+        // Update tax settings if cart doesn't have them or they're outdated
+        if (cart.taxEnabled === undefined || cart.taxSuffix === undefined) {
+            cart.taxEnabled = WUPOS_TAX_SETTINGS.tax_enabled;
+            cart.taxInclusive = WUPOS_TAX_SETTINGS.tax_inclusive;
+            cart.taxSuffix = WUPOS_TAX_SETTINGS.tax_suffix;
+            cart.updatedAt = new Date().toISOString();
+        }
+    });
+    
+    // Save updated carts
+    saveCartsToStorage();
+}
+
+/**
  * Create an empty cart structure
  * @returns {Object} Empty cart object
  */
@@ -764,11 +799,75 @@ function createEmptyCart() {
         subtotal: 0,
         tax: 0,
         total: 0,
+        taxBreakdown: [],
+        taxEnabled: WUPOS_TAX_SETTINGS.tax_enabled,
+        taxInclusive: WUPOS_TAX_SETTINGS.tax_inclusive,
+        taxSuffix: WUPOS_TAX_SETTINGS.tax_suffix,
         paymentMethod: 'cash',
         note: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
+}
+
+/**
+ * Load WooCommerce tax settings
+ * @returns {Promise} Promise that resolves when tax settings are loaded
+ */
+function loadWooCommerceTaxSettings() {
+    return new Promise((resolve, reject) => {
+        // If already loaded, resolve immediately
+        if (WUPOS_TAX_SETTINGS.loaded) {
+            resolve(WUPOS_TAX_SETTINGS);
+            return;
+        }
+
+        // Prepare request data
+        const requestData = {
+            action: 'wupos_get_tax_settings',
+            nonce: WUPOS_CART_CONFIG.nonce
+        };
+
+        // Make AJAX request
+        fetch(WUPOS_CART_CONFIG.taxCalculationEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                // Update global tax settings
+                WUPOS_TAX_SETTINGS = {
+                    ...data.data,
+                    loaded: true
+                };
+                
+                // Update WUPOS_CART_CONFIG with currency info
+                // Decode HTML entities for currency symbol
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = data.data.currency_symbol || '$';
+                WUPOS_CART_CONFIG.currencySymbol = tempDiv.textContent || tempDiv.innerText || '$';
+                WUPOS_CART_CONFIG.decimalPlaces = data.data.decimals || 2;
+                
+                console.log('WUPOS: Tax settings loaded successfully:', WUPOS_TAX_SETTINGS);
+                resolve(WUPOS_TAX_SETTINGS);
+            } else {
+                console.error('WUPOS Error: Failed to load tax settings:', data.data || 'Unknown error');
+                // Use defaults if loading fails
+                WUPOS_TAX_SETTINGS.loaded = true;
+                resolve(WUPOS_TAX_SETTINGS);
+            }
+        })
+        .catch(error => {
+            console.error('WUPOS Error: Tax settings request failed:', error);
+            // Use defaults if request fails
+            WUPOS_TAX_SETTINGS.loaded = true;
+            resolve(WUPOS_TAX_SETTINGS);
+        });
+    });
 }
 
 /**
@@ -851,6 +950,9 @@ function setupEventListeners() {
     
     // View controls
     setupViewControlEventListeners();
+    
+    // Product search and retry functionality
+    setupProductSearchEventListeners();
 }
 
 /**
@@ -1030,6 +1132,451 @@ function setupViewControlEventListeners() {
 }
 
 /**
+ * Set up product search and retry event listeners
+ */
+function setupProductSearchEventListeners() {
+    // Search input
+    const searchInput = document.getElementById('wupos-search-input');
+    if (searchInput) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.trim();
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Debounce search to avoid too many requests
+            searchTimeout = setTimeout(() => {
+                if (searchTerm.length >= 2 || searchTerm.length === 0) {
+                    loadWooCommerceProducts(1, searchTerm);
+                }
+            }, 300);
+        });
+    }
+    
+    // Retry button
+    const retryButton = document.getElementById('wupos-retry-products');
+    if (retryButton) {
+        retryButton.addEventListener('click', function() {
+            loadWooCommerceProducts(
+                1,
+                WUPOS_PRODUCTS_STATE.lastSearchTerm,
+                WUPOS_PRODUCTS_STATE.lastCategory
+            );
+        });
+    }
+    
+    // Clear search button (if exists)
+    const clearSearchButton = document.getElementById('wupos-search-clear');
+    if (clearSearchButton) {
+        clearSearchButton.addEventListener('click', function() {
+            if (searchInput) {
+                searchInput.value = '';
+                loadWooCommerceProducts(1, '');
+            }
+        });
+    }
+}
+
+/**
+ * Load WooCommerce products via AJAX
+ * Following WordPress AJAX and security standards
+ * @param {number} page - Page number for pagination (default: 1)
+ * @param {string} search - Search term (default: '')
+ * @param {string} category - Category filter (default: '')
+ */
+function loadWooCommerceProducts(page = 1, search = '', category = '') {
+    // Prevent multiple simultaneous requests
+    if (WUPOS_PRODUCTS_STATE.isLoading) {
+        return;
+    }
+
+    WUPOS_PRODUCTS_STATE.isLoading = true;
+    WUPOS_PRODUCTS_STATE.lastSearchTerm = search;
+    WUPOS_PRODUCTS_STATE.lastCategory = category;
+
+    // Show loading state
+    showProductsLoadingState();
+
+    // Clear any existing timeout
+    if (WUPOS_PRODUCTS_STATE.loadingTimeout) {
+        clearTimeout(WUPOS_PRODUCTS_STATE.loadingTimeout);
+    }
+
+    // Prepare AJAX data
+    const ajaxData = {
+        action: 'wupos_get_products',
+        page: page,
+        search: search,
+        category: category,
+        nonce: wupos_ajax.nonce
+    };
+
+    console.log('WUPOS: Loading products with params:', {page, search, category});
+
+    // Make AJAX request
+    fetch(wupos_ajax.ajax_url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(ajaxData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        WUPOS_PRODUCTS_STATE.isLoading = false;
+        
+        if (data.success) {
+            // Update products cache and pagination
+            updateProductsCache(data.data.products);
+            updateProductsPagination(data.data);
+            
+            // Render products grid
+            renderProductsGrid(data.data.products);
+            
+            // Update pagination UI
+            updatePaginationUI(data.data);
+            
+            // Announce success to screen readers
+            const productCount = data.data.products.length;
+            const message = search 
+                ? `Se encontraron ${productCount} productos para "${search}"`
+                : `Se cargaron ${productCount} productos`;
+            announceToScreenReader(message);
+            
+        } else {
+            showProductsError(data.data || 'Error desconocido cargando productos');
+        }
+    })
+    .catch(error => {
+        WUPOS_PRODUCTS_STATE.isLoading = false;
+        console.error('WUPOS Error: Error loading products:', error);
+        showProductsError('Error de conexión. Verifica tu conexión a internet.');
+    });
+}
+
+/**
+ * Update products cache with new data
+ * @param {Array} products - Array of product objects
+ */
+function updateProductsCache(products) {
+    products.forEach(product => {
+        WUPOS_PRODUCTS_CACHE[product.id] = {
+            id: product.id,
+            name: product.name,
+            price: parseFloat(product.price),
+            stock: product.stock_quantity || 0,
+            stock_status: product.stock_status,
+            formatted_price: product.formatted_price,
+            image_url: product.image_url,
+            image_alt: product.image_alt,
+            has_image: product.has_image,
+            sku: product.sku,
+            short_description: product.short_description,
+            tax_info: product.tax_info || {
+                tax_enabled: WUPOS_TAX_SETTINGS.tax_enabled,
+                tax_suffix: WUPOS_TAX_SETTINGS.tax_suffix,
+                tax_inclusive: WUPOS_TAX_SETTINGS.tax_inclusive
+            }
+        };
+    });
+}
+
+/**
+ * Update pagination data
+ * @param {Object} paginationData - Pagination information from API
+ */
+function updateProductsPagination(paginationData) {
+    WUPOS_PRODUCTS_PAGINATION = {
+        currentPage: paginationData.current_page,
+        totalPages: paginationData.total_pages,
+        totalProducts: paginationData.total_products,
+        hasMore: paginationData.has_more
+    };
+}
+
+/**
+ * Render products grid with dynamic data
+ * @param {Array} products - Array of product objects
+ */
+function renderProductsGrid(products) {
+    const gridContainer = document.getElementById('wupos-product-grid');
+    
+    // Hide all states first
+    hideAllProductStates();
+    
+    if (!products || products.length === 0) {
+        showProductsEmptyState();
+        return;
+    }
+    
+    // Clear existing products
+    gridContainer.innerHTML = '';
+    
+    // Create product cards
+    products.forEach(product => {
+        const productCard = createProductCard(product);
+        gridContainer.appendChild(productCard);
+    });
+    
+    // Show grid and setup event listeners
+    gridContainer.style.display = 'grid';
+    setupProductEventListeners();
+    
+    console.log(`WUPOS: Rendered ${products.length} products`);
+}
+
+/**
+ * Create a product card element
+ * @param {Object} product - Product data object
+ * @returns {HTMLElement} Product card element
+ */
+function createProductCard(product) {
+    const article = document.createElement('article');
+    article.className = 'wupos-product-card';
+    article.setAttribute('role', 'gridcell');
+    article.setAttribute('data-product-id', product.id);
+    
+    // Set stock status data attributes for styling
+    if (product.stock_status === 'outofstock' || (product.stock_quantity && parseInt(product.stock_quantity) === 0)) {
+        article.setAttribute('data-out-of-stock', 'true');
+    }
+    
+    // Check if product is already in current cart
+    const currentCart = cartsData[currentCartId];
+    if (currentCart && currentCart.items.some(item => item.productId === product.id)) {
+        article.setAttribute('data-in-cart', 'true');
+    }
+    
+    // Create button element
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'wupos-product-btn';
+    button.setAttribute('aria-describedby', `product-${product.id}-details`);
+    
+    // Create product image
+    const imageDiv = document.createElement('div');
+    imageDiv.className = 'wupos-product-image';
+    imageDiv.setAttribute('role', 'img');
+    imageDiv.setAttribute('aria-label', product.image_alt || product.name);
+    
+    if (product.has_image && product.image_url) {
+        const img = document.createElement('img');
+        img.src = product.image_url;
+        img.alt = product.image_alt || product.name;
+        img.loading = 'lazy';
+        imageDiv.appendChild(img);
+    } else {
+        // Fallback icon
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-cube';
+        icon.setAttribute('aria-hidden', 'true');
+        imageDiv.appendChild(icon);
+    }
+    
+    // Create product info
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'wupos-product-info';
+    
+    const nameH3 = document.createElement('h3');
+    nameH3.className = 'wupos-product-name';
+    nameH3.textContent = product.name;
+    
+    const priceDiv = document.createElement('div');
+    priceDiv.className = 'wupos-product-price';
+    priceDiv.setAttribute('aria-label', formatCurrencyForAria(product.price));
+    
+    // Format price with tax suffix if available
+    let priceText = formatCurrency(product.price);
+    const taxInfo = product.tax_info || {};
+    const taxEnabled = taxInfo.tax_enabled !== undefined ? taxInfo.tax_enabled : WUPOS_TAX_SETTINGS.tax_enabled;
+    const taxSuffix = taxInfo.tax_suffix || WUPOS_TAX_SETTINGS.tax_suffix;
+    
+    if (taxEnabled && taxSuffix) {
+        priceText += ` ${taxSuffix}`;
+    }
+    priceDiv.textContent = priceText;
+    
+    // Create stock badge
+    const stockDiv = document.createElement('div');
+    const stockInfo = getStockBadgeInfo(product);
+    stockDiv.className = `wupos-stock-badge ${stockInfo.badgeClass}`;
+    stockDiv.setAttribute('aria-label', stockInfo.ariaLabel);
+    stockDiv.textContent = stockInfo.text;
+    
+    // Assemble elements
+    infoDiv.appendChild(nameH3);
+    infoDiv.appendChild(priceDiv);
+    infoDiv.appendChild(stockDiv);
+    
+    button.appendChild(imageDiv);
+    button.appendChild(infoDiv);
+    
+    // Create screen reader details
+    const details = document.createElement('span');
+    details.id = `product-${product.id}-details`;
+    details.className = 'sr-only';
+    details.textContent = `${product.name}, precio ${product.formatted_price}, ${stockInfo.text}`;
+    
+    article.appendChild(button);
+    article.appendChild(details);
+    
+    return article;
+}
+
+/**
+ * Get stock badge information
+ * @param {Object} product - Product data
+ * @returns {Object} Stock badge info
+ */
+function getStockBadgeInfo(product) {
+    const stockQuantity = parseInt(product.stock_quantity) || 0;
+    
+    // Handle out of stock
+    if (product.stock_status === 'outofstock' || stockQuantity === 0) {
+        return {
+            badgeClass: 'wupos-stock-out',
+            text: 'Sin stock',
+            ariaLabel: 'Sin stock disponible'
+        };
+    }
+    
+    // Handle backorder
+    if (product.stock_status === 'onbackorder') {
+        return {
+            badgeClass: 'wupos-stock-medium',
+            text: 'Bajo pedido',
+            ariaLabel: 'Producto disponible bajo pedido'
+        };
+    }
+    
+    // If stock quantity is available, show specific numbers with color coding
+    if (product.stock_quantity !== null && product.stock_quantity !== undefined) {
+        if (stockQuantity <= 2) {
+            return {
+                badgeClass: 'wupos-stock-low',
+                text: `${stockQuantity} en stock`,
+                ariaLabel: `Stock bajo: ${stockQuantity} unidades disponibles`
+            };
+        } else if (stockQuantity <= 10) {
+            return {
+                badgeClass: 'wupos-stock-medium',
+                text: `${stockQuantity} en stock`,
+                ariaLabel: `Stock medio: ${stockQuantity} unidades disponibles`
+            };
+        } else {
+            return {
+                badgeClass: 'wupos-stock-high',
+                text: `${stockQuantity} en stock`,
+                ariaLabel: `Stock alto: ${stockQuantity} unidades disponibles`
+            };
+        }
+    }
+    
+    // Fallback for products without stock management - show as in stock
+    return {
+        badgeClass: 'wupos-stock-high',
+        text: 'En stock',
+        ariaLabel: 'Producto en stock'
+    };
+}
+
+/**
+ * Show products loading state
+ */
+function showProductsLoadingState() {
+    hideAllProductStates();
+    document.getElementById('wupos-products-loading').style.display = 'block';
+    announceToScreenReader('Cargando productos...');
+}
+
+/**
+ * Show products error state
+ * @param {string} errorMessage - Error message to display
+ */
+function showProductsError(errorMessage) {
+    hideAllProductStates();
+    document.getElementById('wupos-error-message').textContent = errorMessage;
+    document.getElementById('wupos-products-error').style.display = 'block';
+    announceToScreenReader(`Error: ${errorMessage}`, true);
+}
+
+/**
+ * Show products empty state
+ */
+function showProductsEmptyState() {
+    hideAllProductStates();
+    document.getElementById('wupos-products-empty').style.display = 'block';
+    announceToScreenReader('No se encontraron productos');
+}
+
+/**
+ * Hide all product states
+ */
+function hideAllProductStates() {
+    document.getElementById('wupos-products-loading').style.display = 'none';
+    document.getElementById('wupos-products-error').style.display = 'none';
+    document.getElementById('wupos-products-empty').style.display = 'none';
+    document.getElementById('wupos-product-grid').style.display = 'none';
+}
+
+/**
+ * Update pagination UI
+ * @param {Object} paginationData - Pagination data from API
+ */
+function updatePaginationUI(paginationData) {
+    const paginationContainer = document.getElementById('wupos-products-pagination');
+    const prevButton = document.getElementById('wupos-prev-page');
+    const nextButton = document.getElementById('wupos-next-page');
+    const paginationInfo = document.getElementById('wupos-pagination-info');
+    
+    if (paginationData.total_pages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+    }
+    
+    // Show pagination
+    paginationContainer.style.display = 'flex';
+    
+    // Update buttons state
+    prevButton.disabled = paginationData.current_page <= 1;
+    nextButton.disabled = paginationData.current_page >= paginationData.total_pages;
+    
+    // Update info text
+    paginationInfo.textContent = `Página ${paginationData.current_page} de ${paginationData.total_pages}`;
+    
+    // Add event listeners if not already added
+    if (!prevButton.hasAttribute('data-listener-added')) {
+        prevButton.addEventListener('click', () => {
+            if (WUPOS_PRODUCTS_PAGINATION.currentPage > 1) {
+                loadWooCommerceProducts(
+                    WUPOS_PRODUCTS_PAGINATION.currentPage - 1,
+                    WUPOS_PRODUCTS_STATE.lastSearchTerm,
+                    WUPOS_PRODUCTS_STATE.lastCategory
+                );
+            }
+        });
+        prevButton.setAttribute('data-listener-added', 'true');
+    }
+    
+    if (!nextButton.hasAttribute('data-listener-added')) {
+        nextButton.addEventListener('click', () => {
+            if (WUPOS_PRODUCTS_PAGINATION.hasMore) {
+                loadWooCommerceProducts(
+                    WUPOS_PRODUCTS_PAGINATION.currentPage + 1,
+                    WUPOS_PRODUCTS_STATE.lastSearchTerm,
+                    WUPOS_PRODUCTS_STATE.lastCategory
+                );
+            }
+        });
+        nextButton.setAttribute('data-listener-added', 'true');
+    }
+}
+
+/**
  * Add product to cart with proper validation and duplicate handling
  * Following WordPress security and accessibility standards
  * @param {string} productId - Product ID to add
@@ -1038,7 +1585,7 @@ function setupViewControlEventListeners() {
 function addToCart(productId, quantity = 1) {
     try {
         // Validate input parameters
-        if (!productId || !SAMPLE_PRODUCTS[productId]) {
+        if (!productId || !WUPOS_PRODUCTS_CACHE[productId]) {
             console.error('WUPOS Error: Producto no válido:', productId);
             announceToScreenReader('Error: Producto no encontrado', true);
             return false;
@@ -1046,9 +1593,16 @@ function addToCart(productId, quantity = 1) {
         
         // Validate quantity
         const qty = Math.max(WUPOS_CART_CONFIG.minQuantityPerItem, parseInt(quantity, 10) || 1);
-        const maxQty = Math.min(WUPOS_CART_CONFIG.maxQuantityPerItem, SAMPLE_PRODUCTS[productId].stock);
+        const productStock = WUPOS_PRODUCTS_CACHE[productId].stock_quantity || 0;
+        const maxQty = Math.min(WUPOS_CART_CONFIG.maxQuantityPerItem, productStock);
         
-        if (qty > maxQty) {
+        // Check stock status
+        if (WUPOS_PRODUCTS_CACHE[productId].stock_status === 'outofstock') {
+            announceToScreenReader('Producto sin stock disponible', true);
+            return false;
+        }
+        
+        if (qty > maxQty && maxQty > 0) {
             announceToScreenReader(`Stock insuficiente. Máximo disponible: ${maxQty}`, true);
             return false;
         }
@@ -1077,7 +1631,7 @@ function addToCart(productId, quantity = 1) {
             
         } else {
             // Add new item to cart
-            const product = SAMPLE_PRODUCTS[productId];
+            const product = WUPOS_PRODUCTS_CACHE[productId];
             const newItem = {
                 id: generateItemId(),
                 productId: productId,
@@ -1096,8 +1650,11 @@ function addToCart(productId, quantity = 1) {
         updateCartTabs();
         saveCartsToStorage();
         
+        // Update product card visual state
+        updateProductCardState(productId, true);
+        
         // Accessibility announcement
-        const productName = SAMPLE_PRODUCTS[productId].name;
+        const productName = WUPOS_PRODUCTS_CACHE[productId].name;
         announceToScreenReader(`${productName} agregado al carrito. Cantidad: ${qty}`);
         
         console.log('WUPOS: Producto agregado exitosamente:', productName, 'Cantidad:', qty);
@@ -1136,8 +1693,10 @@ function removeFromCart(itemId) {
             return false;
         }
         
-        // Get item name for announcement before removal
-        const itemName = currentCart.items[itemIndex].name;
+        // Get item data for announcement and state update before removal
+        const removedItem = currentCart.items[itemIndex];
+        const itemName = removedItem.name;
+        const removedProductId = removedItem.productId;
         
         // Remove item from cart
         currentCart.items.splice(itemIndex, 1);
@@ -1147,6 +1706,12 @@ function removeFromCart(itemId) {
         updateCartUI();
         updateCartTabs();
         saveCartsToStorage();
+        
+        // Update product card visual state (check if product is still in cart)
+        const stillInCart = currentCart.items.some(item => item.productId === removedProductId);
+        if (!stillInCart) {
+            updateProductCardState(removedProductId, false);
+        }
         
         // Accessibility announcement
         announceToScreenReader(`${itemName} eliminado del carrito`);
@@ -1187,6 +1752,7 @@ function clearCurrentCart() {
         // Update UI and save
         updateCartUI();
         updateCartTabs();
+        updateAllProductCardStates();
         saveCartsToStorage();
         
         // Clear note button state
@@ -1239,7 +1805,8 @@ function updateItemQuantity(itemId, newQuantity) {
         // Validate quantity
         const qty = Math.max(WUPOS_CART_CONFIG.minQuantityPerItem, parseInt(newQuantity, 10) || 1);
         const productId = currentCart.items[itemIndex].productId;
-        const maxQty = Math.min(WUPOS_CART_CONFIG.maxQuantityPerItem, SAMPLE_PRODUCTS[productId]?.stock || 999);
+        const productStock = WUPOS_PRODUCTS_CACHE[productId]?.stock_quantity || 999;
+        const maxQty = Math.min(WUPOS_CART_CONFIG.maxQuantityPerItem, productStock);
         
         if (qty > maxQty) {
             // Reset input to previous valid value
@@ -1398,6 +1965,7 @@ function switchToCart(cartId) {
         // Update UI
         updateCartUI();
         updateCartTabs();
+        updateAllProductCardStates();
         saveCartsToStorage();
         
         announceToScreenReader(`Carrito ${cartId} seleccionado`);
@@ -1413,10 +1981,11 @@ function switchToCart(cartId) {
 }
 
 /**
- * Calculate cart totals with tax
+ * Calculate cart totals with WooCommerce tax calculation
  * @param {Object} cart - Cart object to calculate
+ * @param {boolean} forceRecalculate - Force tax recalculation even if in progress
  */
-function calculateCartTotals(cart) {
+function calculateCartTotals(cart, forceRecalculate = false) {
     try {
         if (!cart || !Array.isArray(cart.items)) {
             console.error('WUPOS Error: Estructura de carrito inválida');
@@ -1428,14 +1997,50 @@ function calculateCartTotals(cart) {
             return sum + (parseFloat(item.total) || 0);
         }, 0);
         
-        // Calculate tax
-        cart.tax = cart.subtotal * WUPOS_CART_CONFIG.taxRate;
+        // If cart is empty, reset totals
+        if (cart.items.length === 0) {
+            cart.tax = 0;
+            cart.total = cart.subtotal;
+            cart.taxBreakdown = [];
+            cart.updatedAt = new Date().toISOString();
+            return;
+        }
         
-        // Calculate total
+        // Use cached tax calculation if available and cart hasn't changed
+        if (lastTaxCalculation && 
+            lastTaxCalculation.cartId === cart.id && 
+            lastTaxCalculation.subtotal === cart.subtotal &&
+            lastTaxCalculation.itemsHash === getCartItemsHash(cart.items) &&
+            !forceRecalculate) {
+            
+            cart.tax = lastTaxCalculation.tax;
+            cart.total = cart.subtotal + cart.tax;
+            cart.taxBreakdown = lastTaxCalculation.taxBreakdown || [];
+            cart.updatedAt = new Date().toISOString();
+            return;
+        }
+        
+        // Set temporary values while calculating
+        if (!cart.hasOwnProperty('tax')) {
+            cart.tax = 0;
+        }
         cart.total = cart.subtotal + cart.tax;
-        
-        // Update timestamp
         cart.updatedAt = new Date().toISOString();
+        
+        // Calculate WooCommerce taxes asynchronously only if taxes are enabled
+        if (cart.taxEnabled) {
+            calculateWooCommerceTaxes(cart);
+        } else {
+            // Taxes disabled - ensure tax display shows correct state
+            cart.tax = 0;
+            cart.taxBreakdown = [];
+            updateTaxDisplay(cart, {
+                tax_enabled: false,
+                tax_breakdown: [],
+                tax_inclusive: cart.taxInclusive,
+                tax_suffix: cart.taxSuffix
+            });
+        }
         
     } catch (error) {
         console.error('WUPOS Error: Error calculando totales:', error);
@@ -1444,7 +2049,268 @@ function calculateCartTotals(cart) {
         cart.subtotal = 0;
         cart.tax = 0;
         cart.total = 0;
+        cart.taxBreakdown = [];
     }
+}
+
+/**
+ * Generate hash for cart items to detect changes
+ * @param {Array} items - Cart items array
+ * @return {string} Hash string
+ */
+function getCartItemsHash(items) {
+    const itemsString = items.map(item => `${item.id}-${item.quantity}-${item.price}`).join('|');
+    return btoa(itemsString).replace(/[^a-zA-Z0-9]/g, '');
+}
+
+/**
+ * Calculate WooCommerce taxes for cart
+ * @param {Object} cart - Cart object
+ */
+function calculateWooCommerceTaxes(cart) {
+    if (taxCalculationInProgress) {
+        return;
+    }
+    
+    taxCalculationInProgress = true;
+    
+    // Show loading state in tax section
+    updateTaxDisplay(cart, { loading: true });
+    
+    // Prepare cart items for API
+    const cartItems = cart.items.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        price: item.price
+    }));
+    
+    // Prepare request data
+    const requestData = {
+        action: 'wupos_calculate_taxes',
+        nonce: WUPOS_CART_CONFIG.nonce,
+        cart_items: JSON.stringify(cartItems),
+        customer_data: JSON.stringify({}) // TODO: Add customer location data if needed
+    };
+    
+    // Debug log request data
+    console.log('WUPOS DEBUG: Making tax calculation request:', requestData);
+    console.log('WUPOS DEBUG: Cart items being sent:', cartItems);
+    
+    // Make AJAX request
+    fetch(WUPOS_CART_CONFIG.taxCalculationEndpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(requestData)
+    })
+    .then(response => {
+        console.log('WUPOS DEBUG: Response status:', response.status);
+        console.log('WUPOS DEBUG: Response headers:', response.headers);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return response.text().then(text => {
+            console.log('WUPOS DEBUG: Raw response text:', text);
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('WUPOS DEBUG: JSON parse error:', e);
+                console.error('WUPOS DEBUG: Response text that failed to parse:', text);
+                throw new Error('Invalid JSON response');
+            }
+        });
+    })
+    .then(data => {
+        taxCalculationInProgress = false;
+        console.log('WUPOS DEBUG: Parsed response data:', data);
+        
+        if (data.success && data.data) {
+            const taxData = data.data;
+            
+            // Update cart with tax data
+            cart.tax = parseFloat(taxData.tax_total) || 0;
+            cart.subtotal = parseFloat(taxData.subtotal) || 0;
+            cart.total = parseFloat(taxData.total) || 0;
+            cart.taxBreakdown = taxData.tax_breakdown || [];
+            cart.taxEnabled = taxData.tax_enabled;
+            cart.taxInclusive = taxData.tax_inclusive;
+            cart.taxSuffix = taxData.tax_suffix || '';
+            
+            // Cache the calculation
+            lastTaxCalculation = {
+                cartId: cart.id,
+                subtotal: cart.subtotal,
+                itemsHash: getCartItemsHash(cart.items),
+                tax: cart.tax,
+                taxBreakdown: cart.taxBreakdown
+            };
+            
+            // Update UI
+            console.log('WUPOS: Tax calculation completed for cart:', cart.id, 'Tax data:', taxData);
+            updateCartUI();
+            updateTaxDisplay(cart, taxData);
+            
+        } else {
+            console.error('WUPOS Error: Tax calculation failed - Success flag false or no data');
+            console.error('WUPOS Error: Full response:', data);
+            updateTaxDisplay(cart, { error: data.data || 'Tax calculation failed' });
+        }
+    })
+    .catch(error => {
+        taxCalculationInProgress = false;
+        console.error('WUPOS Error: Tax calculation request failed:', error);
+        updateTaxDisplay(cart, { error: 'Network error calculating taxes' });
+    });
+}
+
+/**
+ * Update tax display in UI
+ * @param {Object} cart - Cart object
+ * @param {Object} options - Display options (loading, error, etc.)
+ */
+function updateTaxDisplay(cart, options = {}) {
+    const taxSection = document.getElementById('wupos-tax-section');
+    const taxFallback = document.getElementById('wupos-tax-fallback');
+    const taxElement = document.getElementById('wupos-tax');
+    const taxLabel = document.getElementById('wupos-tax-label');
+    
+    if (!taxSection || !taxFallback) {
+        return;
+    }
+    
+    // Handle loading state
+    if (options.loading) {
+        taxSection.innerHTML = `
+            <div class="wupos-tax-loading" role="status" aria-live="polite">
+                <span class="sr-only">Calculando impuestos...</span>
+                Calculando impuestos...
+            </div>
+        `;
+        taxSection.style.display = 'block';
+        return;
+    }
+    
+    // Handle error state
+    if (options.error) {
+        const errorMessage = escapeHtml(options.error);
+        taxSection.innerHTML = `
+            <div class="wupos-tax-error" role="alert" aria-live="assertive">
+                <span class="sr-only">Error: </span>
+                ${errorMessage}
+            </div>
+        `;
+        taxSection.style.display = 'block';
+        
+        // Also update fallback
+        if (taxElement) {
+            taxElement.textContent = formatCurrency(cart.tax || 0);
+            taxElement.setAttribute('aria-label', `Impuestos: ${formatCurrencyForAria(cart.tax || 0)}`);
+        }
+        
+        // Announce error to screen readers
+        announceToScreenReader(`Error calculando impuestos: ${errorMessage}`, true);
+        return;
+    }
+    
+    // Check if taxes are enabled and there's breakdown data
+    if (options.tax_enabled && options.tax_breakdown && options.tax_breakdown.length > 0) {
+        // Show detailed tax breakdown
+        let breakdownHTML = '';
+        let screenReaderText = 'Desglose de impuestos: ';
+        
+        options.tax_breakdown.forEach((taxItem, index) => {
+            const taxAmount = parseFloat(taxItem.amount) || 0;
+            const taxLabel = escapeHtml(taxItem.label);
+            const formattedAmount = escapeHtml(taxItem.formatted_amount);
+            
+            breakdownHTML += `
+                <div class="wupos-tax-breakdown-item" role="listitem">
+                    <span class="wupos-tax-breakdown-label">${taxLabel}:</span>
+                    <span class="wupos-tax-breakdown-amount" 
+                          aria-label="${taxLabel}: ${formatCurrencyForAria(taxAmount)}">${formattedAmount}</span>
+                </div>
+            `;
+            
+            // Build screen reader announcement
+            screenReaderText += `${taxLabel}: ${formatCurrencyForAria(taxAmount)}`;
+            if (index < options.tax_breakdown.length - 1) {
+                screenReaderText += ', ';
+            }
+        });
+        
+        // Add total if multiple tax rates
+        if (options.tax_breakdown.length > 1) {
+            const taxSuffix = options.tax_suffix || cart.taxSuffix || '';
+            const suffixDisplay = taxSuffix ? ` (${taxSuffix})` : '';
+            
+            breakdownHTML += `
+                <div class="wupos-tax-breakdown-item wupos-tax-breakdown-total" role="listitem">
+                    <span class="wupos-tax-breakdown-label">Total Impuestos${suffixDisplay}:</span>
+                    <span class="wupos-tax-breakdown-amount" 
+                          aria-label="Total impuestos: ${formatCurrencyForAria(cart.tax)}">${formatCurrency(cart.tax)}</span>
+                </div>
+            `;
+            
+            screenReaderText += `. Total impuestos: ${formatCurrencyForAria(cart.tax)}`;
+        }
+        
+        // Wrap in accessible container
+        taxSection.innerHTML = `
+            <div role="list" aria-label="Desglose de impuestos aplicados">
+                ${breakdownHTML}
+            </div>
+        `;
+        taxSection.style.display = 'block';
+        
+        // Announce changes to screen readers (but not on initial load)
+        if (!options.initialLoad) {
+            announceToScreenReader(screenReaderText);
+        }
+        
+    } else {
+        // Use fallback display
+        taxSection.style.display = 'none';
+        
+        if (taxElement && taxLabel) {
+            const taxSuffix = options.tax_suffix || cart.taxSuffix || '';
+            const suffixDisplay = taxSuffix ? ` (${taxSuffix})` : '';
+            
+            if (options.tax_enabled === false) {
+                taxLabel.textContent = 'Impuestos (no aplicable):';
+                taxElement.textContent = formatCurrency(0);
+                taxElement.setAttribute('aria-label', 'Impuestos no aplicables');
+                
+                // Add semantic meaning for screen readers
+                taxFallback.setAttribute('role', 'status');
+                taxFallback.setAttribute('aria-live', 'polite');
+            } else {
+                taxLabel.textContent = `Impuestos${suffixDisplay}:`;
+                taxElement.textContent = formatCurrency(cart.tax || 0);
+                taxElement.setAttribute('aria-label', `Impuestos: ${formatCurrencyForAria(cart.tax || 0)}`);
+                
+                // Add semantic meaning for screen readers
+                taxFallback.setAttribute('role', 'status');
+                taxFallback.setAttribute('aria-live', 'polite');
+            }
+        }
+    }
+}
+
+/**
+ * Escape HTML characters for safe display
+ * @param {string} unsafe - Unsafe string
+ * @return {string} Safe HTML string
+ */
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 /**
@@ -1560,25 +2426,59 @@ function createCartItemElement(item) {
  */
 function updateCartTotals(cart) {
     try {
-        // Update subtotal
+        // Update subtotal with tax suffix if applicable
         const subtotalElement = document.getElementById('wupos-subtotal');
         if (subtotalElement) {
-            subtotalElement.textContent = formatCurrency(cart.subtotal);
+            let subtotalText = formatCurrency(cart.subtotal);
+            
+            // Add tax suffix for tax-exclusive pricing
+            if (cart.taxSuffix && cart.taxEnabled && !cart.taxInclusive) {
+                subtotalText += ` ${cart.taxSuffix}`;
+            }
+            
+            subtotalElement.textContent = subtotalText;
             subtotalElement.setAttribute('aria-label', `Subtotal: ${formatCurrencyForAria(cart.subtotal)}`);
         }
         
-        // Update tax
-        const taxElement = document.getElementById('wupos-tax');
-        if (taxElement) {
-            taxElement.textContent = formatCurrency(cart.tax);
-            taxElement.setAttribute('aria-label', `Impuestos: ${formatCurrencyForAria(cart.tax)}`);
-        }
+        // Tax display is handled by updateTaxDisplay() function
         
-        // Update total
+        // Update total with tax suffix if applicable
         const totalElement = document.getElementById('wupos-total');
         if (totalElement) {
-            totalElement.textContent = formatCurrency(cart.total);
+            let totalText = formatCurrency(cart.total);
+            
+            // Add tax suffix based on WooCommerce configuration
+            if (cart.taxSuffix && cart.taxEnabled) {
+                // For tax-inclusive pricing, show that taxes are included in total
+                // For tax-exclusive pricing, show that taxes have been added
+                totalText += ` ${cart.taxSuffix}`;
+            }
+            
+            totalElement.textContent = totalText;
             totalElement.setAttribute('aria-label', `Total a pagar: ${formatCurrencyForAria(cart.total)}`);
+        }
+        
+        // Update tax display with current cart data (determine if this is initial load)
+        const isInitialLoad = !cart.items || cart.items.length === 0;
+        const hasValidTaxData = cart.taxBreakdown && cart.taxBreakdown.length > 0;
+        
+        // Check if tax calculation is in progress or if we have valid tax data
+        if (taxCalculationInProgress) {
+            // Show loading state while calculation is in progress
+            updateTaxDisplay(cart, { loading: true });
+        } else if (!isInitialLoad && cart.taxEnabled && !hasValidTaxData && cart.items.length > 0) {
+            // Show loading state if we have items but no tax data yet
+            updateTaxDisplay(cart, { loading: true });
+        } else {
+            // Show normal tax display
+            const taxData = {
+                tax_enabled: cart.taxEnabled !== false, // Default to true if not set
+                tax_breakdown: cart.taxBreakdown || [],
+                tax_inclusive: cart.taxInclusive || false,
+                tax_suffix: cart.taxSuffix || '',
+                initialLoad: isInitialLoad // Prevent screen reader announcements on initial load
+            };
+            updateTaxDisplay(cart, taxData);
         }
         
     } catch (error) {
@@ -1631,6 +2531,49 @@ function updateCartTabs() {
         
     } catch (error) {
         console.error('WUPOS Error: Error actualizando tabs del carrito:', error);
+    }
+}
+
+/**
+ * Update product card visual state
+ * @param {string} productId - Product ID
+ * @param {boolean} inCart - Whether product is in cart
+ */
+function updateProductCardState(productId, inCart) {
+    try {
+        const productCard = document.querySelector(`[data-product-id="${productId}"]`);
+        if (productCard) {
+            if (inCart) {
+                productCard.setAttribute('data-in-cart', 'true');
+            } else {
+                productCard.removeAttribute('data-in-cart');
+            }
+        }
+    } catch (error) {
+        console.error('WUPOS Error: Error updating product card state:', error);
+    }
+}
+
+/**
+ * Update all product cards states based on current cart
+ */
+function updateAllProductCardStates() {
+    try {
+        const currentCart = cartsData[currentCartId];
+        if (!currentCart) return;
+        
+        // Reset all cards
+        document.querySelectorAll('.wupos-product-card[data-in-cart]').forEach(card => {
+            card.removeAttribute('data-in-cart');
+        });
+        
+        // Set state for products in cart
+        currentCart.items.forEach(item => {
+            updateProductCardState(item.productId, true);
+        });
+        
+    } catch (error) {
+        console.error('WUPOS Error: Error updating all product card states:', error);
     }
 }
 
@@ -1706,7 +2649,34 @@ function generateItemId() {
  */
 function formatCurrency(amount) {
     const num = parseFloat(amount) || 0;
-    return WUPOS_CART_CONFIG.currencySymbol + num.toFixed(WUPOS_CART_CONFIG.decimalPlaces);
+    const formattedAmount = num.toFixed(WUPOS_CART_CONFIG.decimalPlaces);
+    let symbol = WUPOS_CART_CONFIG.currencySymbol;
+    
+    // Ensure symbol is properly decoded (fallback safety)
+    if (symbol.includes('&#')) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = symbol;
+        symbol = tempDiv.textContent || tempDiv.innerText || '$';
+    }
+    
+    // Use WooCommerce currency position if available
+    if (WUPOS_TAX_SETTINGS.loaded && WUPOS_TAX_SETTINGS.currency_position) {
+        switch (WUPOS_TAX_SETTINGS.currency_position) {
+            case 'left':
+                return symbol + formattedAmount;
+            case 'right':
+                return formattedAmount + symbol;
+            case 'left_space':
+                return symbol + ' ' + formattedAmount;
+            case 'right_space':
+                return formattedAmount + ' ' + symbol;
+            default:
+                return symbol + formattedAmount;
+        }
+    }
+    
+    // Fallback to default left position
+    return symbol + formattedAmount;
 }
 
 /**
@@ -1816,6 +2786,8 @@ window.WUPOS_DEBUG = {
     switchToCart,
     calculateCartTotals,
     updateCartUI,
+    updateProductCardState,
+    updateAllProductCardStates,
     processCartCheckout,
     announceToScreenReader,
     cartsData,
