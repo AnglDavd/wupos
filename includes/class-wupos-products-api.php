@@ -245,8 +245,13 @@ class WUPOS_Products_API {
             'formatted_price'  => $price_html,
             'stock_quantity'   => $stock_quantity,
             'stock_status'     => $stock_info['status'],
+            'stock_level'      => isset($stock_info['stock_level']) ? $stock_info['stock_level'] : 'unknown',
+            'stock_threshold_low'    => isset($stock_info['threshold_info']['wc_low_threshold']) ? $stock_info['threshold_info']['wc_low_threshold'] : null,
+            'stock_threshold_medium' => isset($stock_info['threshold_info']['calculated_medium']) ? $stock_info['threshold_info']['calculated_medium'] : null,
+            'stock_threshold_high'   => isset($stock_info['threshold_info']['calculated_high']) ? $stock_info['threshold_info']['calculated_high'] : null,
             'stock_badge_class' => $stock_info['badge_class'],
             'stock_text'       => $stock_info['text'],
+            'stock_classification' => isset($stock_info['stock_classification']) ? $stock_info['stock_classification'] : null,
             'image_url'        => $image_info['url'],
             'image_alt'        => $image_info['alt'],
             'has_image'        => $image_info['has_image'],
@@ -267,23 +272,63 @@ class WUPOS_Products_API {
     }
 
     /**
-     * Get stock information for product
+     * Get stock information for product with WooCommerce integration
      *
      * @param WC_Product $product WooCommerce product object
-     * @return array Stock information
+     * @return array Stock information with dynamic thresholds
      */
     private function get_stock_info($product) {
-        $stock_quantity = $product->get_stock_quantity();
-        $is_in_stock = $product->is_in_stock();
-        $manage_stock = $product->get_manage_stock();
-        $stock_status = $product->get_stock_status();
+        // Validate and sanitize stock data first
+        $validated_data = $this->validate_stock_data($product);
+        
+        // Handle validation errors
+        if (isset($validated_data['error'])) {
+            $thresholds = $this->get_dynamic_stock_thresholds();
+            return array(
+                'status' => 'error',
+                'stock_level' => 'error',
+                'badge_class' => 'wupos-stock-error',
+                'text' => __('Error en stock', 'wupos'),
+                'threshold_info' => $thresholds,
+                'error' => $validated_data['error'],
+                'stock_classification' => array(
+                    'level' => 'error',
+                    'quantity' => null,
+                    'thresholds' => array(
+                        'low' => $thresholds['wc_low_threshold'],
+                        'medium' => $thresholds['calculated_medium'],
+                        'high' => $thresholds['calculated_high']
+                    )
+                )
+            );
+        }
+        
+        // Extract validated data
+        $stock_quantity = $validated_data['stock_quantity'];
+        $is_in_stock = $validated_data['is_in_stock'];
+        $manage_stock = $validated_data['manage_stock'];
+        $stock_status = $validated_data['stock_status'];
+
+        // Get WooCommerce low stock threshold for dynamic calculations
+        $thresholds = $this->get_dynamic_stock_thresholds();
 
         // Handle out of stock
         if (!$is_in_stock || $stock_status === 'outofstock') {
             return array(
                 'status' => 'outofstock',
+                'stock_level' => 'out',
                 'badge_class' => 'wupos-stock-out',
                 'text' => __('Sin stock', 'wupos'),
+                'threshold_info' => $thresholds,
+                'stock_classification' => array(
+                    'level' => 'out',
+                    'quantity' => 0,
+                    'thresholds' => array(
+                        'low' => $thresholds['wc_low_threshold'],
+                        'medium' => $thresholds['calculated_medium'],
+                        'high' => $thresholds['calculated_high']
+                    )
+                )
             );
         }
 
@@ -291,8 +336,19 @@ class WUPOS_Products_API {
         if ($stock_status === 'onbackorder') {
             return array(
                 'status' => 'onbackorder',
+                'stock_level' => 'backorder',
                 'badge_class' => 'wupos-stock-medium',
                 'text' => __('Bajo pedido', 'wupos'),
+                'threshold_info' => $thresholds,
+                'stock_classification' => array(
+                    'level' => 'backorder',
+                    'quantity' => $stock_quantity ?: 0,
+                    'thresholds' => array(
+                        'low' => $thresholds['wc_low_threshold'],
+                        'medium' => $thresholds['calculated_medium'],
+                        'high' => $thresholds['calculated_high']
+                    )
+                )
             );
         }
 
@@ -300,35 +356,219 @@ class WUPOS_Products_API {
         if (!$manage_stock || $stock_quantity === null) {
             return array(
                 'status' => 'instock',
+                'stock_level' => 'unlimited',
                 'badge_class' => 'wupos-stock-high',
                 'text' => __('En stock', 'wupos'),
+                'threshold_info' => $thresholds,
+                'stock_classification' => array(
+                    'level' => 'unlimited',
+                    'quantity' => null,
+                    'thresholds' => array(
+                        'low' => $thresholds['wc_low_threshold'],
+                        'medium' => $thresholds['calculated_medium'],
+                        'high' => $thresholds['calculated_high']
+                    )
+                )
             );
         }
 
-        // Determine stock level based on quantity
+        // Sanitize and validate stock quantity
         $stock_quantity = (int) $stock_quantity;
+        
+        // Handle zero or negative stock
         if ($stock_quantity <= 0) {
             return array(
                 'status' => 'outofstock',
+                'stock_level' => 'out',
                 'badge_class' => 'wupos-stock-out',
                 'text' => __('Sin stock', 'wupos'),
+                'threshold_info' => $thresholds,
+                'stock_classification' => array(
+                    'level' => 'out',
+                    'quantity' => $stock_quantity,
+                    'thresholds' => array(
+                        'low' => $thresholds['wc_low_threshold'],
+                        'medium' => $thresholds['calculated_medium'],
+                        'high' => $thresholds['calculated_high']
+                    )
+                )
             );
-        } elseif ($stock_quantity <= 2) {
-            $badge_class = 'wupos-stock-low';
+        }
+
+        // Determine stock level using dynamic thresholds
+        // Following WUPOS requirements:
+        // - Red (Low): Below WooCommerce low stock threshold
+        // - Yellow (Medium): Between low threshold and 3x low threshold
+        // - Green (High): At or above 3x low threshold (we use 10x as the high threshold for better classification)
+        
+        $stock_level = 'high';  // Default to high stock
+        $status = 'instock';
+        $badge_class = 'wupos-stock-high';
+        
+        if ($stock_quantity < $thresholds['wc_low_threshold']) {
+            // Red zone: Below WooCommerce low stock threshold
+            $stock_level = 'low';
             $status = 'low-stock';
-        } elseif ($stock_quantity <= 10) {
-            $badge_class = 'wupos-stock-medium';
+            $badge_class = 'wupos-stock-low';
+        } elseif ($stock_quantity < $thresholds['calculated_medium']) {
+            // Yellow zone: Between low threshold and 3x low threshold
+            $stock_level = 'medium';
             $status = 'medium-stock';
+            $badge_class = 'wupos-stock-medium';
         } else {
-            $badge_class = 'wupos-stock-high';
+            // Green zone: At or above 3x low threshold
+            $stock_level = 'high';
             $status = 'high-stock';
+            $badge_class = 'wupos-stock-high';
+        }
+
+        $stock_info = array(
+            'status' => $status,
+            'stock_level' => $stock_level,
+            'badge_class' => $badge_class,
+            'text' => sprintf(__('%d en stock', 'wupos'), $stock_quantity),
+            'threshold_info' => $thresholds,
+            'stock_classification' => array(
+                'level' => $stock_level,
+                'quantity' => $stock_quantity,
+                'thresholds' => array(
+                    'low' => $thresholds['wc_low_threshold'],
+                    'medium' => $thresholds['calculated_medium'],
+                    'high' => $thresholds['calculated_high']
+                )
+            )
+        );
+        
+        /**
+         * Filter to allow customization of WUPOS product stock information
+         *
+         * This filter allows developers to modify the stock information returned
+         * for each product in the POS system.
+         *
+         * @since 1.0.0
+         * @param array      $stock_info The calculated stock information array
+         * @param WC_Product $product    The WooCommerce product object
+         * @param array      $thresholds The threshold values used in calculation
+         * @return array Modified stock information array
+         */
+        return apply_filters('wupos_product_stock_info', $stock_info, $product, $thresholds);
+    }
+
+    /**
+     * Validate and sanitize stock data for consistent API responses
+     *
+     * This method ensures all stock-related data is properly sanitized and 
+     * handles edge cases that might occur with different product configurations.
+     *
+     * @param WC_Product $product WooCommerce product object
+     * @return array Validated stock data
+     */
+    private function validate_stock_data($product) {
+        if (!$product || !is_a($product, 'WC_Product')) {
+            return array(
+                'stock_quantity' => null,
+                'manage_stock' => false,
+                'stock_status' => 'outofstock',
+                'is_in_stock' => false,
+                'error' => 'Invalid product object'
+            );
+        }
+
+        // Get and sanitize stock data
+        $stock_quantity = $product->get_stock_quantity();
+        $manage_stock = $product->get_manage_stock();
+        $stock_status = $product->get_stock_status();
+        $is_in_stock = $product->is_in_stock();
+
+        // Handle numeric stock quantity
+        if ($stock_quantity !== null) {
+            $stock_quantity = absint($stock_quantity);
+            // Allow zero stock but handle negative as zero
+            if ($stock_quantity < 0) {
+                $stock_quantity = 0;
+            }
+        }
+
+        // Validate stock status
+        $valid_statuses = array('instock', 'outofstock', 'onbackorder');
+        if (!in_array($stock_status, $valid_statuses)) {
+            $stock_status = $is_in_stock ? 'instock' : 'outofstock';
+        }
+
+        // Cross-validate stock quantity with stock status
+        if ($manage_stock && $stock_quantity !== null) {
+            // If managing stock and quantity is 0 or negative, status should be outofstock
+            if ($stock_quantity <= 0 && $stock_status === 'instock') {
+                $stock_status = 'outofstock';
+                $is_in_stock = false;
+            }
         }
 
         return array(
-            'status' => $status,
-            'badge_class' => $badge_class,
-            'text' => sprintf(__('%d en stock', 'wupos'), $stock_quantity),
+            'stock_quantity' => $stock_quantity,
+            'manage_stock' => (bool) $manage_stock,
+            'stock_status' => sanitize_text_field($stock_status),
+            'is_in_stock' => (bool) $is_in_stock,
+            'product_type' => $product->get_type(),
+            'is_purchasable' => $product->is_purchasable()
         );
+    }
+
+    /**
+     * Get dynamic stock thresholds based on WooCommerce settings
+     *
+     * This method reads the WooCommerce low stock threshold setting and calculates
+     * dynamic thresholds for stock level classification according to WUPOS requirements:
+     * - Red (Low Stock): Below WooCommerce low stock threshold
+     * - Yellow (Medium Stock): 3x the low stock threshold
+     * - Green (High Stock): 10x the low stock threshold or above
+     *
+     * Example calculations:
+     * - If WooCommerce low stock threshold = 5:
+     *   * Red (Low): < 5 units
+     *   * Yellow (Medium): 5-14 units (5 to 3x5-1)
+     *   * Green (High): >= 15 units (3x5)
+     *
+     * @return array Dynamic stock thresholds
+     */
+    private function get_dynamic_stock_thresholds() {
+        // Get WooCommerce low stock threshold setting
+        $wc_low_threshold = get_option('woocommerce_notify_low_stock_amount', 2);
+        
+        // Ensure we have a valid positive integer, fallback to 2 if invalid
+        $wc_low_threshold = absint($wc_low_threshold);
+        if ($wc_low_threshold <= 0) {
+            $wc_low_threshold = 2;
+        }
+        
+        // Calculate dynamic thresholds based on WooCommerce setting
+        $calculated_medium = $wc_low_threshold * 3;  // 3x low stock threshold
+        $calculated_high = $wc_low_threshold * 10;   // 10x low stock threshold
+        
+        $thresholds = array(
+            'wc_low_threshold'    => $wc_low_threshold,      // WooCommerce setting (Red threshold)
+            'calculated_medium'   => $calculated_medium,     // 3x threshold (Yellow threshold)
+            'calculated_high'     => $calculated_high,       // 10x threshold (Green threshold)
+            'source_setting'      => 'woocommerce_notify_low_stock_amount',
+            'calculation_method'  => 'dynamic_multipliers',
+            'multipliers'         => array(
+                'medium' => 3,
+                'high'   => 10
+            )
+        );
+        
+        /**
+         * Filter to allow customization of WUPOS stock level thresholds
+         *
+         * This filter allows developers to modify the stock threshold calculations
+         * used by WUPOS for stock level classification.
+         *
+         * @since 1.0.0
+         * @param array $thresholds The calculated thresholds array
+         * @param int   $wc_low_threshold The original WooCommerce low stock threshold
+         * @return array Modified thresholds array
+         */
+        return apply_filters('wupos_stock_level_thresholds', $thresholds, $wc_low_threshold);
     }
 
     /**
@@ -938,6 +1178,44 @@ class WUPOS_Products_API {
         } catch (Exception $e) {
             wp_send_json_error(__('Error getting tax settings: ', 'wupos') . $e->getMessage());
         }
+    }
+
+    /**
+     * Debug method to test stock level calculations
+     * 
+     * This method can be used to test the stock level calculation logic
+     * with different stock quantities and threshold settings.
+     * 
+     * @param int $test_quantity Stock quantity to test
+     * @return array Debug information about stock level calculation
+     */
+    public function debug_stock_calculation($test_quantity = null) {
+        $thresholds = $this->get_dynamic_stock_thresholds();
+        
+        if ($test_quantity === null) {
+            return $thresholds;
+        }
+        
+        $test_quantity = absint($test_quantity);
+        
+        // Simulate stock level calculation
+        $stock_level = 'high';
+        if ($test_quantity < $thresholds['wc_low_threshold']) {
+            $stock_level = 'low';
+        } elseif ($test_quantity < $thresholds['calculated_medium']) {
+            $stock_level = 'medium';
+        }
+        
+        return array(
+            'test_quantity' => $test_quantity,
+            'calculated_level' => $stock_level,
+            'thresholds' => $thresholds,
+            'classification' => array(
+                'is_low' => $test_quantity < $thresholds['wc_low_threshold'],
+                'is_medium' => $test_quantity >= $thresholds['wc_low_threshold'] && $test_quantity < $thresholds['calculated_medium'],
+                'is_high' => $test_quantity >= $thresholds['calculated_medium']
+            )
+        );
     }
 
     /**
