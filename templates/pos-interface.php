@@ -625,6 +625,191 @@ if (!defined('ABSPATH')) {
     clip: auto !important;
     white-space: normal !important;
 }
+
+/* WUPOS Product Card Styles - Updated for explicit "Añadir" button */
+.wupos-product-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.wupos-product-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border-color: #0071a1;
+}
+
+.wupos-product-card[data-out-of-stock="true"] {
+    opacity: 0.6;
+    border-color: #ccc;
+}
+
+.wupos-product-card[data-in-cart="true"]::after {
+    content: "✓";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #00a32a;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.wupos-product-content {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.wupos-product-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.wupos-product-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.wupos-product-image i {
+    font-size: 32px;
+    color: #666;
+}
+
+.wupos-product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wupos-product-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+    margin: 0;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.wupos-product-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0071a1;
+    margin: 4px 0;
+}
+
+.wupos-stock-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
+    align-self: flex-start;
+}
+
+.wupos-stock-badge.in {
+    background: #e7f5e7;
+    color: #00a32a;
+}
+
+.wupos-stock-badge.low {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.wupos-stock-badge.out {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.wupos-product-add-btn {
+    background: #0071a1;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px; /* Touch-friendly minimum height */
+}
+
+.wupos-product-add-btn:hover {
+    background: #005a87;
+    transform: translateY(-1px);
+}
+
+.wupos-product-add-btn:active {
+    background: #004c73;
+    transform: translateY(0);
+}
+
+.wupos-product-add-btn:focus {
+    outline: 2px solid #005a87;
+    outline-offset: 2px;
+}
+
+.wupos-product-add-btn i {
+    font-size: 12px;
+}
+
+/* Disabled state for out of stock products */
+.wupos-product-card[data-out-of-stock="true"] .wupos-product-add-btn {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.wupos-product-card[data-out-of-stock="true"] .wupos-product-add-btn:hover {
+    background: #ccc;
+    transform: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .wupos-product-add-btn {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+    
+    .wupos-product-name {
+        font-size: 13px;
+    }
+    
+    .wupos-product-price {
+        font-size: 15px;
+    }
+}
 </style>
 
 <!-- Accessibility Live Regions -->
@@ -959,7 +1144,7 @@ function setupEventListeners() {
  * Set up product-related event listeners
  */
 function setupProductEventListeners() {
-    document.querySelectorAll('.wupos-product-btn').forEach(button => {
+    document.querySelectorAll('.wupos-product-add-btn').forEach(button => {
         button.addEventListener('click', function() {
             const productCard = this.closest('.wupos-product-card');
             const productId = productCard.dataset.productId;
@@ -1374,11 +1559,9 @@ function createProductCard(product) {
         article.setAttribute('data-in-cart', 'true');
     }
     
-    // Create button element
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'wupos-product-btn';
-    button.setAttribute('aria-describedby', `product-${product.id}-details`);
+    // Create product content container (non-interactive)
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'wupos-product-content';
     
     // Create product image
     const imageDiv = document.createElement('div');
@@ -1424,13 +1607,31 @@ function createProductCard(product) {
     stockDiv.setAttribute('aria-label', stockInfo.ariaLabel);
     stockDiv.textContent = stockInfo.text;
     
-    // Assemble elements
+    // Assemble content elements
     infoDiv.appendChild(nameH3);
     infoDiv.appendChild(priceDiv);
     infoDiv.appendChild(stockDiv);
     
-    button.appendChild(imageDiv);
-    button.appendChild(infoDiv);
+    contentDiv.appendChild(imageDiv);
+    contentDiv.appendChild(infoDiv);
+    
+    // Create explicit "Añadir" button
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.className = 'wupos-product-add-btn';
+    addButton.setAttribute('aria-describedby', `product-${product.id}-details`);
+    addButton.setAttribute('aria-label', `Añadir ${product.name} al carrito`);
+    
+    // Button content
+    const buttonIcon = document.createElement('i');
+    buttonIcon.className = 'fas fa-plus';
+    buttonIcon.setAttribute('aria-hidden', 'true');
+    
+    const buttonText = document.createElement('span');
+    buttonText.textContent = 'Añadir';
+    
+    addButton.appendChild(buttonIcon);
+    addButton.appendChild(buttonText);
     
     // Create screen reader details
     const details = document.createElement('span');
@@ -1438,7 +1639,8 @@ function createProductCard(product) {
     details.className = 'sr-only';
     details.textContent = `${product.name}, precio ${product.formatted_price}, ${stockInfo.text}`;
     
-    article.appendChild(button);
+    article.appendChild(contentDiv);
+    article.appendChild(addButton);
     article.appendChild(details);
     
     return article;
@@ -1631,8 +1833,8 @@ function addToCart(productId, quantity = 1) {
             return false;
         }
         
-        // Check if product already exists in cart
-        const existingItemIndex = currentCart.items.findIndex(item => item.productId === productId);
+        // Check if product already exists in cart (ensure comparison works with string/number)
+        const existingItemIndex = currentCart.items.findIndex(item => String(item.productId) === String(productId));
         
         if (existingItemIndex !== -1) {
             // Update existing item quantity

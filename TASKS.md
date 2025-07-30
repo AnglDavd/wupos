@@ -1,7 +1,7 @@
 # WUPOS - Lista de Tareas del Proyecto
 
-**Última Actualización:** 2025-07-27  
-**Sesión Actual:** Reimplementación Completa WUPOS - Fase Wireframe  
+**Última Actualización:** 2025-07-29  
+**Sesión Actual:** Mejoras UX/UI Carrito - Fixes & Optimizaciones  
 **Framework:** Ver `/home/ainu/Proyectos/WUPOS/FRAMEWORK.md` para reglas completas
 
 ---
@@ -223,6 +223,20 @@
 - **Dependencies:** Ninguna
 - **Estimated Time:** 1-2 horas
 
+#### **TASK-020: Arreglar Layout Tarjetas de Productos**
+- **Status:** ⏳ IN PROGRESS (2025-07-29)
+- **Assigned to:** pos-ux-designer
+- **Description:** Corregir layout de tarjetas: botón solapado, imagen muy grande, badge oculto
+- **Requirements:**
+  - Reducir tamaño de imagen de producto
+  - Reposicionar botón "Añadir" para evitar solapamiento
+  - Asegurar visibilidad del badge de stock
+  - Mejorar distribución vertical de elementos
+  - Mantener diseño responsive
+- **Dependencies:** TASK-019
+- **Estimated Time:** 1-2 horas
+- **User Feedback:** "el botón queda solapado dentro de la tarjeta del producto quizás podríamos subir los elementos, además la imagen del producto se ve muy grande y el botón se pierde además del badge de stock"
+
 ---
 
 ## ✅ **TAREAS COMPLETADAS**
@@ -251,21 +265,54 @@
   - 8 problemas de calidad de código
 - **Time Spent:** 3 horas
 
+#### **TASK-017: Remover Sufijos de Impuesto de Tarjetas de Productos**
+- **Status:** ✅ COMPLETED (2025-07-29)
+- **Assigned to:** pos-ux-designer
+- **Description:** Limpiar apariencia de tarjetas removiendo sufijos de impuestos
+- **Completed Requirements:**
+  - Removido display de sufijos de impuesto en product cards
+  - Mantenido sufijo en carrito para información fiscal
+  - Apariencia más limpia de productos
+- **Time Spent:** 0.5 horas
+
+#### **TASK-018: Configuración de Decimales de WordPress**
+- **Status:** ✅ COMPLETED (2025-07-29)
+- **Assigned to:** pos-ux-designer
+- **Description:** Usar configuración de decimales de WordPress en todos los montos
+- **Completed Requirements:**
+  - Implementado wc_get_price_decimals() en configuración inicial
+  - Aplicado a todos los formateos de moneda
+  - Consistencia con configuración WooCommerce
+- **Time Spent:** 0.5 horas
+
+#### **TASK-019: Botón Explícito 'Añadir' en Productos**
+- **Status:** ✅ COMPLETED (2025-07-29)
+- **Assigned to:** pos-ux-designer
+- **Description:** Agregar botón explícito para añadir productos al carrito
+- **Completed Requirements:**
+  - Creado botón "Añadir" visible en cada tarjeta
+  - Removido click de tarjeta completa
+  - Mejorada accesibilidad y UX
+  - Estilos profesionales POS
+- **Time Spent:** 1 hora
+- **Issue Pendiente:** Layout requiere ajustes - botón se solapa, imagen muy grande
+
 ---
 
 ## 📊 **ESTADÍSTICAS - FASE WIREFRAME Y REIMPLEMENTACIÓN**
 
-- **Total Tareas:** 17
+- **Total Tareas:** 20
 - **Pendientes:** 14  
-- **Completadas:** 3
+- **Completadas:** 6
+- **En Progreso:** 1 (TASK-020)
 - **ULTRA CRÍTICAS (Reimplementación):** 3 tareas restantes
 - **Alta Prioridad:** 6 tareas
 - **Media Prioridad:** 5 tareas
-- **Tiempo Estimado Total:** 67-87 horas
-- **Enfoque Actual:** ✅ Wireframe completado → INICIAR Reimplementación completa
+- **Tiempo Estimado Total:** 69-89 horas
+- **Enfoque Actual:** 🔧 Mejoras UX Carrito - Fixes layout tarjetas productos
 - **Progreso Wireframe:** ✅ 100% completado y aprobado por usuario
 - **Estado Sistema Actual:** Marcado como irrecuperable post-auditoría
-- **Next Step:** Plan detallado de implementación paso a paso
+- **Next Step:** Arreglar layout tarjetas productos (TASK-020)
 
 ---
 

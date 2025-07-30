@@ -1234,6 +1234,143 @@ body {
     color: var(--wupos-success);
 }
 
+/* Tax Breakdown Styles */
+.wupos-tax-section {
+    margin: var(--wupos-space-1) 0;
+}
+
+.wupos-tax-breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--wupos-space-1) 0;
+    font-size: var(--wupos-text-sm);
+}
+
+.wupos-tax-breakdown-label {
+    color: var(--wupos-gray-600);
+    flex: 1;
+}
+
+.wupos-tax-breakdown-amount {
+    font-weight: 600;
+    color: var(--wupos-gray-800);
+    margin-left: var(--wupos-space-2);
+}
+
+.wupos-tax-breakdown-total {
+    border-top: 1px solid var(--wupos-gray-200);
+    margin-top: var(--wupos-space-1);
+    padding-top: var(--wupos-space-1);
+    font-weight: 600;
+}
+
+.wupos-tax-breakdown-total .wupos-tax-breakdown-label {
+    color: var(--wupos-gray-800);
+    font-weight: 600;
+}
+
+.wupos-tax-loading {
+    display: flex;
+    align-items: center;
+    padding: var(--wupos-space-1) 0;
+    color: var(--wupos-gray-500);
+    font-size: var(--wupos-text-sm);
+}
+
+.wupos-tax-loading::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--wupos-gray-300);
+    border-top: 2px solid var(--wupos-primary-500);
+    border-radius: 50%;
+    animation: wupos-spin 1s linear infinite;
+    margin-right: var(--wupos-space-1);
+}
+
+@keyframes wupos-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.wupos-tax-error {
+    color: var(--wupos-red-600);
+    font-size: var(--wupos-text-sm);
+    padding: var(--wupos-space-1) 0;
+}
+
+/* Hide fallback when breakdown is shown */
+.wupos-tax-section:not([style*="display: none"]) + #wupos-tax-fallback {
+    display: none;
+}
+
+/* Responsive adjustments for tax breakdown */
+@media screen and (max-width: 1024px) {
+    .wupos-tax-breakdown-item {
+        padding: var(--wupos-space-2) 0;
+        font-size: var(--wupos-text-base);
+    }
+    
+    .wupos-tax-breakdown-amount {
+        margin-left: var(--wupos-space-3);
+        font-size: var(--wupos-text-base);
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .wupos-tax-section {
+        margin: var(--wupos-space-2) 0;
+    }
+    
+    .wupos-tax-breakdown-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: var(--wupos-space-2) 0;
+        gap: var(--wupos-space-1);
+    }
+    
+    .wupos-tax-breakdown-amount {
+        margin-left: 0;
+        align-self: flex-end;
+        font-size: var(--wupos-text-lg);
+    }
+    
+    .wupos-tax-breakdown-total .wupos-tax-breakdown-amount {
+        font-size: var(--wupos-text-xl);
+    }
+}
+
+@media screen and (min-width: 1920px) {
+    .wupos-tax-breakdown-item {
+        padding: var(--wupos-space-3) 0;
+        font-size: var(--wupos-text-lg);
+    }
+    
+    .wupos-tax-breakdown-amount {
+        font-size: var(--wupos-text-lg);
+        margin-left: var(--wupos-space-4);
+    }
+}
+
+@media screen and (min-width: 2560px) {
+    .wupos-tax-breakdown-item {
+        font-size: var(--wupos-text-xl);
+    }
+    
+    .wupos-tax-breakdown-amount {
+        font-size: var(--wupos-text-xl);
+    }
+    
+    .wupos-tax-loading {
+        font-size: var(--wupos-text-lg);
+    }
+    
+    .wupos-tax-error {
+        font-size: var(--wupos-text-lg);
+    }
+}
+
 .wupos-checkout-section {
     padding: var(--wupos-space-3) var(--wupos-space-4);
 }

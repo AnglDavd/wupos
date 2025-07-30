@@ -111,6 +111,7 @@ final class WUPOS {
         
         // Include frontend classes
         include_once WUPOS_ABSPATH . 'includes/class-wupos-shortcode.php';
+        include_once WUPOS_ABSPATH . 'includes/class-wupos-products-api.php';
     }
     
     /**
@@ -136,9 +137,20 @@ final class WUPOS {
         // Set up localisation.
         $this->load_plugin_textdomain();
         
+        // Check WooCommerce compatibility
+        if (!$this->is_woocommerce_active()) {
+            add_action('admin_notices', array($this, 'woocommerce_missing_notice'));
+            return;
+        }
+        
         // Initialize shortcode
         if (class_exists('WUPOS_Shortcode')) {
             new WUPOS_Shortcode();
+        }
+        
+        // Initialize products API
+        if (class_exists('WUPOS_Products_API')) {
+            new WUPOS_Products_API();
         }
         
         // Init action.
@@ -227,6 +239,30 @@ final class WUPOS {
      */
     public function plugin_path() {
         return untrailingslashit(plugin_dir_path(WUPOS_PLUGIN_FILE));
+    }
+    
+    /**
+     * Check if WooCommerce is active
+     *
+     * @return bool
+     */
+    public function is_woocommerce_active() {
+        return class_exists('WooCommerce');
+    }
+    
+    /**
+     * Display notice when WooCommerce is not active
+     */
+    public function woocommerce_missing_notice() {
+        $class = 'notice notice-error';
+        $message = sprintf(
+            /* translators: %1$s: Plugin name, %2$s: WooCommerce plugin link */
+            __('%1$s requires WooCommerce to be installed and active. %2$s', 'wupos'),
+            '<strong>WUPOS</strong>',
+            '<a href="' . esc_url(admin_url('plugin-install.php?s=woocommerce&tab=search&type=term')) . '">' . __('Install WooCommerce', 'wupos') . '</a>'
+        );
+        
+        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), wp_kses_post($message));
     }
     
     /**

@@ -140,40 +140,19 @@
         },
         
         /**
-         * Show search results
+         * Show search results - Now handled by template JavaScript
          */
         showSearchResults: function(searchTerm) {
-            var productGrid = $('#wupos-product-grid');
-            
-            // For now, show a placeholder message
-            productGrid.html(`
-                <div class="wupos-placeholder">
-                    <div class="placeholder-icon">
-                        <span class="dashicons dashicons-search"></span>
-                    </div>
-                    <h3>Searching for "${searchTerm}"</h3>
-                    <p>Product search functionality will be implemented according to the wireframe.</p>
-                    <p class="placeholder-note">Database integration coming soon.</p>
-                </div>
-            `);
+            // This is now handled by the loadWooCommerceProducts function in the template
+            console.log('WUPOS: Search handled by template JavaScript for:', searchTerm);
         },
         
         /**
-         * Show all products
+         * Show all products - Now handled by template JavaScript
          */
         showAllProducts: function() {
-            var productGrid = $('#wupos-product-grid');
-            
-            productGrid.html(`
-                <div class="wupos-placeholder">
-                    <div class="placeholder-icon">
-                        <span class="dashicons dashicons-products"></span>
-                    </div>
-                    <h3>Ready to Start Selling!</h3>
-                    <p>The product interface will be implemented according to the wireframe design.</p>
-                    <p class="placeholder-note">Search for products or scan barcodes to begin.</p>
-                </div>
-            `);
+            // This is now handled by the loadWooCommerceProducts function in the template
+            console.log('WUPOS: Products loading handled by template JavaScript');
         },
         
         /**

@@ -1,7 +1,7 @@
 # Known Issues & Error Memory System
 
 **Framework Version:** v3.1.1 Enhanced  
-**Last Updated:** 2025-07-20  
+**Last Updated:** 2025-07-30  
 **Purpose:** Track bugs, errors, and lessons learned to prevent recurring issues
 
 ---
@@ -460,12 +460,69 @@ Before starting any framework operation:
 
 ---
 
+### **ISSUE-028: Currency HTML entities display in interface**
+**Status:** ✅ RESOLVED  
+**Discovered:** 2025-07-29 durante sesión mejoras UX carrito  
+**Problem:** Los símbolos de moneda se mostraban como entidades HTML (&euro;, &#36;) en lugar de renderizarse correctamente.
+**Symptoms:**
+- Currency symbols appearing as HTML entities in product cards
+- "&euro;" instead of "€" symbol
+- Poor user experience in price display
+
+**Solution Applied:**
+- Implemented HTML entity decoding in formatCurrency() function
+- Updated currency symbol configuration with proper HTML entity decoding
+- Fixed decimal places configuration using PHP: `decimalPlaces: <?php echo wc_get_price_decimals(); ?>`
+
+**Prevention:** Always decode HTML entities for currency symbols in display functions
+**Files Modified:** templates/pos-interface.php:1415-1418
+
+---
+
+### **ISSUE-029: Tax suffixes appearing in product prices**
+**Status:** ✅ RESOLVED  
+**Discovered:** 2025-07-29 durante sesión mejoras UX carrito  
+**Problem:** Product cards showed tax configuration suffixes (like "IVA inc.") in prices, cluttering the interface.
+**Symptoms:**
+- Tax suffixes appearing in product price display
+- Cluttered product cards with unnecessary tax information
+- Inconsistent price formatting
+
+**Solution Applied:**
+- Removed tax suffix display from product cards
+- Cleaned up price formatting to show only monetary amounts
+- Maintained tax calculation in backend while simplifying UI
+
+**Prevention:** Keep tax information in calculations but avoid displaying suffixes in product pricing UI
+**Files Modified:** templates/pos-interface.php
+
+---
+
+### **ISSUE-030: Product click not incrementing cart quantity**
+**Status:** ✅ RESOLVED  
+**Discovered:** 2025-07-29 durante sesión mejoras UX carrito  
+**Problem:** Clicking on a product card only added it once to cart; subsequent clicks didn't increment quantity.
+**Symptoms:**
+- First click adds product to cart successfully
+- Additional clicks on same product don't increase quantity
+- Poor UX requiring manual quantity editing
+
+**Solution Applied:**
+- Added explicit "Añadir" button to each product card
+- Implemented comprehensive CSS styling for the button
+- Ensured proper event handling for quantity increment
+
+**Prevention:** Always provide explicit action buttons for cart operations rather than relying on card click events
+**Files Modified:** templates/pos-interface.php (extensive CSS and HTML modifications)
+
+---
+
 ## 📊 Issue Statistics
 
-**Total Issues Discovered:** 27  
-**Resolved Issues:** 1  
+**Total Issues Discovered:** 30  
+**Resolved Issues:** 4  
 **Active Issues:** 26  
-**Framework Reliability:** 4% → Improving with each discovery
+**Framework Reliability:** 13% → Improving with each discovery
 
 ---
 

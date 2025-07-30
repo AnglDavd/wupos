@@ -1,8 +1,8 @@
 # WUPOS - AI Development Framework & Project Documentation
 
-**Framework Version:** v3.1.1 Enhanced with Context7 Integration  
+**Framework Version:** v3.2.0 Enhanced with Checkpoint Protocols & Priority Hierarchy  
 **Project:** WUPOS - WordPress POS System  
-**Last Updated:** 2025-07-26  
+**Last Updated:** 2025-07-30  
 **Status:** Production Ready with Ultra-Flat Structure and Iterative Quality Loop
 
 ---
@@ -173,7 +173,7 @@ wupos/
 - **7.2.1.** No task completion without explicit user approval
 - **7.2.2.** Progress updates and status reports required
 - **7.2.3.** Quality validation before marking complete
-- **7.2.4.** Git commit required upon task completion with all subtasks
+- **7.2.4.** Git commit required upon task completion with all subtasks - **MUST be executed by the most appropriate specialized agent for the task type**
 - **7.2.5.** Security validation mandatory for backend changes
 - **7.2.6.** Performance impact assessment for critical components
 - **7.2.7.** Git push strategy following established methodology (see section 7.3)
@@ -215,37 +215,75 @@ wupos/
 - **7.4.4.** Validate assignment appropriateness before execution
 - **7.4.5.** Multi-agent coordination required for complex tasks
 
-#### **7.5. Emergency Response Protocol** (NEW)
-- **7.5.1.** Critical security vulnerabilities require immediate escalation
-- **7.5.2.** System-breaking issues bypass normal approval process
-- **7.5.3.** Emergency fixes require post-implementation validation
-- **7.5.4.** Crisis-level issues (40+ problems) require coordinated response
-- **7.5.5.** Emergency documentation updates mandatory within 24h
+#### **7.4B. Git Commit Agent Assignment Protocol** (NEW)
+- **7.4B.1.** **Frontend/UI changes**: `pos-ux-designer` handles commits for interface modifications
+- **7.4B.2.** **Backend/WordPress code**: `wordpress-backend-developer` handles commits for PHP, APIs, security
+- **7.4B.3.** **Infrastructure/deployment**: `wordpress-devops-engineer` handles commits for deployment, configuration, performance
+- **7.4B.4.** **Documentation updates**: `wordpress-plugin-docs-writer` handles commits for docs, readme, changelogs
+- **7.4B.5.** **Testing/QA**: `wordpress-qa-specialist` handles commits for test files and validation scripts
+- **7.4B.6.** **Multi-component changes**: `wupos-product-manager` coordinates and handles commits affecting multiple areas
+- **7.4B.7.** **General tasks**: `general-purpose` handles commits for file operations, configurations, minor updates
 
-#### **7.6. Multi-Agent Collaboration Guidelines** (NEW)
-- **7.6.1.** Primary agent owns task coordination and final deliverable
-- **7.6.2.** Supporting agents provide specialized expertise input
-- **7.6.3.** All agents must align with WordPress standards and FRAMEWORK.md rules
-- **7.6.4.** Conflict resolution through primary agent or product manager escalation
-- **7.6.5.** Knowledge transfer required between agent handoffs
+#### **7.5. Checkpoint Protocol Implementation** (NEW)
+- **7.5.1.** **Before Major Changes**: Always execute checkpoint creation
+  - Verify current working state and functionality
+  - Create git commit/tag as restoration point
+  - Document current configuration and dependencies
+  - Validate all prerequisites are met
+  
+- **7.5.2.** **During Implementation**: Incremental checkpoints
+  - Commit working increments frequently
+  - Test functionality after each significant change
+  - Document any deviations from original plan
+  
+- **7.5.3.** **After Implementation**: Validation checkpoint
+  - Run full functionality tests
+  - Verify wireframe compliance (Rule #3)
+  - Update KNOWN_ISSUES.md with any new discoveries
+  - Create final checkpoint commit
 
-### **Critical Rules (ALWAYS follow)**
+#### **7.6. Emergency Response Protocol** (NEW)
+- **7.6.1.** Critical security vulnerabilities require immediate escalation
+- **7.6.2.** System-breaking issues bypass normal approval process
+- **7.6.3.** Emergency fixes require post-implementation validation
+- **7.6.4.** Crisis-level issues (40+ problems) require coordinated response
+- **7.6.5.** Emergency documentation updates mandatory within 24h
 
+#### **7.7. Multi-Agent Collaboration Guidelines** (NEW)
+- **7.7.1.** Primary agent owns task coordination and final deliverable
+- **7.7.2.** Supporting agents provide specialized expertise input
+- **7.7.3.** All agents must align with WordPress standards and FRAMEWORK.md rules
+- **7.7.4.** Conflict resolution through primary agent or product manager escalation
+- **7.7.5.** Knowledge transfer required between agent handoffs
+
+### **Critical Rules (Ordered by Priority - Higher numbers = Higher priority)**
+
+**🚨 LEVEL 5: CRITICAL (Framework Integrity)**
 1. **WordPress Standards MANDATORY** - ALL code MUST follow WordPress Coding Standards and guidelines from https://developer.wordpress.org/
-2. **ALL documentation in English** - Never use other languages in files
-3. **Session-based workflow** - Always maintain session traceability
+2. **Error memory system** - Always check KNOWN_ISSUES.md first and document new issues immediately
+3. **Wireframe supremacy** - NEVER modify established wireframe designs when implementing new features. All new implementations MUST conform to existing wireframe specifications and design patterns established in project documentation.
+
+**⚡ LEVEL 4: HIGH PRIORITY (Quality & Security)**
 4. **Quality threshold enforcement** - Never bypass 8/10 requirement
-5. **Context7 integration** - Use real-time research for all decisions
-6. **MCP Playwright validation** - Visual analysis is mandatory
-7. **Explain before implementing** - Always provide short, concise explanation before proposing code changes
-8. **Ultra-flat structure** - Maintain simplified repository architecture
-9. **No complex automation** - Focus on core framework functionality
-10. **Proactive commit reminders** - ALWAYS remind user to commit after completing any file generation or major milestone
-11. **Git workflow integration** - Follow conventional commits with session-id traceability
-12. **Error memory system** - Always check KNOWN_ISSUES.md first and document new issues immediately
-13. **Execution tracking mandatory** - Create and maintain execution reports with real-time task completion updates
-14. **DoD validation required** - NEVER mark any task complete without executing full Definition of Done validation protocol
-15. **Try before escalating** - NEVER create impediment report without attempting at least 2 different solution approaches first
+5. **Explain before implementing** - Always provide short, concise explanation before proposing code changes
+6. **DoD validation required** - NEVER mark any task complete without executing full Definition of Done validation protocol
+7. **ALL documentation in English** - Never use other languages in files
+
+**🔄 LEVEL 3: OPERATIONAL (Workflow & Process)**
+8. **Checkpoint protocols** - Before major changes: verify current state, create restoration point, validate prerequisites
+9. **Session-based workflow** - Always maintain session traceability
+10. **Git workflow integration** - Follow conventional commits with session-id traceability
+11. **Execution tracking mandatory** - Create and maintain execution reports with real-time task completion updates
+
+**🛠️ LEVEL 2: ENHANCEMENT (Tools & Integration)**
+12. **Context7 integration** - Use real-time research for all decisions
+13. **MCP Playwright validation** - Visual analysis is mandatory
+14. **Proactive commit reminders** - ALWAYS remind user to commit after completing any file generation or major milestone
+15. **Ultra-flat structure** - Maintain simplified repository architecture
+
+**📋 LEVEL 1: SUPPORT (Methodology)**
+16. **No complex automation** - Focus on core framework functionality
+17. **Try before escalating** - NEVER create impediment report without attempting at least 2 different solution approaches first
 
 ### **WUPOS Project Rules**
 

@@ -50,33 +50,50 @@ class WUPOS_Products_API {
      * AJAX handler for getting products
      */
     public function get_products_ajax() {
+        // Debug logging - start
+        error_log('WUPOS DEBUG: get_products_ajax called');
+        error_log('WUPOS DEBUG: POST data: ' . print_r($_POST, true));
+        error_log('WUPOS DEBUG: Nonce from POST: ' . (isset($_POST['nonce']) ? $_POST['nonce'] : 'NOT SET'));
+        
         // Verify nonce for security
         if (!wp_verify_nonce($_POST['nonce'], 'wupos_nonce')) {
+            error_log('WUPOS DEBUG: Nonce verification failed for get_products_ajax');
             wp_send_json_error(__('Security check failed', 'wupos'));
             return;
         }
+        error_log('WUPOS DEBUG: Nonce verification passed for get_products_ajax');
 
         // Check if WooCommerce is active
         if (!$this->is_woocommerce_active()) {
+            error_log('WUPOS DEBUG: WooCommerce is not active');
             wp_send_json_error(__('WooCommerce is not active', 'wupos'));
             return;
         }
+        error_log('WUPOS DEBUG: WooCommerce is active');
 
         // Check user permissions
         if (!$this->check_pos_permissions()) {
+            error_log('WUPOS DEBUG: Permission check failed');
             wp_send_json_error(__('Insufficient permissions', 'wupos'));
             return;
         }
+        error_log('WUPOS DEBUG: Permission check passed');
 
         // Sanitize input parameters
         $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
         $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
         $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+        
+        error_log('WUPOS DEBUG: Sanitized parameters - Page: ' . $page . ', Category: ' . $category . ', Search: ' . $search);
 
         try {
+            error_log('WUPOS DEBUG: Calling get_woocommerce_products()');
             $products_data = $this->get_woocommerce_products($page, $category, $search);
+            error_log('WUPOS DEBUG: Products data retrieved: ' . print_r($products_data, true));
             wp_send_json_success($products_data);
         } catch (Exception $e) {
+            error_log('WUPOS DEBUG: Exception in get_products_ajax: ' . $e->getMessage());
+            error_log('WUPOS DEBUG: Exception trace: ' . $e->getTraceAsString());
             wp_send_json_error(__('Error loading products: ', 'wupos') . $e->getMessage());
         }
     }
