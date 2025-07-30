@@ -1,12 +1,80 @@
 # WUPOS - Lista de Tareas del Proyecto
 
-**Última Actualización:** 2025-07-29  
-**Sesión Actual:** Mejoras UX/UI Carrito - Fixes & Optimizaciones  
+**Última Actualización:** 2025-07-30  
+**Sesión Actual:** Phase 1 Completion & Phase 2/3 Planning - Stock Management System  
 **Framework:** Ver `/home/ainu/Proyectos/WUPOS/FRAMEWORK.md` para reglas completas
 
 ---
 
+## 🎯 **PHASE 1 COMPLETION SUMMARY**
+
+**Phase 1: Backend Stock System** has been successfully completed with the following major achievements:
+
+### **✅ Implemented Features:**
+- **Dynamic Stock Thresholds**: Automatic calculation based on WooCommerce low stock settings (3x and 10x multipliers)
+- **Stock Level Classification**: Comprehensive system for low/medium/high stock categorization
+- **WooCommerce Integration**: Real-time stock data synchronization with WooCommerce inventory
+- **Data Validation**: Robust stock data sanitization and error handling
+- **API Enhancement**: Extended Products API with stock information endpoints
+- **Badge System Foundation**: Backend support for CSS badge classes (.wupos-stock-low, .wupos-stock-medium, .wupos-stock-high)
+- **Customization Hooks**: WordPress filters for developer customization (wupos_product_stock_info, wupos_stock_level_thresholds)
+
+### **📊 Stock Classification Logic:**
+- **Red (Low Stock)**: Quantity < WooCommerce low stock threshold
+- **Yellow (Medium Stock)**: Low threshold ≤ Quantity < 3x low threshold  
+- **Green (High Stock)**: Quantity ≥ 3x low threshold
+- **Special Cases**: Support for unlimited stock, backorders, and error states
+
+### **🔄 Next Phase Requirements:**
+The backend system is now ready for Phase 2 (CSS Implementation) and Phase 3 (JavaScript Interactions). All necessary data structures, API endpoints, and classification logic are in place.
+
+---
+
 ## 📋 **TAREAS PENDIENTES**
+
+### **🎯 ALTA PRIORIDAD - STOCK MANAGEMENT PHASES 2 & 3**
+
+#### **TASK-021: Phase 2 - CSS Stock Badge System Implementation**
+- **Status:** ⏳ PENDING (HIGH PRIORITY)
+- **Assigned to:** pos-ux-designer
+- **Description:** Implement visual CSS badge system for stock level indicators
+- **Requirements:**
+  - CSS class generation for stock badges (.wupos-stock-low, .wupos-stock-medium, .wupos-stock-high)
+  - Red badge styling for low stock (< WooCommerce low threshold)
+  - Yellow badge styling for medium stock (low to 3x threshold)
+  - Green badge styling for high stock (>= 3x threshold)
+  - Responsive design for different screen sizes
+  - Badge positioning and visibility optimization
+  - Error state styling (.wupos-stock-error, .wupos-stock-out)
+  - Badge text formatting and readability
+- **Dependencies:** TASK-020
+- **Estimated Time:** 3-4 horas
+- **Acceptance Criteria:**
+  - Badges clearly visible on product cards
+  - Color coding matches stock levels accurately
+  - Responsive design works on mobile and desktop
+  - Consistent styling across all POS interfaces
+
+#### **TASK-022: Phase 3 - JavaScript Interactive Stock Features**
+- **Status:** ⏳ PENDING (HIGH PRIORITY)
+- **Assigned to:** wordpress-backend-developer
+- **Description:** Implement JavaScript functionality for dynamic stock management
+- **Requirements:**
+  - Real-time badge updates when cart changes
+  - Dynamic stock level monitoring
+  - Cart interaction stock synchronization
+  - Stock threshold warnings and notifications
+  - Interactive stock level displays
+  - AJAX integration for stock updates
+  - User feedback for stock changes
+  - Stock availability checks before cart actions
+- **Dependencies:** TASK-021
+- **Estimated Time:** 4-5 horas
+- **Acceptance Criteria:**
+  - Stock badges update immediately when products added to cart
+  - Users receive feedback for low stock items
+  - Stock levels synchronize across all UI components
+  - No stock discrepancies between display and cart
 
 ### **🔴 ULTRA ALTA PRIORIDAD - REIMPLEMENTACIÓN DESDE WIREFRAME**
 
@@ -172,6 +240,43 @@
 
 ### **🟡 MEDIA PRIORIDAD**
 
+#### **TASK-023: Stock Management Testing & Validation**
+- **Status:** ⏳ PENDING (MEDIUM PRIORITY)
+- **Assigned to:** wordpress-qa-specialist
+- **Description:** Comprehensive testing of complete stock management system
+- **Requirements:**
+  - Test dynamic threshold calculations with various WooCommerce settings
+  - Validate stock level classifications across different scenarios
+  - Test badge system functionality and visual accuracy
+  - Verify WooCommerce integration accuracy and data synchronization
+  - Test edge cases (unlimited stock, backorders, zero stock)
+  - Performance testing with large product catalogs (100+ products)
+  - Cross-browser compatibility testing (Chrome, Firefox, Safari, Edge)
+  - Mobile responsive testing for badge display
+  - Real-time update testing when cart changes
+- **Dependencies:** TASK-022
+- **Estimated Time:** 3-4 horas
+- **Acceptance Criteria:**
+  - All stock calculations match WooCommerce inventory
+  - Badge colors accurately reflect stock levels
+  - No performance degradation with large catalogs
+  - Cross-browser and mobile compatibility confirmed
+
+#### **TASK-025: Product Card Layout Optimization**
+- **Status:** ⏳ PENDING (MEDIUM PRIORITY)
+- **Assigned to:** pos-ux-designer
+- **Description:** Optimize product card layout for better stock badge visibility and button positioning
+- **Requirements:**
+  - Reduce product image size for better proportion
+  - Reposition "Añadir" button to prevent overlap
+  - Ensure stock badge visibility and prominence
+  - Improve vertical element distribution
+  - Maintain responsive design standards
+  - Integrate with new stock badge system from Phase 2
+- **Dependencies:** TASK-021, TASK-019
+- **Estimated Time:** 2-3 horas
+- **User Feedback Integration:** Address button overlap and image sizing issues
+
 #### **TASK-010: Sistema de Notas para Pedidos**
 - **Status:** ⏳ PENDING
 - **Assigned to:** wordpress-pos-developer
@@ -215,6 +320,25 @@
 - **Dependencies:** Tareas de alta prioridad
 - **Estimated Time:** TBD
 
+#### **TASK-024: Stock Management Documentation**
+- **Status:** ⏳ PENDING (LOW PRIORITY)
+- **Assigned to:** wordpress-plugin-docs-writer
+- **Description:** Create comprehensive documentation for stock management features
+- **Requirements:**
+  - User guide for stock threshold configuration in WooCommerce
+  - Developer documentation for customization hooks and filters
+  - Troubleshooting guide for common stock management issues
+  - Integration guide connecting WUPOS with WooCommerce stock settings
+  - FAQ section covering stock badge system and threshold calculations
+  - Screenshot documentation showing stock badge examples
+  - Installation and setup instructions for stock management
+- **Dependencies:** TASK-023
+- **Estimated Time:** 2-3 horas
+- **Deliverables:**
+  - Updated README.md with stock management section
+  - User guide documentation file
+  - Developer customization guide
+
 #### **TASK-014: Resolver Modificaciones Submódulo**
 - **Status:** ⏳ PENDING
 - **Assigned to:** general-purpose  
@@ -223,23 +347,31 @@
 - **Dependencies:** Ninguna
 - **Estimated Time:** 1-2 horas
 
-#### **TASK-020: Arreglar Layout Tarjetas de Productos**
-- **Status:** ⏳ IN PROGRESS (2025-07-29)
-- **Assigned to:** pos-ux-designer
-- **Description:** Corregir layout de tarjetas: botón solapado, imagen muy grande, badge oculto
-- **Requirements:**
-  - Reducir tamaño de imagen de producto
-  - Reposicionar botón "Añadir" para evitar solapamiento
-  - Asegurar visibilidad del badge de stock
-  - Mejorar distribución vertical de elementos
-  - Mantener diseño responsive
-- **Dependencies:** TASK-019
-- **Estimated Time:** 1-2 horas
-- **User Feedback:** "el botón queda solapado dentro de la tarjeta del producto quizás podríamos subir los elementos, además la imagen del producto se ve muy grande y el botón se pierde además del badge de stock"
-
 ---
 
 ## ✅ **TAREAS COMPLETADAS**
+
+#### **TASK-020: Phase 1 - Backend Stock System Implementation**
+- **Status:** ✅ COMPLETED (2025-07-30)
+- **Assigned to:** wordpress-backend-developer
+- **Description:** Implement comprehensive backend stock management system with WooCommerce integration
+- **Completed Requirements:**
+  - ✅ Dynamic stock thresholds based on WooCommerce low stock settings
+  - ✅ Stock level classification system (low/medium/high)
+  - ✅ WooCommerce integration for real-time stock data
+  - ✅ Stock validation and sanitization functions
+  - ✅ API endpoints for stock information retrieval
+  - ✅ Badge class system for visual stock indicators
+  - ✅ Stock threshold calculations (3x and 10x multipliers)
+  - ✅ Support for unlimited stock and backorder scenarios
+- **Key Achievements:**
+  - Implemented `get_stock_info()` method with comprehensive stock analysis
+  - Created `get_dynamic_stock_thresholds()` for configurable thresholds
+  - Added `validate_stock_data()` for robust data handling
+  - Integrated stock classification with badge system
+  - Added WordPress filter hooks for customization
+- **Time Spent:** 6 horas
+- **Files Modified:** `/includes/class-wupos-products-api.php`
 
 #### **TASK-015: Actualizar Reglas Framework**
 - **Status:** ✅ COMPLETED (2025-07-26)
@@ -295,24 +427,43 @@
   - Mejorada accesibilidad y UX
   - Estilos profesionales POS
 - **Time Spent:** 1 hora
-- **Issue Pendiente:** Layout requiere ajustes - botón se solapa, imagen muy grande
+- **Follow-up:** Integrated with Phase 1 backend stock system
+
+#### **TASK-025: Product Card Layout Optimization**
+- **Status:** ⏳ PENDING (MEDIUM PRIORITY)
+- **Assigned to:** pos-ux-designer
+- **Description:** Optimize product card layout for better stock badge visibility and button positioning
+- **Requirements:**
+  - Reduce product image size for better proportion
+  - Reposition "Añadir" button to prevent overlap
+  - Ensure stock badge visibility and prominence
+  - Improve vertical element distribution
+  - Maintain responsive design standards
+  - Integrate with new stock badge system from Phase 2
+- **Dependencies:** TASK-021, TASK-019
+- **Estimated Time:** 2-3 horas
+- **User Feedback Integration:** Address button overlap and image sizing issues
 
 ---
 
-## 📊 **ESTADÍSTICAS - FASE WIREFRAME Y REIMPLEMENTACIÓN**
+## 📊 **ESTADÍSTICAS - STOCK MANAGEMENT SYSTEM IMPLEMENTATION**
 
-- **Total Tareas:** 20
-- **Pendientes:** 14  
-- **Completadas:** 6
-- **En Progreso:** 1 (TASK-020)
+- **Total Tareas:** 24
+- **Pendientes:** 17  
+- **Completadas:** 7
+- **En Progreso:** 0
+- **PHASE COMPLETION STATUS:**
+  - **✅ Phase 1 (Backend Stock System):** COMPLETED
+  - **⏳ Phase 2 (CSS Badge System):** PENDING - HIGH PRIORITY
+  - **⏳ Phase 3 (JavaScript Interactive):** PENDING - HIGH PRIORITY
 - **ULTRA CRÍTICAS (Reimplementación):** 3 tareas restantes
-- **Alta Prioridad:** 6 tareas
-- **Media Prioridad:** 5 tareas
-- **Tiempo Estimado Total:** 69-89 horas
-- **Enfoque Actual:** 🔧 Mejoras UX Carrito - Fixes layout tarjetas productos
-- **Progreso Wireframe:** ✅ 100% completado y aprobado por usuario
-- **Estado Sistema Actual:** Marcado como irrecuperable post-auditoría
-- **Next Step:** Arreglar layout tarjetas productos (TASK-020)
+- **Alta Prioridad:** 8 tareas (including Phase 2 & 3)
+- **Media Prioridad:** 6 tareas
+- **Tiempo Estimado Total:** 82-102 horas
+- **Enfoque Actual:** 🎯 Stock Management System - Phase 2 CSS Implementation
+- **Progreso Stock System:** ✅ Backend completed, CSS & JavaScript pending
+- **Estado Phase 1:** ✅ Dynamic thresholds, WooCommerce integration, validation complete
+- **Next Step:** Implement CSS stock badge system (TASK-021)
 
 ---
 
@@ -338,20 +489,26 @@
 1. Leer este archivo TASKS.md
 2. Leer FRAMEWORK.md para reglas
 3. Revisar KNOWN_ISSUES.md para context
-4. Verificar requisitos críticos arriba
+4. **PRIORIDAD: Continuar con Phase 2 (TASK-021) - CSS Stock Badge System**
 5. Sincronizar con TodoWrite tool
 
 ### **Al Completar Tarea:**
 1. Actualizar status a COMPLETED
 2. Agregar fecha de completion
 3. Hacer commit según regla 7.2.4
-4. Actualizar estadísticas
+4. Actualizar estadísticas y phase progress
+
+### **Stock Management Phase Progress:**
+- **✅ Phase 1 (Backend):** COMPLETED - Dynamic thresholds and WooCommerce integration ready
+- **⏳ Phase 2 (CSS Badges):** PENDING - Next high priority task (TASK-021)
+- **⏳ Phase 3 (JavaScript):** PENDING - Depends on Phase 2 completion
 
 ### **Al Agregar Nueva Tarea:**
 1. Asignar ID secuencial (TASK-XXX)  
 2. Definir agente especializado apropiado
 3. Crear issue en KNOWN_ISSUES.md si aplica
 4. Estimar tiempo realísticamente
+5. Considerar dependencias con sistema de stock management
 
 ---
 
