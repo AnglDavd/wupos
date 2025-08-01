@@ -216,9 +216,25 @@ class WUPOS_Products_API {
         $regular_price = (float) $product->get_regular_price();
         $sale_price = (float) $product->get_sale_price();
         
-        // Format prices for display
+        // Format prices for display - completely clean HTML from WooCommerce wc_price()
         $formatted_price = wc_price($price);
+        
+        // More thorough HTML cleaning to prevent any HTML leakage
         $price_html = strip_tags($formatted_price);
+        $price_html = html_entity_decode($price_html, ENT_QUOTES, 'UTF-8');
+        $price_html = preg_replace('/[^\d.,\$€£¥₹₽¢₩₪₨₦₫₴₡₵₸₺₼₾₿]/', '', $price_html);
+        
+        // If cleaning failed, fallback to manual formatting using currency symbol
+        if (empty($price_html) || !preg_match('/[\d]/', $price_html)) {
+            $currency_symbol = get_woocommerce_currency_symbol();
+            $price_html = $currency_symbol . number_format($price, 2);
+        }
+        
+        // Debug logging to identify HTML leakage
+        if (strip_tags($price_html) !== $price_html) {
+            error_log('WUPOS DEBUG: HTML still present in formatted_price: ' . $price_html);
+            error_log('WUPOS DEBUG: Original wc_price output: ' . $formatted_price);
+        }
         
         // Get tax information for this product
         $tax_info = $this->get_product_tax_info($product);
@@ -791,6 +807,13 @@ class WUPOS_Products_API {
         error_log('WUPOS DEBUG: Tax calculation AJAX called');
         error_log('WUPOS DEBUG: POST data: ' . print_r($_POST, true));
         
+        // Ensure WordPress is fully loaded before proceeding
+        if (!did_action('wp_loaded')) {
+            error_log('WUPOS DEBUG: WordPress not fully loaded for tax calculation');
+            wp_send_json_error(__('System not ready. Please try again.', 'wupos'));
+            return;
+        }
+        
         // Verify nonce for security
         if (!wp_verify_nonce($_POST['nonce'], 'wupos_nonce')) {
             error_log('WUPOS DEBUG: Nonce verification failed');
@@ -799,13 +822,20 @@ class WUPOS_Products_API {
         }
         error_log('WUPOS DEBUG: Nonce verification passed');
 
-        // Check if WooCommerce is active
+        // Check if WooCommerce is active and ready
         if (!$this->is_woocommerce_active()) {
             error_log('WUPOS DEBUG: WooCommerce not active');
             wp_send_json_error(__('WooCommerce is not active', 'wupos'));
             return;
         }
-        error_log('WUPOS DEBUG: WooCommerce is active');
+        
+        // Enhanced WooCommerce readiness check
+        if (!function_exists('WC') || !WC()) {
+            error_log('WUPOS DEBUG: WooCommerce functions not ready');
+            wp_send_json_error(__('WooCommerce is not ready for cart operations', 'wupos'));
+            return;
+        }
+        error_log('WUPOS DEBUG: WooCommerce is active and ready');
 
         // Check user permissions
         if (!$this->check_pos_permissions()) {
@@ -872,6 +902,18 @@ class WUPOS_Products_API {
     private function calculate_woocommerce_taxes($cart_items, $customer_data = array()) {
         error_log('WUPOS DEBUG: calculate_woocommerce_taxes called with ' . count($cart_items) . ' items');
         
+        // Ensure WordPress is fully loaded before attempting cart operations
+        if (!did_action('wp_loaded')) {
+            error_log('WUPOS DEBUG: WordPress not fully loaded, cannot safely access cart');
+            throw new Exception(__('WordPress not fully loaded. Cannot perform cart operations safely.', 'wupos'));
+        }
+        
+        // Additional safety check - ensure WooCommerce is ready for cart operations
+        if (!function_exists('WC') || !WC() || !did_action('woocommerce_init')) {
+            error_log('WUPOS DEBUG: WooCommerce not ready for cart operations');
+            throw new Exception(__('WooCommerce not ready for cart operations', 'wupos'));
+        }
+        
         // Initialize WooCommerce cart and tax calculations
         if (!function_exists('WC')) {
             error_log('WUPOS DEBUG: WC function not available');
@@ -882,17 +924,27 @@ class WUPOS_Products_API {
         // Ensure WooCommerce is properly initialized
         if (!WC()->cart) {
             error_log('WUPOS DEBUG: WC cart not initialized, initializing...');
-            WC()->init();
-            WC()->frontend_includes();
-            if (is_null(WC()->cart)) {
-                error_log('WUPOS DEBUG: WC cart still null after init');
-                WC()->cart = new WC_Cart();
+            // Only initialize if we're in a safe context (after wp_loaded)
+            if (did_action('wp_loaded')) {
+                WC()->init();
+                WC()->frontend_includes();
+                if (is_null(WC()->cart)) {
+                    error_log('WUPOS DEBUG: WC cart still null after init');
+                    WC()->cart = new WC_Cart();
+                }
+            } else {
+                error_log('WUPOS DEBUG: Cannot initialize WC cart - WordPress not fully loaded');
+                throw new Exception(__('Cannot initialize WooCommerce cart before WordPress is fully loaded', 'wupos'));
             }
         }
         
-        // Clear any existing cart
-        WC()->cart->empty_cart();
-        error_log('WUPOS DEBUG: Cart emptied');
+        // Clear any existing cart - but only if it's safe to do so
+        if (WC()->cart && method_exists(WC()->cart, 'empty_cart')) {
+            WC()->cart->empty_cart();
+            error_log('WUPOS DEBUG: Cart emptied');
+        } else {
+            error_log('WUPOS DEBUG: Cart empty method not available');
+        }
 
         // Set customer location for tax calculation
         $this->set_customer_location($customer_data);
@@ -965,27 +1017,59 @@ class WUPOS_Products_API {
 
         // Only calculate taxes if enabled
         if ($tax_enabled) {
-            // Calculate taxes using WooCommerce
-            WC()->cart->calculate_totals();
+            // Calculate taxes using WooCommerce - but only if cart is available
+            if (WC()->cart && method_exists(WC()->cart, 'calculate_totals')) {
+                WC()->cart->calculate_totals();
 
-            // Get proper tax totals from WooCommerce cart
-            $cart_tax_total = WC()->cart->get_cart_tax();
-            $cart_subtotal = WC()->cart->get_subtotal();
-            $cart_subtotal_tax = WC()->cart->get_subtotal_tax();
-            $cart_total = WC()->cart->get_total('raw');
+                // Get proper tax totals from WooCommerce cart
+                $cart_tax_total = WC()->cart->get_cart_tax();
+                $cart_subtotal = WC()->cart->get_subtotal();
+                $cart_subtotal_tax = WC()->cart->get_subtotal_tax();
+                $cart_total = WC()->cart->get_total('raw');
 
-            // Get tax totals for breakdown
-            $tax_totals = WC()->cart->get_tax_totals();
+                // Get tax totals for breakdown
+                $tax_totals = WC()->cart->get_tax_totals();
+            } else {
+                error_log('WUPOS DEBUG: Cart methods not available for tax calculation');
+                throw new Exception(__('WooCommerce cart methods not available for tax calculation', 'wupos'));
+            }
             
-            // Build tax breakdown
+            // Build tax breakdown with rate percentages
             foreach ($tax_totals as $tax_total_obj) {
                 $tax_amount = floatval($tax_total_obj->amount);
+                $rate_id = isset($tax_total_obj->rate_id) ? $tax_total_obj->rate_id : '';
+                $is_compound = isset($tax_total_obj->is_compound) ? $tax_total_obj->is_compound : false;
+                
+                // Get tax rate percentage if rate_id is available
+                $rate_percentage = '';
+                if (!empty($rate_id)) {
+                    $tax_rate_data = WC_Tax::_get_tax_rate($rate_id);
+                    if ($tax_rate_data && isset($tax_rate_data['tax_rate'])) {
+                        $rate_percentage = floatval($tax_rate_data['tax_rate']);
+                    }
+                }
+                
+                // Build enhanced label with percentage if available
+                $enhanced_label = $tax_total_obj->label;
+                if (!empty($rate_percentage)) {
+                    // Check if percentage is already in the label
+                    if (strpos($enhanced_label, '%') === false) {
+                        $enhanced_label = sprintf('%s (%s%%)', $tax_total_obj->label, number_format($rate_percentage, 1));
+                    }
+                }
+                
+                // Clean formatted amount to prevent HTML leakage
+                $clean_formatted_amount = strip_tags($tax_total_obj->formatted_amount);
+                $clean_formatted_amount = html_entity_decode($clean_formatted_amount, ENT_QUOTES, 'UTF-8');
+                
                 $tax_breakdown[] = array(
                     'label' => $tax_total_obj->label,
+                    'enhanced_label' => $enhanced_label,
                     'amount' => $tax_amount,
-                    'formatted_amount' => $tax_total_obj->formatted_amount,
-                    'rate_id' => isset($tax_total_obj->rate_id) ? $tax_total_obj->rate_id : '',
-                    'is_compound' => isset($tax_total_obj->is_compound) ? $tax_total_obj->is_compound : false
+                    'formatted_amount' => $clean_formatted_amount,
+                    'rate_id' => $rate_id,
+                    'rate_percentage' => $rate_percentage,
+                    'is_compound' => $is_compound
                 );
             }
             
@@ -1011,8 +1095,10 @@ class WUPOS_Products_API {
             $total = $subtotal;
         }
 
-        // Clean up cart
-        WC()->cart->empty_cart();
+        // Clean up cart - but only if it's safe to do so
+        if (WC()->cart && method_exists(WC()->cart, 'empty_cart')) {
+            WC()->cart->empty_cart();
+        }
 
         // Get tax display suffix
         $tax_suffix = $this->get_tax_display_suffix();
@@ -1120,8 +1206,8 @@ class WUPOS_Products_API {
                 $suffix
             );
             
-            // Clean up any remaining HTML tags for POS display
-            $suffix = wp_strip_all_tags($suffix);
+            // Clean up any remaining HTML tags and decode entities for POS display
+            $suffix = html_entity_decode(wp_strip_all_tags($suffix), ENT_QUOTES, 'UTF-8');
         } else {
             // If no custom suffix is set, use default based on tax settings
             if (wc_prices_include_tax()) {

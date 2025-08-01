@@ -414,15 +414,16 @@ if (!defined('ABSPATH')) {
                         <span class="wupos-total-amount" id="wupos-subtotal" aria-label="<?php _e('Subtotal: veintinueve dólares con setenta y tres centavos', 'wupos'); ?>">$29.73</span>
                     </div>
                     
-                    <!-- Tax Breakdown Section -->
-                    <div id="wupos-tax-section" class="wupos-tax-section" style="display: none;">
-                        <!-- Dynamic tax breakdown will be inserted here -->
+                    
+                    <!-- Enhanced Tax Breakdown Section (DISABLED - always using simple design) -->
+                    <div id="wupos-tax-section" class="wupos-tax-section wupos-tax-section-enhanced" style="display: none;">
+                        <!-- Dynamic enhanced tax breakdown disabled for UX simplification -->
                     </div>
                     
-                    <!-- Fallback Single Tax Row (shown when taxes disabled or loading) -->
+                    <!-- Simplified Tax Row (always used for consistent design) -->
                     <div id="wupos-tax-fallback" class="wupos-total-row">
-                        <span class="wupos-total-label" id="wupos-tax-label"><?php _e('Impuestos:', 'wupos'); ?></span>
-                        <span class="wupos-total-amount" id="wupos-tax" aria-label="<?php _e('Impuestos: cero dólares', 'wupos'); ?>">$0.00</span>
+                        <span class="wupos-total-label" id="wupos-tax-label"><?php _e('Impuesto (IVA) incl:', 'wupos'); ?></span>
+                        <span class="wupos-total-amount" id="wupos-tax" aria-label="<?php _e('Impuesto IVA incluido: cero dólares', 'wupos'); ?>">$0.00</span>
                     </div>
                     
                     <div class="wupos-total-row wupos-total-final">
@@ -810,6 +811,65 @@ if (!defined('ABSPATH')) {
         font-size: 15px;
     }
 }
+
+/* WUPOS Tax Loading and Error Styles */
+.wupos-tax-loading {
+    padding: 10px;
+    color: #666;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wupos-loading-spinner {
+    display: inline-block;
+    animation: wupos-spin 1s linear infinite;
+    font-size: 16px;
+    color: #0071a1;
+}
+
+@keyframes wupos-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.wupos-tax-error {
+    padding: 10px;
+    color: #d63638;
+    background-color: #ffeaea;
+    border: 1px solid #ffaaaa;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.wupos-tax-breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.wupos-tax-breakdown-item:last-child {
+    border-bottom: none;
+}
+
+.wupos-tax-breakdown-total {
+    font-weight: bold;
+    border-top: 2px solid #ddd;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.wupos-tax-breakdown-percentage {
+    background-color: #0071a1;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    margin-left: 6px;
+}
 </style>
 
 <!-- Accessibility Live Regions -->
@@ -904,14 +964,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Start system clock
     startSystemClock();
     
-    // Load initial products
-    loadWooCommerceProducts();
-    
     // Activate fullscreen mode
     activateFullscreenMode();
     
     // Show interface after loading delay
     showInterface();
+    
+    // Load initial products with smart retry mechanism
+    // This prevents the WooCommerce cart timing issues by waiting for WordPress
+    loadWooCommerceProducts();
     
     console.log('WUPOS: Sistema POS inicializado correctamente');
 });
@@ -1374,10 +1435,12 @@ function setupProductSearchEventListeners() {
  * @param {string} category - Category filter (default: '')
  */
 function loadWooCommerceProducts(page = 1, search = '', category = '') {
-    // Check if wupos_ajax is defined
+    // Check if WordPress is fully loaded by verifying required objects
     if (typeof wupos_ajax === 'undefined') {
-        console.error('WUPOS Error: wupos_ajax object not defined');
-        showProductsError('Error de configuración: Variables AJAX no definidas');
+        console.warn('WUPOS: WordPress not fully loaded yet, retrying in 500ms...');
+        setTimeout(function() {
+            loadWooCommerceProducts(page, search, category);
+        }, 500);
         return;
     }
     
@@ -1583,14 +1646,12 @@ function createProductCard(product) {
         imageDiv.appendChild(icon);
     }
     
-    // Create product info
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'wupos-product-info';
-    
+    // Create product name (direct child)
     const nameH3 = document.createElement('h3');
     nameH3.className = 'wupos-product-name';
     nameH3.textContent = product.name;
     
+    // Create product price (direct child)
     const priceDiv = document.createElement('div');
     priceDiv.className = 'wupos-product-price';
     priceDiv.setAttribute('aria-label', formatCurrencyForAria(product.price));
@@ -1600,22 +1661,14 @@ function createProductCard(product) {
     const priceText = formatCurrency(product.price);
     priceDiv.textContent = priceText;
     
-    // Create stock badge
+    // Create stock badge (direct child)
     const stockDiv = document.createElement('div');
     const stockInfo = getStockBadgeInfo(product);
     stockDiv.className = `wupos-stock-badge ${stockInfo.badgeClass}`;
     stockDiv.setAttribute('aria-label', stockInfo.ariaLabel);
     stockDiv.textContent = stockInfo.text;
     
-    // Assemble content elements
-    infoDiv.appendChild(nameH3);
-    infoDiv.appendChild(priceDiv);
-    infoDiv.appendChild(stockDiv);
-    
-    contentDiv.appendChild(imageDiv);
-    contentDiv.appendChild(infoDiv);
-    
-    // Create explicit "Añadir" button
+    // Create explicit "Añadir" button (direct child)
     const addButton = document.createElement('button');
     addButton.type = 'button';
     addButton.className = 'wupos-product-add-btn';
@@ -1633,14 +1686,19 @@ function createProductCard(product) {
     addButton.appendChild(buttonIcon);
     addButton.appendChild(buttonText);
     
+    // Assemble all elements directly in contentDiv (4-area grid - image removed)
+    contentDiv.appendChild(stockDiv);      // grid-area: stock (FIRST - badge at top)
+    contentDiv.appendChild(nameH3);        // grid-area: name (SECOND - title centered, larger font)
+    contentDiv.appendChild(priceDiv);      // grid-area: price (THIRD - price centered, larger font)
+    contentDiv.appendChild(addButton);     // grid-area: button (FOURTH - keep as-is, perfect)
+    
     // Create screen reader details
     const details = document.createElement('span');
     details.id = `product-${product.id}-details`;
     details.className = 'sr-only';
-    details.textContent = `${product.name}, precio ${product.formatted_price}, ${stockInfo.text}`;
+    details.textContent = `${product.name}, precio ${decodeHtmlEntities(product.formatted_price)}, ${stockInfo.text}`;
     
     article.appendChild(contentDiv);
-    article.appendChild(addButton);
     article.appendChild(details);
     
     return article;
@@ -1674,13 +1732,18 @@ function getStockBadgeInfo(product) {
     
     // If stock quantity is available, show specific numbers with color coding
     if (product.stock_quantity !== null && product.stock_quantity !== undefined) {
-        if (stockQuantity <= 2) {
+        // Use dynamic thresholds from API response instead of hardcoded values
+        // Fallback to default values (2, 10) only if thresholds are not provided
+        const lowThreshold = product.stock_threshold_low || 2;
+        const mediumThreshold = product.stock_threshold_medium || 10;
+        
+        if (stockQuantity < lowThreshold) {
             return {
                 badgeClass: 'wupos-stock-low',
                 text: `${stockQuantity} en stock`,
                 ariaLabel: `Stock bajo: ${stockQuantity} unidades disponibles`
             };
-        } else if (stockQuantity <= 10) {
+        } else if (stockQuantity < mediumThreshold) {
             return {
                 badgeClass: 'wupos-stock-medium',
                 text: `${stockQuantity} en stock`,
@@ -2287,35 +2350,87 @@ function getCartItemsHash(items) {
  * @param {Object} cart - Cart object
  */
 function calculateWooCommerceTaxes(cart) {
+    // Check if tax calculation is already in progress for this cart
     if (taxCalculationInProgress) {
+        console.log('WUPOS DEBUG: Tax calculation already in progress, skipping');
         return;
     }
     
+    // Validate cart and items
+    if (!cart || !cart.items || cart.items.length === 0) {
+        console.log('WUPOS DEBUG: No items in cart, skipping tax calculation');
+        return;
+    }
+    
+    // Check if tax settings are loaded
+    if (!WUPOS_TAX_SETTINGS.loaded) {
+        console.log('WUPOS DEBUG: Tax settings not loaded yet, retrying in 500ms');
+        setTimeout(() => calculateWooCommerceTaxes(cart), 500);
+        return;
+    }
+    
+    // Set progress flag with timeout safety net
     taxCalculationInProgress = true;
+    
+    // Add safety timeout to reset the flag if something goes wrong
+    const safetyTimeout = setTimeout(() => {
+        if (taxCalculationInProgress) {
+            console.warn('WUPOS WARNING: Tax calculation timeout, resetting progress flag');
+            taxCalculationInProgress = false;
+        }
+    }, 30000); // 30 second timeout
     
     // Show loading state in tax section
     updateTaxDisplay(cart, { loading: true });
     
+    // DEBUG: Log cart items structure
+    console.log('WUPOS DEBUG: Cart items structure:', cart.items);
+    
     // Prepare cart items for API
-    const cartItems = cart.items.map(item => ({
-        id: item.id,
-        quantity: item.quantity,
-        price: item.price
-    }));
+    const cartItems = cart.items.map(item => {
+        console.log('WUPOS DEBUG: Processing item:', item);
+        return {
+            id: parseInt(item.productId, 10), // Use productId for WooCommerce product ID
+            quantity: parseInt(item.quantity, 10),
+            price: parseFloat(item.price) // Use price directly from cart item
+        };
+    });
+    
+    console.log('WUPOS DEBUG: Mapped cart items:', cartItems);
+    
+    // Validate cart items
+    const validItems = cartItems.filter(item => {
+        const isValid = item.id > 0 && item.quantity > 0 && !isNaN(item.price);
+        if (!isValid) {
+            console.log('WUPOS DEBUG: Invalid item filtered out:', item);
+        }
+        return isValid;
+    });
+    
+    console.log('WUPOS DEBUG: Valid items for tax calculation:', validItems);
+    
+    if (validItems.length === 0) {
+        console.error('WUPOS DEBUG: No valid items for tax calculation after filtering');
+        clearTimeout(safetyTimeout);
+        taxCalculationInProgress = false;
+        updateTaxDisplay(cart, { error: 'No valid items for tax calculation' });
+        return;
+    }
     
     // Prepare request data
     const requestData = {
         action: 'wupos_calculate_taxes',
         nonce: WUPOS_CART_CONFIG.nonce,
-        cart_items: JSON.stringify(cartItems),
+        cart_items: JSON.stringify(validItems),
         customer_data: JSON.stringify({}) // TODO: Add customer location data if needed
     };
     
     // Debug log request data
     console.log('WUPOS DEBUG: Making tax calculation request:', requestData);
-    console.log('WUPOS DEBUG: Cart items being sent:', cartItems);
+    console.log('WUPOS DEBUG: Valid cart items being sent:', validItems);
+    console.log('WUPOS DEBUG: Endpoint URL:', WUPOS_CART_CONFIG.taxCalculationEndpoint);
     
-    // Make AJAX request
+    // Make AJAX request with enhanced error handling
     fetch(WUPOS_CART_CONFIG.taxCalculationEndpoint, {
         method: 'POST',
         headers: {
@@ -2325,38 +2440,49 @@ function calculateWooCommerceTaxes(cart) {
     })
     .then(response => {
         console.log('WUPOS DEBUG: Response status:', response.status);
-        console.log('WUPOS DEBUG: Response headers:', response.headers);
+        console.log('WUPOS DEBUG: Response ok:', response.ok);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         return response.text().then(text => {
-            console.log('WUPOS DEBUG: Raw response text:', text);
+            console.log('WUPOS DEBUG: Raw response text length:', text.length);
+            console.log('WUPOS DEBUG: Raw response text:', text.substring(0, 1000)); // First 1000 chars
+            
             try {
-                return JSON.parse(text);
+                const parsed = JSON.parse(text);
+                console.log('WUPOS DEBUG: Successfully parsed JSON response');
+                return parsed;
             } catch (e) {
                 console.error('WUPOS DEBUG: JSON parse error:', e);
                 console.error('WUPOS DEBUG: Response text that failed to parse:', text);
-                throw new Error('Invalid JSON response');
+                throw new Error(`Invalid JSON response: ${e.message}`);
             }
         });
     })
     .then(data => {
+        // Clear safety timeout and reset progress flag
+        clearTimeout(safetyTimeout);
         taxCalculationInProgress = false;
+        
         console.log('WUPOS DEBUG: Parsed response data:', data);
         
-        if (data.success && data.data) {
+        if (data && data.success && data.data) {
             const taxData = data.data;
+            console.log('WUPOS DEBUG: Tax data received:', taxData);
             
-            // Update cart with tax data
+            // Validate and update cart with tax data
             cart.tax = parseFloat(taxData.tax_total) || 0;
             cart.subtotal = parseFloat(taxData.subtotal) || 0;
             cart.total = parseFloat(taxData.total) || 0;
-            cart.taxBreakdown = taxData.tax_breakdown || [];
-            cart.taxEnabled = taxData.tax_enabled;
-            cart.taxInclusive = taxData.tax_inclusive;
+            cart.taxBreakdown = Array.isArray(taxData.tax_breakdown) ? taxData.tax_breakdown : [];
+            cart.taxEnabled = taxData.tax_enabled !== false; // Default to true
+            cart.taxInclusive = taxData.tax_inclusive || false;
             cart.taxSuffix = taxData.tax_suffix || '';
+            
+            // Save cart to storage
+            saveCartsToStorage();
             
             // Cache the calculation
             lastTaxCalculation = {
@@ -2364,25 +2490,97 @@ function calculateWooCommerceTaxes(cart) {
                 subtotal: cart.subtotal,
                 itemsHash: getCartItemsHash(cart.items),
                 tax: cart.tax,
-                taxBreakdown: cart.taxBreakdown
+                taxBreakdown: cart.taxBreakdown,
+                timestamp: Date.now()
             };
             
             // Update UI
-            console.log('WUPOS: Tax calculation completed for cart:', cart.id, 'Tax data:', taxData);
+            console.log('WUPOS: Tax calculation completed for cart:', cart.id);
+            console.log('WUPOS: Final tax data:', {
+                subtotal: cart.subtotal,
+                tax: cart.tax,
+                total: cart.total,
+                taxBreakdown: cart.taxBreakdown
+            });
+            
             updateCartUI();
             updateTaxDisplay(cart, taxData);
             
         } else {
             console.error('WUPOS Error: Tax calculation failed - Success flag false or no data');
             console.error('WUPOS Error: Full response:', data);
-            updateTaxDisplay(cart, { error: data.data || 'Tax calculation failed' });
+            const errorMsg = (data && data.data) ? data.data : 'Tax calculation failed';
+            updateTaxDisplay(cart, { error: errorMsg });
         }
     })
     .catch(error => {
+        // Clear safety timeout and reset progress flag
+        clearTimeout(safetyTimeout);
         taxCalculationInProgress = false;
+        
         console.error('WUPOS Error: Tax calculation request failed:', error);
-        updateTaxDisplay(cart, { error: 'Network error calculating taxes' });
+        console.error('WUPOS Error: Stack trace:', error.stack);
+        updateTaxDisplay(cart, { error: `Network error: ${error.message}` });
     });
+}
+
+/**
+ * Reset tax calculation state (debug utility)
+ * Call this from browser console if tax calculation gets stuck
+ */
+function wuposResetTaxCalculation() {
+    console.log('WUPOS DEBUG: Manually resetting tax calculation state');
+    taxCalculationInProgress = false;
+    lastTaxCalculation = null;
+    
+    // Force recalculation for current cart
+    const currentCart = cartsData[currentCartId];
+    if (currentCart && currentCart.items.length > 0) {
+        console.log('WUPOS DEBUG: Triggering tax recalculation for current cart');
+        calculateWooCommerceTaxes(currentCart);
+    }
+}
+
+/**
+ * Debug tax calculation state (debug utility)
+ * Call this from browser console to check current state
+ */
+function wuposDebugTaxState() {
+    console.log('WUPOS DEBUG: Tax Calculation State:');
+    console.log('- Tax calculation in progress:', taxCalculationInProgress);
+    console.log('- Tax settings loaded:', WUPOS_TAX_SETTINGS.loaded);
+    console.log('- Tax settings:', WUPOS_TAX_SETTINGS);
+    console.log('- Last tax calculation:', lastTaxCalculation);
+    console.log('- Current cart:', cartsData[currentCartId]);
+    console.log('- Current cart tax data:', {
+        taxEnabled: cartsData[currentCartId]?.taxEnabled,
+        taxBreakdown: cartsData[currentCartId]?.taxBreakdown,
+        tax: cartsData[currentCartId]?.tax
+    });
+}
+
+// Make debug functions available globally
+window.wuposResetTaxCalculation = wuposResetTaxCalculation;
+window.wuposDebugTaxState = wuposDebugTaxState;
+
+/**
+ * Update tax status indicator
+ * @param {Object} options - Tax display options
+ */
+function updateTaxStatusIndicator(options) {
+    // CART UI OPTIMIZATION: Remove redundant tax status text for cleaner interface
+    // The tax suffix will be shown in the tax label instead for better space utilization
+    hideTaxStatusIndicator();
+}
+
+/**
+ * Hide tax status indicator
+ */
+function hideTaxStatusIndicator() {
+    const taxStatus = document.getElementById('wupos-tax-status');
+    if (taxStatus) {
+        taxStatus.style.display = 'none';
+    }
 }
 
 /**
@@ -2396,124 +2594,68 @@ function updateTaxDisplay(cart, options = {}) {
     const taxElement = document.getElementById('wupos-tax');
     const taxLabel = document.getElementById('wupos-tax-label');
     
-    if (!taxSection || !taxFallback) {
+    if (!taxFallback) {
         return;
     }
     
-    // Handle loading state
-    if (options.loading) {
-        taxSection.innerHTML = `
-            <div class="wupos-tax-loading" role="status" aria-live="polite">
-                <span class="sr-only">Calculando impuestos...</span>
-                Calculando impuestos...
-            </div>
-        `;
-        taxSection.style.display = 'block';
-        return;
-    }
-    
-    // Handle error state
-    if (options.error) {
-        const errorMessage = escapeHtml(options.error);
-        taxSection.innerHTML = `
-            <div class="wupos-tax-error" role="alert" aria-live="assertive">
-                <span class="sr-only">Error: </span>
-                ${errorMessage}
-            </div>
-        `;
-        taxSection.style.display = 'block';
-        
-        // Also update fallback
-        if (taxElement) {
-            taxElement.textContent = formatCurrency(cart.tax || 0);
-            taxElement.setAttribute('aria-label', `Impuestos: ${formatCurrencyForAria(cart.tax || 0)}`);
-        }
-        
-        // Announce error to screen readers
-        announceToScreenReader(`Error calculando impuestos: ${errorMessage}`, true);
-        return;
-    }
-    
-    // Check if taxes are enabled and there's breakdown data
-    if (options.tax_enabled && options.tax_breakdown && options.tax_breakdown.length > 0) {
-        // Show detailed tax breakdown
-        let breakdownHTML = '';
-        let screenReaderText = 'Desglose de impuestos: ';
-        
-        options.tax_breakdown.forEach((taxItem, index) => {
-            const taxAmount = parseFloat(taxItem.amount) || 0;
-            const taxLabel = escapeHtml(taxItem.label);
-            const formattedAmount = escapeHtml(taxItem.formatted_amount);
-            
-            breakdownHTML += `
-                <div class="wupos-tax-breakdown-item" role="listitem">
-                    <span class="wupos-tax-breakdown-label">${taxLabel}:</span>
-                    <span class="wupos-tax-breakdown-amount" 
-                          aria-label="${taxLabel}: ${formatCurrencyForAria(taxAmount)}">${formattedAmount}</span>
-                </div>
-            `;
-            
-            // Build screen reader announcement
-            screenReaderText += `${taxLabel}: ${formatCurrencyForAria(taxAmount)}`;
-            if (index < options.tax_breakdown.length - 1) {
-                screenReaderText += ', ';
-            }
-        });
-        
-        // Add total if multiple tax rates
-        if (options.tax_breakdown.length > 1) {
-            const taxSuffix = options.tax_suffix || cart.taxSuffix || '';
-            const suffixDisplay = taxSuffix ? ` (${taxSuffix})` : '';
-            
-            breakdownHTML += `
-                <div class="wupos-tax-breakdown-item wupos-tax-breakdown-total" role="listitem">
-                    <span class="wupos-tax-breakdown-label">Total Impuestos${suffixDisplay}:</span>
-                    <span class="wupos-tax-breakdown-amount" 
-                          aria-label="Total impuestos: ${formatCurrencyForAria(cart.tax)}">${formatCurrency(cart.tax)}</span>
-                </div>
-            `;
-            
-            screenReaderText += `. Total impuestos: ${formatCurrencyForAria(cart.tax)}`;
-        }
-        
-        // Wrap in accessible container
-        taxSection.innerHTML = `
-            <div role="list" aria-label="Desglose de impuestos aplicados">
-                ${breakdownHTML}
-            </div>
-        `;
-        taxSection.style.display = 'block';
-        
-        // Announce changes to screen readers (but not on initial load)
-        if (!options.initialLoad) {
-            announceToScreenReader(screenReaderText);
-        }
-        
-    } else {
-        // Use fallback display
+    // FORCE SIMPLE DESIGN: Always hide enhanced tax section
+    if (taxSection) {
         taxSection.style.display = 'none';
-        
+    }
+    
+    // Always hide tax status indicator to maintain clean, simple design
+    hideTaxStatusIndicator();
+    
+    // Handle loading state with simple fallback design
+    if (options.loading) {
+        console.log('WUPOS DEBUG: Showing simple tax loading state');
         if (taxElement && taxLabel) {
-            const taxSuffix = options.tax_suffix || cart.taxSuffix || '';
-            const suffixDisplay = taxSuffix ? ` (${taxSuffix})` : '';
+            taxLabel.textContent = 'Impuesto (IVA) incl:';
+            taxElement.textContent = 'Calculando...';
+            taxElement.setAttribute('aria-label', 'Calculando impuestos');
             
-            if (options.tax_enabled === false) {
-                taxLabel.textContent = 'Impuestos (no aplicable):';
-                taxElement.textContent = formatCurrency(0);
-                taxElement.setAttribute('aria-label', 'Impuestos no aplicables');
-                
-                // Add semantic meaning for screen readers
-                taxFallback.setAttribute('role', 'status');
-                taxFallback.setAttribute('aria-live', 'polite');
-            } else {
-                taxLabel.textContent = `Impuestos${suffixDisplay}:`;
-                taxElement.textContent = formatCurrency(cart.tax || 0);
-                taxElement.setAttribute('aria-label', `Impuestos: ${formatCurrencyForAria(cart.tax || 0)}`);
-                
-                // Add semantic meaning for screen readers
-                taxFallback.setAttribute('role', 'status');
-                taxFallback.setAttribute('aria-live', 'polite');
-            }
+            // Add semantic meaning for screen readers
+            taxFallback.setAttribute('role', 'status');
+            taxFallback.setAttribute('aria-live', 'polite');
+        }
+        return;
+    }
+    
+    // Handle error state with simple fallback design
+    if (options.error) {
+        console.log('WUPOS DEBUG: Showing simple tax error state');
+        if (taxElement && taxLabel) {
+            taxLabel.textContent = 'Impuesto (IVA) incl:';
+            taxElement.textContent = formatCurrency(cart.tax || 0);
+            taxElement.setAttribute('aria-label', `Impuesto: ${formatCurrencyForAria(cart.tax || 0)}`);
+            
+            // Add semantic meaning for screen readers
+            taxFallback.setAttribute('role', 'status');
+            taxFallback.setAttribute('aria-live', 'polite');
+        }
+        
+        // Announce error to screen readers without showing complex UI
+        announceToScreenReader(`Error calculando impuestos`, true);
+        return;
+    }
+    
+    // FORCE SIMPLE DESIGN: Always use tax-fallback regardless of breakdown data
+    if (taxElement && taxLabel) {
+        // Always use consistent format: "Impuesto (IVA) incl:" for all states
+        taxLabel.textContent = 'Impuesto (IVA) incl:';
+        
+        // Display the total tax amount dynamically
+        const displayAmount = cart.tax || 0;
+        taxElement.textContent = formatCurrency(displayAmount);
+        taxElement.setAttribute('aria-label', `Impuesto IVA incluido: ${formatCurrencyForAria(displayAmount)}`);
+        
+        // Add semantic meaning for screen readers
+        taxFallback.setAttribute('role', 'status');
+        taxFallback.setAttribute('aria-live', 'polite');
+        
+        // Simple screen reader announcement for tax changes (but not on initial load)
+        if (!options.initialLoad && !options.loading && !options.error) {
+            announceToScreenReader(`Impuesto actualizado: ${formatCurrencyForAria(displayAmount)}`);
         }
     }
 }
@@ -2661,17 +2803,10 @@ function updateCartTotals(cart) {
         
         // Tax display is handled by updateTaxDisplay() function
         
-        // Update total with tax suffix if applicable
+        // CART UI OPTIMIZATION: Update total display - clean amount without suffix
         const totalElement = document.getElementById('wupos-total');
         if (totalElement) {
-            let totalText = formatCurrency(cart.total);
-            
-            // Add tax suffix based on WooCommerce configuration
-            if (cart.taxSuffix && cart.taxEnabled) {
-                // For tax-inclusive pricing, show that taxes are included in total
-                // For tax-exclusive pricing, show that taxes have been added
-                totalText += ` ${cart.taxSuffix}`;
-            }
+            const totalText = formatCurrency(cart.total);
             
             totalElement.textContent = totalText;
             totalElement.setAttribute('aria-label', `Total a pagar: ${formatCurrencyForAria(cart.total)}`);
@@ -2684,12 +2819,22 @@ function updateCartTotals(cart) {
         // Check if tax calculation is in progress or if we have valid tax data
         if (taxCalculationInProgress) {
             // Show loading state while calculation is in progress
+            console.log('WUPOS DEBUG: Tax calculation in progress, showing loading state');
             updateTaxDisplay(cart, { loading: true });
         } else if (!isInitialLoad && cart.taxEnabled && !hasValidTaxData && cart.items.length > 0) {
-            // Show loading state if we have items but no tax data yet
+            // Need to trigger tax calculation if we have items but no tax data
+            console.log('WUPOS DEBUG: No tax data for cart with items, triggering calculation');
             updateTaxDisplay(cart, { loading: true });
+            
+            // Trigger tax calculation with a small delay to avoid UI blocking
+            setTimeout(() => {
+                if (cart.taxEnabled && cart.items.length > 0) {
+                    calculateWooCommerceTaxes(cart);
+                }
+            }, 100);
         } else {
             // Show normal tax display
+            console.log('WUPOS DEBUG: Showing normal tax display, breakdown length:', cart.taxBreakdown ? cart.taxBreakdown.length : 0);
             const taxData = {
                 tax_enabled: cart.taxEnabled !== false, // Default to true if not set
                 tax_breakdown: cart.taxBreakdown || [],
@@ -2924,6 +3069,18 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+/**
+ * Decode HTML entities to clean text
+ * @param {string} text - Text containing HTML entities
+ * @returns {string} Decoded text
+ */
+function decodeHtmlEntities(text) {
+    if (!text) return text;
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    return div.textContent || div.innerText || text;
 }
 
 /**

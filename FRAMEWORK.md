@@ -1,9 +1,9 @@
 # WUPOS - AI Development Framework & Project Documentation
 
-**Framework Version:** v3.2.0 Enhanced with Checkpoint Protocols & Priority Hierarchy  
+**Framework Version:** v3.5.0 Enhanced with Sequential Agent Execution & Session Context Management  
 **Project:** WUPOS - WordPress POS System  
-**Last Updated:** 2025-07-30  
-**Status:** Production Ready with Ultra-Flat Structure and Iterative Quality Loop
+**Last Updated:** 2025-08-01  
+**Status:** Production Ready with Advanced Cart UX Optimization, Timing Fixes & Component Deconfliction
 
 ---
 
@@ -11,6 +11,9 @@
 
 This is an ultra-efficient AI development framework optimized for speed, quality, and real-world results. The framework has been enhanced with:
 
+- **Quality First Mandate** - Implicit quality-first behavior activated when @FRAMEWORK.md is referenced
+- **Auto-Assignment Protocol** - Intelligent agent selection based on keyword detection matrix
+- **Product Manager Dispatcher** - Automatic coordination for complex multi-agent tasks
 - **Smart contextual questioning** (60% time reduction in PRD creation)
 - **Auto-completion with Context7** research integration
 - **Realistic automatic estimates** based on current market rates
@@ -20,6 +23,54 @@ This is an ultra-efficient AI development framework optimized for speed, quality
 - **Streamlined architecture** with removed complex GitHub workflows
 - **Agent task approval system** - Tasks require user approval before completion
 - **Task summary requirement** - All tasks must start with clear objective summary
+- **Sequential agent execution protocol** - Enhanced agent coordination with structured handoffs
+- **Session context management** - Persistent context tracking with .context/ folder system
+- **Agent self-evaluation protocols** - Post-task analysis and quality validation system
+- **Cart UX optimization system** - Advanced timing fixes and component conflict resolution
+- **WooCommerce integration enhancement** - Resolved fatal errors and timing conflicts
+- **Tax display consistency** - Forced minimalista design with component deconfliction
+
+---
+
+## 🎯 Quality First Mandate (AUTO-ACTIVATED)
+
+**When @FRAMEWORK.md is referenced in any request, the following principles are automatically activated:**
+
+### 🎯 Quality Framework
+
+**8/10+ Quality Definition:** Professional-grade implementation meeting WordPress standards with proper security, performance optimization, and excellent user experience.
+
+**Quality Metrics (Pass/Fail Gates):**
+- **Security Compliance**: WordPress security standards, vulnerability assessment
+- **Performance**: Load times and optimization for critical components
+- **User Experience**: Interface usability and accessibility compliance
+
+**Quality Gates:**
+- **Pre-implementation**: Requirements clarity validation
+- **During implementation**: Standards compliance checks
+- **Post-implementation**: Quality threshold validation (8/10+ requirement)
+- **Security review**: Mandatory for all code changes
+
+### 🤖 Agent Directory
+
+**Auto-Assignment Protocol:** Framework automatically selects agents based on keyword detection.
+
+**Available Agents:**
+- **pos-ux-designer** - Interface design, user experience, accessibility
+  - *Keywords*: "interface", "design", "layout", "styling", "responsive", "accessibility", "wireframe", "mockup"
+- **wordpress-backend-developer** - WordPress/WooCommerce backend, security, APIs
+  - *Keywords*: "API", "endpoint", "database", "security", "authentication", "PHP", "WordPress", "WooCommerce"
+- **wordpress-qa-specialist** - Testing, validation, quality assurance
+  - *Keywords*: "test", "testing", "validation", "QA", "quality assurance", "bug", "debug"
+- **wordpress-devops-engineer** - Deployment, performance, infrastructure
+  - *Keywords*: "deployment", "performance", "optimization", "server", "configuration", "monitoring"
+- **wordpress-plugin-docs-writer** - Documentation, compliance, technical writing
+  - *Keywords*: "documentation", "readme", "guide", "instructions", "changelog", "compliance"
+- **wupos-product-manager** - Multi-agent coordination, strategic decisions
+  - *Keywords*: "coordinate", "manage", "multiple", "complex", "integration", "roadmap", "strategy"
+  - *Auto-dispatch*: 3+ agent categories, complex features, coordination needs
+- **general-purpose** - Research, file operations, general tasks
+  - *Keywords*: "research", "search", "analyze", "investigate", "file operations"
 
 ---
 
@@ -59,13 +110,15 @@ This is an ultra-efficient AI development framework optimized for speed, quality
 
 ## 📊 WUPOS Project Status (Current Implementation)
 
-### ✅ **COMPLETADO - Sistema POS Completo**
+### ✅ **COMPLETADO - Sistema POS Completo con Cart UX Optimizado**
 - **Plugin WordPress estándar** con página dedicada full-width
 - **API personalizada** /wupos/v1/ con autenticación cookies WordPress
 - **Template dedicado** en /pos/ sin interferencias theme
 - **CSS escalable** 1366px-1920px con grid dinámico (5-6 columnas)
 - **Estados de carga** mejorados (skeleton, overlay, animaciones)
 - **Sistema de permisos** WooCommerce funcionando correctamente
+- **Cart UX optimizado** con timing fixes y display consistency
+- **Tax display minimalista** forzado en todos los estados del carrito
 
 ### ✅ **ARQUITECTURA IMPLEMENTADA**
 
@@ -147,166 +200,155 @@ wupos/
 - **Git Status**: main branch, múltiples archivos modificados pendientes commit
 
 ### 🚀 **Estado Funcional Actual**
-- ✅ **Plugin activo** y funcionando
+- ✅ **Plugin activo** y funcionando completamente
 - ✅ **Página /pos/** accesible para usuarios con permisos WooCommerce
-- ✅ **API endpoints** implementados con autenticación WordPress
-- ✅ **CSS responsive** optimizado para PC (1366px-1920px)
-- ✅ **Carrito funcional** con persistencia localStorage
-- ✅ **Checkout básico** creando órdenes WooCommerce
-- ⏳ **Impuestos** calculados pero no visibles en UI
-- ⏳ **Testing** pendiente en entorno real
+- ✅ **API endpoints** implementados con autenticación WordPress robusta
+- ✅ **CSS responsive** optimizado para PC (1366px-1920px) con escalabilidad
+- ✅ **Carrito funcional** con persistencia localStorage optimizada y timing fixes
+- ✅ **Checkout básico** creando órdenes WooCommerce con validación completa
+- ✅ **Sistema de impuestos** con cálculo dinámico y display minimalista consistente
+- ✅ **Cart UX optimization** completamente implementado (acceso post wp_loaded)
+- ✅ **Tax display architecture** optimizada con forced fallback design y conflict resolution
+- ✅ **WooCommerce timing fixes** resolviendo fatal errors y comportamiento inconsistente
+- ✅ **Component deconfliction** eliminando redundancias y conflictos visuales
+- ✅ **Stock management backend** con dynamic thresholds y three-tier classification
+- ⏳ **Testing** pendiente en entorno real para validación final
 
 ---
 
 ## 🔄 Framework Rules & Standards
 
-### **7. AGENT TASK MANAGEMENT RULES** (Enhanced Protocol v3.2)
+### **7. AGENT TASK MANAGEMENT RULES** (Enhanced Protocol v3.3)
 
-#### **7.1. Task Initiation Requirements**
+#### **7.1. Task Initiation Requirements** (Quality First Enhanced)
 - **7.1.1.** Clear objective summary must precede any task execution
-- **7.1.2.** Appropriate specialized agent assignment mandatory based on agent characteristics
-- **7.1.3.** User acknowledgment required before starting
-- **7.1.4.** Security impact assessment required for all code changes
-- **7.1.5.** Emergency escalation path defined for critical issues
+- **7.1.2.** Auto-assignment protocol executes keyword-based agent selection
+- **7.1.3.** Quality First Mandate automatically activated when @FRAMEWORK.md referenced
+- **7.1.4.** User acknowledgment required before starting
+- **7.1.5.** Security impact assessment required for all code changes
+- **7.1.6.** Emergency escalation path defined for critical issues
+- **7.1.7.** Product manager auto-dispatch for multi-agent coordination needs
 
-#### **7.2. Task Completion Protocol**
+#### **7.2. Task Completion Protocol** (Quality First Enhanced)
 - **7.2.1.** No task completion without explicit user approval
-- **7.2.2.** Progress updates and status reports required
-- **7.2.3.** Quality validation before marking complete
-- **7.2.4.** Git commit required upon task completion with all subtasks - **MUST be executed by the most appropriate specialized agent for the task type**
-- **7.2.5.** Security validation mandatory for backend changes
-- **7.2.6.** Performance impact assessment for critical components
-- **7.2.7.** Git push strategy following established methodology (see section 7.3)
+- **7.2.2.** Progress updates and status reports required with quality metrics
+- **7.2.3.** Quality validation before marking complete (8/10+ threshold mandatory)
+- **7.2.4.** Best practices compliance verification (WordPress/WooCommerce standards)
+- **7.2.5.** Git commit required upon task completion with all subtasks - **Each agent commits their own work with concise messages (token-efficient)**
+- **7.2.6.** Security validation mandatory for backend changes
+- **7.2.7.** Performance impact assessment for critical components
+- **7.2.8.** User experience impact evaluation
+- **7.2.9.** Documentation completeness verification
+- **7.2.10.** Git push strategy following established methodology (see section 7.3)
 
-#### **7.3. Git Push Methodology**
-**Estrategia: Push por Hitos Importantes + Push de Seguridad**
+### 🗺️ Git Workflow
 
-**7.3.1. Push Obligatorio por Hitos:**
-- UI completa implementada ✅
-- Backend básico funcional ✅
-- Funcionalidades core completadas ✅
-- Sistema completamente funcional ✅
-- Correcciones críticas de bugs ✅
+**Commit Strategy:**
+- Frequent commits for each small functionality
+- Each agent commits their own work with concise messages
+- Git commit required upon task completion with all subtasks
 
-**7.3.2. Push de Seguridad:**
-- Después de 4+ horas de trabajo sin push
-- Antes de cambios arquitecturales importantes
-- Al final de sesiones productivas largas
+**Push Strategy:**
+- Push for important milestones only
+- Push after 4+ hours of work without push (security)
+- Before major architectural changes
+- 3-5 commits per push ratio recommended
 
-**7.3.3. Commits vs Push:**
-- **Commits**: Frecuentes, por cada funcionalidad pequeña
-- **Push**: Solo en hitos importantes o seguridad
-- **Ratio recomendado**: 3-5 commits por cada push
+**Push Requirements:**
+- Complete milestone implementation
+- No compilation errors or critical bugs
+- No work-in-progress (WIP) commits
+- Include summary of completed milestones
 
-**7.3.4. Mensajes de Push:**
-- Incluir resumen de hitos completados
-- Mencionar funcionalidades principales agregadas
-- Indicar si es push de hito o seguridad
+**Individual Agent Responsibility:**
+- Frontend/UI changes: `pos-ux-designer` commits
+- Backend/WordPress code: `wordpress-backend-developer` commits
+- Infrastructure/deployment: `wordpress-devops-engineer` commits
+- Documentation: `wordpress-plugin-docs-writer` commits
+- Testing/QA: `wordpress-qa-specialist` commits
+- Multi-component: `wupos-product-manager` coordinates
+- General tasks: `general-purpose` commits
 
-**7.3.5. Cuándo NO hacer push:**
-- Código que no compila o tiene errores críticos
-- Funcionalidades a medio implementar
-- Commits de trabajo en progreso (WIP)
+#### **7.4. Agent Assignment Criteria** (Auto-Assignment Enhanced)
+- **7.4.1.** **Automatic Assignment** - Keyword detection matrix assigns agents automatically
+- **7.4.2.** **Product Manager Override** - PM can reassign if automatic selection inappropriate
+- **7.4.3.** **Execution Sequence** - PM determines order when multiple agents assigned
+- **7.4.4.** Prioritize agent expertise over convenience
+- **7.4.5.** Consider agent tools and capabilities in selection algorithm
+- **7.4.6.** Multi-agent coordination automatically triggered for complex tasks
+- **7.4.7.** Product manager dispatcher activates for 3+ agent category overlap
+- **7.4.8.** **Sequential Specialization Model** - Product Manager coordinates specialized agents working in sequence
+- **7.4.9.** **Sequential Communication Protocol** - Agents communicate through structured handoff format (Section 7.9)
 
-#### **7.4. Agent Assignment Criteria**
-- **7.4.1.** Match task requirements to agent specializations
-- **7.4.2.** Consider agent tools and capabilities
-- **7.4.3.** Prioritize agent expertise over convenience
-- **7.4.4.** Validate assignment appropriateness before execution
-- **7.4.5.** Multi-agent coordination required for complex tasks
 
-#### **7.4B. Git Commit Agent Assignment Protocol** (NEW)
-- **7.4B.1.** **Frontend/UI changes**: `pos-ux-designer` handles commits for interface modifications
-- **7.4B.2.** **Backend/WordPress code**: `wordpress-backend-developer` handles commits for PHP, APIs, security
-- **7.4B.3.** **Infrastructure/deployment**: `wordpress-devops-engineer` handles commits for deployment, configuration, performance
-- **7.4B.4.** **Documentation updates**: `wordpress-plugin-docs-writer` handles commits for docs, readme, changelogs
-- **7.4B.5.** **Testing/QA**: `wordpress-qa-specialist` handles commits for test files and validation scripts
-- **7.4B.6.** **Multi-component changes**: `wupos-product-manager` coordinates and handles commits affecting multiple areas
-- **7.4B.7.** **General tasks**: `general-purpose` handles commits for file operations, configurations, minor updates
+### 📋 Session Management
 
-#### **7.5. Checkpoint Protocol Implementation** (NEW)
-- **7.5.1.** **Before Major Changes**: Always execute checkpoint creation
-  - Verify current working state and functionality
-  - Create git commit/tag as restoration point
-  - Document current configuration and dependencies
-  - Validate all prerequisites are met
-  
-- **7.5.2.** **During Implementation**: Incremental checkpoints
-  - Commit working increments frequently
-  - Test functionality after each significant change
-  - Document any deviations from original plan
-  
-- **7.5.3.** **After Implementation**: Validation checkpoint
-  - Run full functionality tests
-  - Verify wireframe compliance (Rule #3)
-  - Update KNOWN_ISSUES.md with any new discoveries
-  - Create final checkpoint commit
+**Session Context Protocol:**
+- TodoWrite tool maintains real-time context during active session
+- Last working agent creates handoff file at session end
+- Store in `.context/session-{id}_handoff.md` (maximum 300 words)
+- Auto-load previous session context when starting new session
 
-#### **7.6. Emergency Response Protocol** (NEW)
-- **7.6.1.** Critical security vulnerabilities require immediate escalation
-- **7.6.2.** System-breaking issues bypass normal approval process
-- **7.6.3.** Emergency fixes require post-implementation validation
-- **7.6.4.** Crisis-level issues (40+ problems) require coordinated response
-- **7.6.5.** Emergency documentation updates mandatory within 24h
+**Agent Collaboration:**
+- Primary agent owns task coordination and final deliverable
+- Product manager coordinates complex multi-agent tasks
+- Sequential execution prevents contradictions
+- All agents must align with WordPress standards
 
-#### **7.7. Multi-Agent Collaboration Guidelines** (NEW)
-- **7.7.1.** Primary agent owns task coordination and final deliverable
-- **7.7.2.** Supporting agents provide specialized expertise input
-- **7.7.3.** All agents must align with WordPress standards and FRAMEWORK.md rules
-- **7.7.4.** Conflict resolution through primary agent or product manager escalation
-- **7.7.5.** Knowledge transfer required between agent handoffs
+**Emergency Response:**
+- Critical security vulnerabilities require immediate escalation
+- System-breaking issues bypass normal approval process
+- Emergency fixes require post-implementation validation
+
+**Agent Self-Evaluation:**
+- Post-task analysis: "What you did versus what you said"
+- Scope delivery verification and accuracy validation
+- Quality self-assessment (8/10+ threshold)
+- Document gaps and propose corrections
 
 ### **Critical Rules (Ordered by Priority - Higher numbers = Higher priority)**
 
-**🚨 LEVEL 5: CRITICAL (Framework Integrity)**
-1. **WordPress Standards MANDATORY** - ALL code MUST follow WordPress Coding Standards and guidelines from https://developer.wordpress.org/
-2. **Error memory system** - Always check KNOWN_ISSUES.md first and document new issues immediately
-3. **Wireframe supremacy** - NEVER modify established wireframe designs when implementing new features. All new implementations MUST conform to existing wireframe specifications and design patterns established in project documentation.
+### 📜 WordPress Standards (MANDATORY)
 
-**⚡ LEVEL 4: HIGH PRIORITY (Quality & Security)**
-4. **Quality threshold enforcement** - Never bypass 8/10 requirement
-5. **Explain before implementing** - Always provide short, concise explanation before proposing code changes
-6. **DoD validation required** - NEVER mark any task complete without executing full Definition of Done validation protocol
-7. **ALL documentation in English** - Never use other languages in files
+**ALL code MUST follow WordPress Standards:**
+- WordPress Coding Standards from https://developer.wordpress.org/
+- WooCommerce development guidelines and APIs
+- Plugin Security Standards (nonces, sanitization, validation)
+- WordPress APIs ONLY - Use native functions, hooks, and APIs
 
-**🔄 LEVEL 3: OPERATIONAL (Workflow & Process)**
-8. **Checkpoint protocols** - Before major changes: verify current state, create restoration point, validate prerequisites
-9. **Session-based workflow** - Always maintain session traceability
-10. **Git workflow integration** - Follow conventional commits with session-id traceability
-11. **Execution tracking mandatory** - Create and maintain execution reports with real-time task completion updates
+**CRITICAL RULES:**
+1. **Error memory system** - Always check KNOWN_ISSUES.md first and document new issues immediately
+2. **Wireframe supremacy** - NEVER modify established wireframe designs when implementing new features
+3. **Quality threshold enforcement** - Never bypass 8/10 requirement
+4. **Explain before implementing** - Always provide short, concise explanation before proposing code changes
+5. **DoD validation required** - NEVER mark any task complete without executing full Definition of Done validation protocol
+6. **ALL documentation in English** - Never use other languages in files
 
-**🛠️ LEVEL 2: ENHANCEMENT (Tools & Integration)**
-12. **Context7 integration** - Use real-time research for all decisions
-13. **MCP Playwright validation** - Visual analysis is mandatory
-14. **Proactive commit reminders** - ALWAYS remind user to commit after completing any file generation or major milestone
-15. **Ultra-flat structure** - Maintain simplified repository architecture
+**OPERATIONAL RULES:**
+- **Checkpoint protocols** - Before major changes: verify current state, create restoration point, validate prerequisites
+- **Session-based workflow** - Always maintain session traceability
+- **Execution tracking mandatory** - Create and maintain execution reports with real-time task completion updates
 
-**📋 LEVEL 1: SUPPORT (Methodology)**
-16. **No complex automation** - Focus on core framework functionality
-17. **Try before escalating** - NEVER create impediment report without attempting at least 2 different solution approaches first
+**ENHANCEMENT TOOLS:**
+- **Context7 integration** - Use real-time research for all decisions
+- **MCP Playwright validation** - Visual analysis is mandatory
+- **Proactive commit reminders** - ALWAYS remind user to commit after completing milestones
+- **Ultra-flat structure** - Maintain simplified repository architecture
+
+**METHODOLOGY:**
+- **No complex automation** - Focus on core framework functionality
+- **Try before escalating** - Attempt at least 2 solution approaches before creating impediment report
 
 ### **WUPOS Project Rules**
 
-1. **WordPress Standards MANDATORY** - Follow ALL WordPress Coding Standards, Plugin Guidelines, and Best Practices from https://developer.wordpress.org/
-2. **WooCommerce Standards MANDATORY** - Follow WooCommerce development guidelines and APIs
-3. **Cero código basura** - Solo código limpio y necesario
-4. **Bootstrap 5 únicamente** - No DaisyUI, no React/Node.js
-5. **WordPress APIs ONLY** - Use WordPress native functions, hooks, and APIs
-6. **Plugin Security Standards** - Follow WordPress security guidelines (nonces, sanitization, validation)
-7. **Commits con cada cambio importante** - Documentación completa
-8. **TodoWrite para tracking** - Usar para todas las tareas complejas
-9. **Agent specialization mandatory** - Each task to appropriate agent
-10. **User approval required** - No task completion without permission
+1. **Clean code only** - No unnecessary code
+2. **Bootstrap 5 only** - No DaisyUI, no React/Node.js
+3. **Commits with important changes** - Complete documentation
+4. **TodoWrite for tracking** - Use for all complex tasks
+5. **Agent specialization mandatory** - Each task to appropriate agent
+6. **User approval required** - No task completion without permission
+7. **Token Optimization Rule** - ALWAYS use Grep tool for content searches instead of bash commands
 
-### **Assistant Behavior Rules**
-
-#### **Before Any Code Changes**
-1. **Verify WordPress Standards** - Check that implementation follows WordPress Coding Standards
-2. **Always explain first** - Provide short, concise explanation of what the change does
-3. **State the purpose** - Why this change is needed or beneficial
-4. **Describe the impact** - What will be different after the change
-5. **WordPress API compliance** - Ensure only WordPress/WooCommerce native functions are used
-6. **Then implement** - Only proceed with code after explanation and standards verification
 
 ### **Output Standards**
 - **File naming:** Follow exact pattern `{step}_{session-id}_{project-name}.md`
@@ -316,23 +358,6 @@ wupos/
 
 ---
 
-## 📊 Quality Standards
-
-### Mandatory Quality Thresholds (ALL must be >= 8/10)
-
-- **Security Compliance:** 30% weight - WordPress security standards, vulnerability assessment
-- **Visual Consistency:** 15% weight - Design system adherence
-- **CRO Optimization:** 20% weight - Conversion rate optimization  
-- **Accessibility:** 15% weight - WCAG 2.1 compliance
-- **Architecture Quality:** 10% weight - Code structure quality
-- **Performance:** 10% weight - Load times and optimization
-
-### Quality Enforcement
-
-- **Automatic blocking** if any dimension < 8/10
-- **Iterative improvement** until threshold met
-- **Maximum 5 iterations** before manual review required
-- **Quality certification** seal for approved projects
 
 ---
 
@@ -357,14 +382,6 @@ wupos/
 3. **Describe the impact** - What will be different after the change
 4. **Then implement** - Only proceed with code after explanation is given
 
-### Agent Specializations Available
-- **general-purpose**: Research, file operations, general tasks
-- **wordpress-backend-developer**: WordPress/WooCommerce backend development, security implementations
-- **wupos-product-manager**: Multi-agent coordination, project management, strategic decisions
-- **pos-ux-designer**: POS interface design, user experience, accessibility compliance
-- **wordpress-qa-specialist**: Quality assurance, testing, validation protocols
-- **wordpress-devops-engineer**: Deployment, infrastructure, performance optimization
-- **wordpress-plugin-docs-writer**: Documentation, WordPress compliance, technical writing
 
 ### Multi-Agent Coordination Protocols
 - **Task Assignment**: Product manager coordinates complex multi-agent tasks
@@ -394,15 +411,16 @@ wupos/
 
 ### Task Files
 - **TASKS.md**: Complete task list with assignments and priorities
-- **TodoWrite tool**: Real-time task tracking during sessions
+- **TodoWrite tool**: Real-time task tracking during sessions with context transfer capabilities
 - **KNOWN_ISSUES.md**: Issue tracking and resolution status
+- **Session Context**: `.context/session-{id}_handoff.md` files for session continuity
 
 ### Current High Priority Tasks
-1. **Arreglar estado por defecto de órdenes** - Backend config not applied
-2. **Implementar visualización de impuestos** - UI missing for calculated taxes
-3. **Crear modal carritos retenidos** - Hold function works but no UI management
-4. **Arreglar órdenes sin monto** - Orders created with $0.00 total
-5. **Panel de Control de Vista** - Dynamic view controls per specifications
+1. **Fix default order status** - Backend config not applied
+2. **Implement tax visualization** - UI missing for calculated taxes
+3. **Create held carts modal** - Hold function works but no UI management
+4. **Fix zero-amount orders** - Orders created with $0.00 total
+5. **View Control Panel** - Dynamic view controls per specifications
 
 ---
 

@@ -63,6 +63,11 @@
     --wupos-text-lg: 1.125rem;
     --wupos-text-xl: 1.25rem;
     --wupos-text-2xl: 1.5rem;
+    --wupos-text-3xl: 1.875rem;
+    
+    /* Enhanced typography sizes for product cards */
+    --wupos-product-title-size: 1.375rem;   /* Larger than text-xl for better visibility */
+    --wupos-product-price-size: 1.625rem;   /* Larger than text-2xl for prominence */
 }
 
 /* Reset de WordPress para POS en pantalla completa */
@@ -569,6 +574,7 @@ body {
     }
 }
 
+/* WUPOS Product Card - Enhanced Layout for Perfect Button Alignment */
 .wupos-product-card {
     background: white;
     border: 1px solid var(--wupos-gray-200);
@@ -580,28 +586,37 @@ body {
     flex-direction: column;
     height: 180px;
     overflow: hidden;
+    position: relative;
+    
+    /* Internal grid system for precise positioning and perfect button alignment */
+    --card-padding: var(--wupos-space-3);
+    --image-height: 36px;
+    --button-height: 32px;
+    --min-content-height: calc(180px - (2 * var(--card-padding)) - var(--button-height));
 }
 
-.wupos-product-btn {
+.wupos-product-content {
     width: 100%;
-    height: 100%;
-    padding: var(--wupos-space-4) var(--wupos-space-4) var(--wupos-space-3) var(--wupos-space-4);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    text-align: left;
-    outline: none;
-}
-
-.wupos-product-info {
-    display: flex;
-    flex-direction: column;
+    padding: var(--card-padding) var(--card-padding) 0 var(--card-padding);
+    /* TOP: 12px, RIGHT: 12px, BOTTOM: 0px, LEFT: 12px */
     flex: 1;
     min-height: 0;
+    
+    /* Use CSS Grid for precise layout control - 4-area system with perfect button alignment */
+    display: grid;
+    grid-template-rows: auto auto 1fr var(--button-height);
+    grid-template-areas: 
+        "stock"
+        "name"
+        "price"
+        "button";
+    gap: var(--wupos-space-2);
+    
+    /* Ensure content doesn't overflow and button aligns to bottom */
+    overflow: hidden;
+    height: 100%;
 }
+
 
 .wupos-product-card:hover {
     transform: translateY(-1px);
@@ -610,19 +625,20 @@ body {
 }
 
 .wupos-product-image {
+    grid-area: image;
     width: 100%;
-    height: 40px;
+    height: var(--image-height);
     background: var(--wupos-gray-100);
     border-radius: var(--wupos-radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: var(--wupos-space-2);
     font-size: var(--wupos-text-lg);
     color: var(--wupos-gray-400);
     transition: all 0.2s ease;
     overflow: hidden;
     position: relative;
+    margin: 0;
 }
 
 .wupos-product-image img {
@@ -760,61 +776,182 @@ body {
 }
 
 .wupos-product-name {
-    font-size: var(--wupos-text-sm);
-    font-weight: 600;
+    grid-area: name;
+    font-size: 22px !important; /* 1.375rem = 22px - visually larger */
+    font-weight: 700;
     color: var(--wupos-gray-800);
-    margin-bottom: var(--wupos-space-3);
-    line-height: 1.3;
+    line-height: 1.2;
+    text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    max-height: 3.9em;
-    min-height: 2.6em;
+    
+    /* Optimized spacing for better layout */
+    margin: 0;
+    max-height: 2.4em;
+    min-height: 1.2em;
+    flex-shrink: 0;
 }
 
 .wupos-product-price {
-    font-size: var(--wupos-text-lg);
+    grid-area: price;
+    font-size: 26px !important; /* 1.625rem = 26px - prominently larger */
     font-weight: 700;
     color: var(--wupos-success);
-    margin-bottom: var(--wupos-space-2);
     white-space: nowrap;
     text-align: center;
+    
+    /* Optimized spacing for grid layout - no margins needed */
+    margin: 0;
+    flex-shrink: 0;
+    
+    /* Ensure consistent height for alignment */
+    line-height: 1.2;
+    min-height: 1.2em;
+    
+    /* Center content within grid area */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .wupos-stock-badge {
+    grid-area: stock;
     font-size: var(--wupos-text-xs);
     padding: var(--wupos-space-1) var(--wupos-space-2);
     border-radius: var(--wupos-radius-md);
     font-weight: 500;
     text-align: center;
-    margin-top: auto;
-    margin-bottom: var(--wupos-space-2);
     white-space: nowrap;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    
+    /* Ensure stock badge is always visible and properly positioned */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    opacity: 1 !important;
+    visibility: visible !important;
+    margin: 0;
+    flex-shrink: 0;
+    
+    /* Responsive sizing for different screen resolutions */
+    line-height: 1.2;
+    min-height: 18px;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
 }
 
+/* Traffic Light Color System for Stock Levels */
 .wupos-stock-high {
     background: #dcfce7;
     color: #166534;
+    border: 1px solid #4ade80;
 }
 
 .wupos-stock-medium {
     background: #fef3c7;
     color: #92400e;
+    border: 1px solid #fbbf24;
 }
 
 .wupos-stock-low {
     background: #fee2e2;
     color: #991b1b;
+    border: 1px solid #fca5a5;
 }
 
 .wupos-stock-out {
     background: #f3f4f6;
     color: #6b7280;
     border: 1px dashed #d1d5db;
+}
+
+/* Hover effects for stock badges to maintain interactivity */
+.wupos-product-card:hover .wupos-stock-badge {
+    transform: scale(1.02);
+    box-shadow: var(--wupos-shadow-sm);
+}
+
+/* Ensure stock badges have proper contrast for accessibility */
+.wupos-stock-high,
+.wupos-stock-medium,
+.wupos-stock-low {
+    /* WCAG 2.1 AA compliance - minimum 4.5:1 contrast ratio is already met */
+    font-weight: 600;
+}
+
+/* Additional visibility fixes are no longer needed with the 5-area grid system */
+
+/* Grid areas for precise element positioning - 5-area system */
+/* Note: Individual grid area assignments are defined with each element */
+
+.wupos-product-add-btn {
+    grid-area: button;
+}
+
+/* WUPOS Product Add Button - True edge-to-edge design */
+.wupos-product-add-btn {
+    background: var(--wupos-primary);
+    color: white;
+    border: none;
+    border-radius: 0; /* No border radius for true edge-to-edge */
+    font-size: var(--wupos-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    
+    /* True edge-to-edge: escape container padding completely */
+    height: var(--button-height);
+    width: calc(100% + (2 * var(--card-padding))); /* Extend beyond container */
+    margin: var(--wupos-space-2) calc(-1 * var(--card-padding)) 0 calc(-1 * var(--card-padding)); /* Negative margins to escape padding */
+    padding: 0; /* No internal padding */
+    
+    /* Flexbox for proper content alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--wupos-space-1);
+    
+    /* Ensure button aligns to bottom edge of card */
+    flex-shrink: 0;
+    align-self: end;
+}
+
+.wupos-product-add-btn:hover {
+    background: var(--wupos-gray-700);
+    transform: translateY(-1px);
+}
+
+.wupos-product-add-btn:active {
+    background: var(--wupos-gray-800);
+    transform: translateY(0);
+}
+
+.wupos-product-add-btn:focus {
+    outline: 2px solid var(--wupos-primary);
+    outline-offset: 2px;
+}
+
+.wupos-product-add-btn i {
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+/* Disabled state for out of stock products */
+.wupos-product-card[data-out-of-stock="true"] .wupos-product-add-btn {
+    background: var(--wupos-gray-400);
+    color: var(--wupos-gray-600);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.wupos-product-card[data-out-of-stock="true"] .wupos-product-add-btn:hover {
+    background: var(--wupos-gray-400);
+    transform: none;
 }
 
 /* =============================================================================
@@ -1270,6 +1407,148 @@ body {
     font-weight: 600;
 }
 
+/* Enhanced Tax Status Indicator */
+.wupos-tax-status {
+    margin: var(--wupos-space-1) 0;
+}
+
+.wupos-tax-status-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--wupos-space-1) 0;
+    font-size: var(--wupos-text-xs);
+    border-bottom: 1px solid var(--wupos-gray-100);
+}
+
+.wupos-tax-status-label {
+    color: var(--wupos-gray-500);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.wupos-tax-status-badge {
+    background-color: var(--wupos-primary-100);
+    color: var(--wupos-primary-700);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: var(--wupos-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.wupos-tax-status-badge.tax-inclusive {
+    background-color: var(--wupos-green-100);
+    color: var(--wupos-green-700);
+}
+
+.wupos-tax-status-badge.tax-exclusive {
+    background-color: var(--wupos-blue-100);
+    color: var(--wupos-blue-700);
+}
+
+/* Enhanced Tax Breakdown Styles */
+.wupos-tax-section-enhanced {
+    background-color: var(--wupos-gray-25);
+    border: 1px solid var(--wupos-gray-100);
+    border-radius: var(--wupos-radius-md);
+    padding: var(--wupos-space-2);
+    margin: var(--wupos-space-2) 0;
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-item {
+    position: relative;
+    padding: var(--wupos-space-1) var(--wupos-space-2);
+    margin: 0 calc(-1 * var(--wupos-space-2));
+    border-radius: var(--wupos-radius-sm);
+    transition: background-color 0.15s ease;
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-item:hover {
+    background-color: var(--wupos-gray-50);
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    background-color: var(--wupos-primary-400);
+    border-radius: 0 2px 2px 0;
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-item.wupos-tax-breakdown-total::before {
+    background-color: var(--wupos-green-500);
+}
+
+.wupos-tax-breakdown-percentage {
+    display: inline-block;
+    background-color: var(--wupos-gray-100);
+    color: var(--wupos-gray-700);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: var(--wupos-text-xs);
+    font-weight: 600;
+    margin-left: var(--wupos-space-1);
+    vertical-align: middle;
+}
+
+.wupos-tax-breakdown-compound {
+    position: relative;
+}
+
+.wupos-tax-breakdown-compound::after {
+    content: "COMPOUND";
+    position: absolute;
+    right: 0;
+    top: -8px;
+    background-color: var(--wupos-orange-100);
+    color: var(--wupos-orange-700);
+    padding: 1px 4px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Enhanced visual hierarchy */
+.wupos-tax-section-enhanced .wupos-tax-breakdown-label {
+    display: flex;
+    align-items: center;
+    gap: var(--wupos-space-1);
+    color: var(--wupos-gray-700);
+    font-weight: 500;
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-amount {
+    font-weight: 700;
+    color: var(--wupos-gray-900);
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-total {
+    background-color: var(--wupos-green-25);
+    border: 1px solid var(--wupos-green-200);
+    border-radius: var(--wupos-radius-sm);
+    margin: var(--wupos-space-2) calc(-1 * var(--wupos-space-2)) 0;
+    padding: var(--wupos-space-2);
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-total .wupos-tax-breakdown-label {
+    color: var(--wupos-green-800);
+    font-weight: 700;
+}
+
+.wupos-tax-section-enhanced .wupos-tax-breakdown-total .wupos-tax-breakdown-amount {
+    color: var(--wupos-green-900);
+    font-weight: 800;
+}
+
 .wupos-tax-loading {
     display: flex;
     align-items: center;
@@ -1316,6 +1595,20 @@ body {
         margin-left: var(--wupos-space-3);
         font-size: var(--wupos-text-base);
     }
+    
+    .wupos-tax-section-enhanced .wupos-tax-breakdown-item {
+        padding: var(--wupos-space-2) var(--wupos-space-2);
+    }
+    
+    .wupos-tax-status-indicator {
+        padding: var(--wupos-space-2) 0;
+        font-size: var(--wupos-text-sm);
+    }
+    
+    .wupos-tax-breakdown-percentage {
+        font-size: var(--wupos-text-sm);
+        padding: 2px 8px;
+    }
 }
 
 @media screen and (max-width: 1023px) {
@@ -1339,6 +1632,26 @@ body {
     .wupos-tax-breakdown-total .wupos-tax-breakdown-amount {
         font-size: var(--wupos-text-xl);
     }
+    
+    .wupos-tax-section-enhanced .wupos-tax-breakdown-item {
+        margin: var(--wupos-space-1) calc(-1 * var(--wupos-space-2));
+        padding: var(--wupos-space-2);
+    }
+    
+    .wupos-tax-section-enhanced .wupos-tax-breakdown-item::before {
+        height: 24px;
+        width: 4px;
+    }
+    
+    .wupos-tax-status-indicator {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--wupos-space-1);
+    }
+    
+    .wupos-tax-status-badge {
+        align-self: flex-end;
+    }
 }
 
 @media screen and (min-width: 1920px) {
@@ -1350,6 +1663,26 @@ body {
     .wupos-tax-breakdown-amount {
         font-size: var(--wupos-text-lg);
         margin-left: var(--wupos-space-4);
+    }
+    
+    .wupos-tax-section-enhanced {
+        padding: var(--wupos-space-3);
+        margin: var(--wupos-space-3) 0;
+    }
+    
+    .wupos-tax-section-enhanced .wupos-tax-breakdown-item {
+        padding: var(--wupos-space-2) var(--wupos-space-3);
+        margin: 0 calc(-1 * var(--wupos-space-3));
+    }
+    
+    .wupos-tax-status-indicator {
+        padding: var(--wupos-space-2) 0;
+        font-size: var(--wupos-text-sm);
+    }
+    
+    .wupos-tax-breakdown-percentage {
+        font-size: var(--wupos-text-sm);
+        padding: 3px 10px;
     }
 }
 
@@ -1717,25 +2050,47 @@ body {
     
     .wupos-product-card {
         height: 160px;
+        --card-padding: var(--wupos-space-2);
+        --image-height: 32px;
+        --button-height: 28px;
     }
     
     .wupos-product-image {
-        height: 32px;
-        margin-bottom: var(--wupos-space-1);
+        height: var(--image-height);
     }
     
     .wupos-product-name {
-        font-size: var(--wupos-text-xs);
+        font-size: 20px !important;  /* Larger than base for better visibility on tablets */
+        font-weight: 700;
+        text-align: center;
         -webkit-line-clamp: 2;
-        max-height: 2.6em;
-        min-height: 1.3em;
-        margin-bottom: var(--wupos-space-2);
+        max-height: 2.4em;
+        min-height: 1.2em;
     }
     
     .wupos-product-price {
-        font-size: var(--wupos-text-base);
-        margin-bottom: var(--wupos-space-1);
+        font-size: 22px !important; /* Larger than text-lg for prominence on tablets */
         text-align: center;
+        margin: var(--wupos-space-1) 0;
+    }
+    
+    .wupos-product-add-btn {
+        height: var(--button-height);
+        font-size: 10px;
+        padding: 0 var(--wupos-space-1);
+    }
+    
+    /* Stock badge responsive sizing for 1024x768 */
+    .wupos-stock-badge {
+        font-size: 0.7rem;
+        min-height: 16px;
+        padding: 2px var(--wupos-space-1);
+    }
+    
+    /* Enhanced typography for 1024x768 screens */
+    :root {
+        --wupos-product-title-size: 1.25rem;   /* Smaller but still impactful */
+        --wupos-product-price-size: 1.375rem;  /* Prominent pricing */
     }
 }
 
@@ -1776,6 +2131,22 @@ body {
     }
 }
 
+/* Standard desktop screens (1366x768) */
+@media screen and (min-width: 1366px) and (max-width: 1919px) {
+    /* Stock badge responsive sizing for 1366x768 */
+    .wupos-stock-badge {
+        font-size: 0.75rem;
+        min-height: 18px;
+        padding: var(--wupos-space-1) var(--wupos-space-2);
+    }
+    
+    /* Standard enhanced typography for 1366x768 screens */
+    :root {
+        --wupos-product-title-size: 1.375rem;  /* Standard enhanced size */
+        --wupos-product-price-size: 1.625rem;  /* More prominent pricing */
+    }
+}
+
 /* Monitores grandes (1920x1080 y superiores) */
 @media screen and (min-width: 1920px) {
     .wupos-app {
@@ -1810,30 +2181,52 @@ body {
     
     .wupos-product-card {
         height: 200px;
+        --card-padding: var(--wupos-space-4);
+        --image-height: 48px;
+        --button-height: 36px;
     }
     
     .wupos-product-image {
-        height: 50px;
-        margin-bottom: var(--wupos-space-2);
+        height: var(--image-height);
     }
     
     .wupos-product-name {
-        font-size: var(--wupos-text-base);
-        margin-bottom: var(--wupos-space-3);
+        font-size: 24px !important;   /* Even larger for high-res screens */
+        font-weight: 700;
+        text-align: center;
         -webkit-line-clamp: 3;
-        max-height: 3.9em;
-        min-height: 2.6em;
+        max-height: 3.6em;
+        min-height: 1.2em;
     }
     
     .wupos-product-price {
-        font-size: var(--wupos-text-xl);
-        margin-bottom: var(--wupos-space-2);
+        font-size: 28px !important;  /* Very prominent for high-res screens */
         text-align: center;
+        margin: var(--wupos-space-2) 0;
+    }
+    
+    .wupos-product-add-btn {
+        height: var(--button-height);
+        font-size: var(--wupos-text-xs);
+        padding: 0 var(--wupos-space-3);
     }
     
     .wupos-header {
         grid-template-columns: 250px 1fr 600px;
         padding: 0 var(--wupos-space-8);
+    }
+    
+    /* Stock badge responsive sizing for 1920x1080 */
+    .wupos-stock-badge {
+        font-size: 0.875rem;
+        min-height: 20px;
+        padding: var(--wupos-space-1) var(--wupos-space-2);
+    }
+    
+    /* Large screen enhanced typography for 1920x1080 */
+    :root {
+        --wupos-product-title-size: 1.5rem;    /* Large size for better visibility */
+        --wupos-product-price-size: 1.75rem;   /* Very prominent pricing */
     }
 }
 
@@ -1873,6 +2266,12 @@ body {
     .wupos-nav-text {
         font-size: var(--wupos-text-base);
         font-weight: 600;
+    }
+    
+    /* Ultra-wide screen enhanced typography for 2560px+ */
+    :root {
+        --wupos-product-title-size: 1.625rem;  /* Maximum size for ultra-wide */
+        --wupos-product-price-size: 1.875rem;  /* Maximum prominent pricing */
     }
 }
 

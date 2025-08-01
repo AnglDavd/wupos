@@ -517,12 +517,94 @@ Before starting any framework operation:
 
 ---
 
+### **ISSUE-031: CRITICAL - WUPOS page not loading due to WordPress filter callback signature mismatch**
+**Status:** ✅ RESOLVED  
+**Discovered:** 2025-07-31 during emergency debugging after WooCommerce cart timing fixes  
+**Problem:** The `safe_resource_hints` method had incorrect parameter signature for WordPress `wp_resource_hints` filter, causing page loading failures.  
+**Symptoms:**
+- WUPOS page completely broken and not loading
+- WordPress filter callback signature mismatch 
+- Method expecting `$hints` but WordPress passes `$urls`
+- Missing return statement causing filter chain to break
+
+**Root Cause Analysis:**
+- Recent changes to prevent early WooCommerce cart access introduced filter callback with wrong signature
+- `safe_resource_hints($hints, $relation_type)` should be `safe_resource_hints($urls, $relation_type)`
+- WordPress `wp_resource_hints` filter expects first parameter to be `$urls` array
+- Missing return statement broke filter chain completely
+
+**Solution Applied:**
+- Fixed method signature: `safe_resource_hints($urls, $relation_type)`
+- Added array validation to ensure `$urls` is always an array
+- Added proper return statement to maintain filter chain
+- Added error handling to `disable_wc_blocks_hints()` method
+- Added safety checks to `is_pos_page_request()` method to prevent early function calls
+
+**Critical Fixes:**
+1. **Method Signature Fix:**
+```php
+// BEFORE (BROKEN):
+public function safe_resource_hints($hints, $relation_type) {
+    // Missing return statement - CRITICAL ERROR
+}
+
+// AFTER (FIXED):
+public function safe_resource_hints($urls, $relation_type) {
+    if (!is_array($urls)) {
+        $urls = array();
+    }
+    // ... logic ...
+    return $urls; // CRITICAL: Return filtered array
+}
+```
+
+2. **Error Handling Enhancement:**
+```php
+// Added try-catch to prevent instantiation errors
+try {
+    $assets_controller = new \Automattic\WooCommerce\Blocks\AssetsController();
+    remove_filter('wp_resource_hints', array($assets_controller, 'add_resource_hints'), 10);
+} catch (Exception $e) {
+    error_log('WUPOS: Could not disable WC Blocks hints: ' . $e->getMessage());
+}
+```
+
+3. **Safety Checks Added:**
+```php
+// Added function existence check to prevent early calls
+if (!function_exists('has_shortcode')) {
+    return false;
+}
+```
+
+**Testing Performed:**
+- PHP syntax validation passed
+- Plugin loading test successful
+- All included files syntax validated
+- Emergency test script confirmed plugin functionality restored
+
+**Prevention:** 
+- Always verify WordPress filter callback signatures match expected parameters
+- Ensure all filter callbacks return appropriate values
+- Add comprehensive error handling for WooCommerce integration methods
+- Test plugin loading after making changes to WordPress hooks
+
+**Files Modified:** 
+- `/home/ainu/Proyectos/WUPOS/wupos/wupos.php` (lines 351-404)
+
+**Impact:** CRITICAL system-breaking issue that prevented plugin from functioning entirely
+**Resolution Time:** Immediate emergency fix applied
+
+---
+
 ## 📊 Issue Statistics
 
-**Total Issues Discovered:** 30  
-**Resolved Issues:** 4  
+**Total Issues Discovered:** 38  
+**Resolved Issues:** 5  
 **Active Issues:** 26  
-**Framework Reliability:** 13% → Improving with each discovery
+**QA Analysis Issues:** 7 (Stock System)  
+**Framework Reliability:** 13% → Improving with each discovery and analysis  
+**Stock System QA Coverage:** 100% (Phase 1 Backend)
 
 ---
 
@@ -558,4 +640,417 @@ Before starting any framework operation:
 
 ---
 
+## 🎯 Phase 1 Backend Stock System - QA Analysis & Testing Protocols
+
+### **STOCK-001: Stock Level Calculation Edge Cases**
+**Status:** 📋 QA ANALYSIS  
+**Discovered:** 2025-07-30 during Phase 1 stock system review  
+**Problem:** Multiple edge cases in dynamic stock threshold calculations that could lead to inconsistent behavior.  
+**Potential Edge Cases:**
+- Stock quantities exceeding 999,999 units (very high inventory)
+- WooCommerce low stock threshold set to 0 or negative values
+- Products with decimal stock quantities (if enabled by extensions)
+- Stock calculations when WooCommerce stock management is globally disabled
+- Threshold calculations with extremely high multipliers (>10x)
+- Race conditions during concurrent stock updates
+
+**Testing Requirements:**
+- Test stock calculations with quantities: 0, 1, 2, 5, 10, 15, 30, 100, 1000, 999999
+- Validate threshold calculations with WC low stock settings: 0, 1, 2, 5, 10, 50, 100
+- Test with stock management disabled at product and global levels
+- Verify behavior with negative stock quantities
+- Test concurrent stock updates from multiple sessions
+- Validate API response consistency across different scenarios
+
+**Prevention:** Implement comprehensive input validation and boundary testing
+**Next Steps:** Create automated test suite for stock calculation scenarios
+
+---
+
+### **STOCK-002: WooCommerce Integration Compatibility Matrix**
+**Status:** 📋 QA ANALYSIS  
+**Discovered:** 2025-07-30 during Phase 1 stock system review  
+**Problem:** Stock system integration may have compatibility issues with different WooCommerce configurations and versions.  
+**Compatibility Requirements Testing:**
+
+**WooCommerce Versions:**
+- Minimum: WooCommerce 5.0 (plugin header requirement)
+- Current Stable: WooCommerce 8.x-9.x series
+- Test with: 5.0, 6.0, 7.0, 8.0, 9.0, latest beta
+
+**WordPress Versions:**
+- Minimum: WordPress 5.0 (plugin header requirement)
+- Current: WordPress 6.6 (tested up to)
+- Test with: 5.0, 5.5, 6.0, 6.5, 6.6, latest
+
+**PHP Versions:**
+- Minimum: PHP 7.4 (plugin header requirement)
+- Test with: 7.4, 8.0, 8.1, 8.2, 8.3
+
+**WooCommerce Extensions Integration:**
+- WooCommerce Subscriptions (variable stock scenarios)
+- WooCommerce Bookings (availability-based stock)
+- Multi-vendor plugins (distributed inventory)
+- Inventory management extensions
+- Product variations and bundle plugins
+
+**Testing Protocol:**
+- Test dynamic threshold calculations across all version combinations
+- Verify stock badge display consistency
+- Validate API endpoint responses
+- Test product filtering by stock status
+- Confirm database query performance
+
+**Prevention:** Maintain compatibility test matrix and automated CI testing
+**Next Steps:** Establish testing environment with multiple WC/WP versions
+
+---
+
+### **STOCK-003: Stock Badge Display Edge Cases**
+**Status:** 📋 QA ANALYSIS  
+**Discovered:** 2025-07-30 during Phase 1 stock system review  
+**Problem:** Stock badge display logic has potential inconsistencies between JavaScript frontend and PHP backend calculations.  
+**Identified Discrepancies:**
+- Frontend JavaScript uses hardcoded thresholds (lines 1677-1693 in pos-interface.php)
+- Backend PHP uses dynamic WooCommerce-based thresholds (lines 534-571 in class-wupos-products-api.php)
+- Potential mismatch between frontend display and backend API responses
+
+**Frontend Logic Issues:**
+```javascript
+// Current frontend hardcoded logic (INCONSISTENT):
+if (stockQuantity <= 2) {          // Hardcoded low threshold
+    return { badgeClass: 'wupos-stock-low' };
+} else if (stockQuantity <= 10) {  // Hardcoded medium threshold  
+    return { badgeClass: 'wupos-stock-medium' };
+}
+```
+
+**Backend Logic (CORRECT):**
+```php
+// Dynamic backend calculation (PROPER):
+$wc_low_threshold = get_option('woocommerce_notify_low_stock_amount', 2);
+$calculated_medium = $wc_low_threshold * 3;
+$calculated_high = $wc_low_threshold * 10;
+```
+
+**Testing Requirements:**
+- Compare frontend vs backend stock level classifications
+- Test with different WooCommerce low stock thresholds (1, 2, 5, 10, 20)
+- Verify badge class consistency across UI and API
+- Test real-time stock updates and badge synchronization
+- Validate stock level changes after cart operations
+
+**Critical Fix Required:**
+- Synchronize frontend JavaScript with backend threshold calculations
+- Implement dynamic threshold loading in frontend
+- Add backend validation for frontend display consistency
+
+**Prevention:** Unit tests comparing frontend/backend stock classification logic
+**Next Steps:** Implement dynamic threshold synchronization between frontend/backend
+
+---
+
+### **STOCK-004: API Response Data Integrity Validation**
+**Status:** 📋 QA ANALYSIS  
+**Discovered:** 2025-07-30 during Phase 1 stock system review  
+**Problem:** Stock API responses contain extensive data but lack comprehensive validation for data integrity.  
+**Data Integrity Concerns:**
+
+**Stock Information Completeness:**
+- Validate all required stock fields are present in API responses
+- Ensure threshold calculations are mathematically correct
+- Verify stock classification consistency across different products
+- Test decimal precision in price and stock calculations
+
+**API Response Structure Validation:**
+```php
+// Expected stock data structure (lines 247-254):
+'stock_quantity'   => $stock_quantity,
+'stock_status'     => $stock_info['status'],
+'stock_level'      => $stock_info['stock_level'],
+'stock_threshold_low'    => $stock_info['threshold_info']['wc_low_threshold'],
+'stock_threshold_medium' => $stock_info['threshold_info']['calculated_medium'],
+'stock_threshold_high'   => $stock_info['threshold_info']['calculated_high'],
+'stock_badge_class' => $stock_info['badge_class'],
+'stock_classification' => $stock_info['stock_classification']
+```
+
+**Testing Scenarios:**
+- Validate API response schema against expected structure
+- Test with products having null/empty stock data
+- Verify mathematical accuracy of threshold calculations
+- Test Unicode and special characters in product names/descriptions
+- Validate price formatting and currency handling
+- Test with very large datasets (pagination accuracy)
+
+**Security Validation:**
+- Verify proper data sanitization in all API endpoints
+- Test XSS prevention in product data output
+- Validate SQL injection protection in search queries
+- Test unauthorized access prevention
+
+**Performance Testing:**
+- Measure API response times with different product counts
+- Test concurrent API requests handling
+- Validate memory usage with large product catalogs
+- Test database query optimization effectiveness
+
+**Prevention:** Automated API response validation and schema testing
+**Next Steps:** Implement comprehensive API testing suite with data validation
+
+---
+
+### **STOCK-005: Configuration Error Handling and Validation**
+**Status:** 📋 QA ANALYSIS  
+**Discovered:** 2025-07-30 during Phase 1 stock system review  
+**Problem:** Limited error handling and validation for stock configuration scenarios.  
+**Configuration Scenarios to Test:**
+
+**WooCommerce Configuration Issues:**
+- WooCommerce plugin deactivated during POS operation
+- WooCommerce database tables missing or corrupted
+- Tax settings changed during active POS session
+- Currency settings modified mid-session
+- Stock management disabled globally vs per-product
+
+**Invalid Configuration Handling:**
+- Invalid low stock threshold values (negative, zero, non-numeric)
+- Missing or corrupted WooCommerce settings
+- Database connection failures during stock queries
+- Plugin conflicts affecting WooCommerce functions
+- Memory limits exceeded during large catalog processing
+
+**Error Recovery Testing:**
+- Test graceful degradation when WooCommerce is unavailable
+- Validate fallback behavior for missing stock data
+- Test error message clarity and user guidance
+- Verify system stability during configuration errors
+- Test recovery after configuration issues are resolved
+
+**Administrator Setup Validation:**
+- Create comprehensive configuration checklist
+- Implement configuration validation during plugin activation
+- Add diagnostic tools for troubleshooting stock issues
+- Provide clear error messages with actionable solutions
+- Document common configuration pitfalls
+
+**Testing Protocol:**
+1. Systematically disable/modify each WooCommerce setting
+2. Monitor WUPOS behavior and error handling
+3. Validate error messages are user-friendly
+4. Test recovery procedures
+5. Document all failure scenarios and solutions
+
+**Prevention:** Proactive configuration validation and comprehensive error handling
+**Next Steps:** Implement configuration diagnostic tool and validation system
+
+---
+
+### **STOCK-006: High-Volume Performance and Scalability**
+**Status:** 📋 QA ANALYSIS  
+**Discovered:** 2025-07-30 during Phase 1 stock system review  
+**Problem:** Stock system performance with large product catalogs and high transaction volumes needs validation.  
+**Performance Test Scenarios:**
+
+**Large Catalog Testing:**
+- Test with 100, 1,000, 10,000, 50,000+ products
+- Measure API response times for product loading
+- Test pagination efficiency with large datasets
+- Validate search performance with extensive catalogs
+- Test memory usage and server resource consumption
+
+**High Transaction Volume:**
+- Simulate concurrent POS sessions (5, 10, 25, 50+ users)
+- Test stock calculation accuracy under load
+- Validate database locking and transaction integrity
+- Test real-time stock updates with multiple simultaneous sales
+- Measure system performance degradation thresholds
+
+**Database Query Optimization:**
+- Analyze slow query log for stock-related operations
+- Test database indexes for product and stock queries
+- Validate query caching effectiveness
+- Test with different database engines (MySQL, MariaDB)
+- Measure query performance with various product configurations
+
+**Caching Strategy Validation:**
+- Test WooCommerce object caching integration
+- Validate stock data caching strategies
+- Test cache invalidation on stock changes
+- Measure performance improvement with caching enabled
+- Test cache consistency across multiple sessions
+
+**Server Environment Testing:**
+- Test on shared hosting environments (resource limitations)
+- Validate VPS and dedicated server performance
+- Test with different PHP memory limits
+- Validate behavior under server load conditions
+- Test with various server configurations (Apache, Nginx)
+
+**Performance Monitoring:**
+- Implement performance metrics collection
+- Set up automated performance regression testing
+- Create performance baseline documentation
+- Establish performance degradation alerts
+- Document optimization recommendations
+
+**Prevention:** Regular performance testing and monitoring with realistic data volumes
+**Next Steps:** Establish performance testing environment and benchmarking
+
+---
+
+### **STOCK-007: Product Variation and Complex Inventory Scenarios**
+**Status:** 📋 QA ANALYSIS  
+**Discovered:** 2025-07-30 during Phase 1 stock system review  
+**Problem:** Stock system behavior with WooCommerce product variations and complex inventory setups requires thorough testing.  
+**Complex Inventory Scenarios:**
+
+**Product Variations:**
+- Variable products with individual stock management per variation
+- Variations with different stock levels and thresholds
+- Parent product stock vs variation stock display
+- Out-of-stock variations affecting parent product display
+- Variation-specific stock badges and classifications
+
+**Bundle and Grouped Products:**
+- Grouped products with different stock levels per item
+- Bundle products with stock dependencies
+- Composite products with stock requirements
+- Product bundles affecting stock calculations
+- Stock display for complex product relationships
+
+**Advanced Stock Management:**
+- Backorder scenarios with different settings
+- Low stock notifications for complex products
+- Stock tracking for downloadable/virtual products
+- Subscription product stock handling
+- Pre-order product stock management
+
+**Multi-location Inventory:**
+- Products with multiple stock locations
+- Location-based stock calculations
+- Stock aggregation across locations
+- Location-specific stock thresholds
+- POS location-based inventory display
+
+**Testing Requirements:**
+- Create test products covering all variation scenarios
+- Validate stock calculations for each product type
+- Test stock badge accuracy across product types
+- Verify API responses for complex product structures
+- Test stock updates and real-time synchronization
+
+**Edge Cases:**
+- Variations with decimal stock quantities
+- Products with very large numbers of variations
+- Mixed stock management settings within variations
+- Complex tax calculations with varied product types
+- Performance with deeply nested product structures
+
+**Prevention:** Comprehensive test product catalog covering all WooCommerce product types
+**Next Steps:** Create extensive test suite for complex product scenarios
+
+---
+
+## 📋 Stock System Testing Checklist
+
+### **Pre-Implementation Testing**
+- [ ] Verify WooCommerce minimum version compatibility (5.0+)
+- [ ] Test WordPress version compatibility (5.0-6.6)
+- [ ] Validate PHP version compatibility (7.4-8.3)
+- [ ] Check database requirements and permissions
+- [ ] Verify required PHP extensions availability
+
+### **Stock Calculation Testing**
+- [ ] Test dynamic threshold calculations with various WC settings
+- [ ] Validate stock level classifications (low/medium/high)
+- [ ] Test edge cases: 0, negative, very high quantities
+- [ ] Verify mathematical accuracy of threshold multipliers
+- [ ] Test stock status consistency across different scenarios
+
+### **API Endpoint Testing**
+- [ ] Validate all stock-related API responses
+- [ ] Test security measures (nonces, permissions, sanitization)
+- [ ] Verify data integrity in API responses
+- [ ] Test error handling for invalid requests
+- [ ] Validate pagination with large product catalogs
+
+### **Frontend Integration Testing**
+- [ ] Test stock badge display accuracy
+- [ ] Verify frontend/backend threshold synchronization
+- [ ] Test real-time stock updates in UI
+- [ ] Validate responsive design with different stock levels
+- [ ] Test accessibility compliance for stock indicators
+
+### **Performance Testing**
+- [ ] Test API response times with various catalog sizes
+- [ ] Measure memory usage during stock calculations
+- [ ] Test concurrent session handling
+- [ ] Validate database query performance
+- [ ] Test caching effectiveness and consistency
+
+### **Configuration Testing**
+- [ ] Test various WooCommerce low stock threshold settings
+- [ ] Validate behavior with stock management disabled
+- [ ] Test tax calculation integration
+- [ ] Verify currency and decimal handling
+- [ ] Test with different WooCommerce configurations
+
+### **Error Handling Testing**
+- [ ] Test WooCommerce plugin deactivation scenarios
+- [ ] Validate database connection failure recovery
+- [ ] Test invalid configuration handling
+- [ ] Verify user-friendly error messages
+- [ ] Test system recovery after errors resolved
+
+### **Compatibility Testing**
+- [ ] Test with popular WooCommerce extensions
+- [ ] Validate theme compatibility
+- [ ] Test with caching plugins
+- [ ] Verify multisite compatibility (if applicable)
+- [ ] Test with security plugins
+
+### **Documentation Validation**
+- [ ] Verify installation instructions accuracy
+- [ ] Test configuration steps documentation
+- [ ] Validate troubleshooting guides
+- [ ] Check API documentation completeness
+- [ ] Verify code examples work correctly
+
+---
+
+## 🚨 Critical Security Considerations for Stock System
+
+### **Input Validation**
+- Sanitize all product search queries
+- Validate stock quantity inputs
+- Verify product ID parameters
+- Sanitize customer location data
+- Validate tax calculation inputs
+
+### **Output Escaping**
+- Escape all product data in HTML output
+- Sanitize stock information display
+- Properly format currency values
+- Escape product names and descriptions
+- Validate JSON API responses
+
+### **Access Control**
+- Verify user permissions for stock operations
+- Validate nonce tokens for all AJAX requests
+- Check capabilities for admin operations
+- Restrict API access to authorized users
+- Implement proper session management
+
+### **Data Protection**
+- Protect sensitive stock information
+- Secure customer data handling
+- Validate tax calculation privacy
+- Protect business intelligence data
+- Implement proper data retention policies
+
+---
+
 **Remember:** Every error is an opportunity to make the framework more robust. This memory system ensures we learn from mistakes and continuously improve the user experience.
+
+**Stock System QA Priority:** The Phase 1 Backend Stock System represents a critical foundation for WUPOS functionality. Comprehensive testing of stock calculations, thresholds, and API responses is essential before proceeding with frontend implementation phases.

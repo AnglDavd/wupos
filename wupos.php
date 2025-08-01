@@ -121,14 +121,20 @@ final class WUPOS {
         register_activation_hook(WUPOS_PLUGIN_FILE, array($this, 'activate'));
         register_deactivation_hook(WUPOS_PLUGIN_FILE, array($this, 'deactivate'));
         
-        add_action('init', array($this, 'init'), 0);
+        // Use wp_loaded for proper WooCommerce cart initialization timing
+        add_action('wp_loaded', array($this, 'init'), 0);
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
         add_action('before_woocommerce_init', array($this, 'declare_wc_compatibility'));
+        
+        // Prevent WooCommerce cart access before wp_loaded
+        add_action('init', array($this, 'prevent_early_cart_access'), 1);
+        add_action('wp_head', array($this, 'disable_wc_blocks_hints'), 1);
     }
     
     /**
-     * Init WUPOS when WordPress Initialises.
+     * Init WUPOS when WordPress is fully loaded.
+     * This ensures WooCommerce cart functions are available.
      */
     public function init() {
         // Before init action.
@@ -137,23 +143,45 @@ final class WUPOS {
         // Set up localisation.
         $this->load_plugin_textdomain();
         
-        // Check WooCommerce compatibility
-        if (!$this->is_woocommerce_active()) {
+        // Enhanced WooCommerce compatibility check
+        if (!$this->is_woocommerce_active() || !$this->is_woocommerce_ready()) {
             add_action('admin_notices', array($this, 'woocommerce_missing_notice'));
             return;
         }
         
+        // Ensure WooCommerce is fully initialized before proceeding
+        if (!did_action('woocommerce_init')) {
+            // If WooCommerce hasn't initialized yet, delay our initialization
+            add_action('woocommerce_init', array($this, 'delayed_init'));
+            return;
+        }
+        
+        $this->initialize_components();
+        
+        // Init action.
+        do_action('wupos_init');
+    }
+    
+    /**
+     * Initialize WUPOS components after WooCommerce is ready.
+     */
+    public function initialize_components() {
         // Initialize shortcode
         if (class_exists('WUPOS_Shortcode')) {
             new WUPOS_Shortcode();
         }
         
-        // Initialize products API
+        // Initialize products API - only after WooCommerce is ready
         if (class_exists('WUPOS_Products_API')) {
             new WUPOS_Products_API();
         }
-        
-        // Init action.
+    }
+    
+    /**
+     * Delayed initialization when WooCommerce is ready.
+     */
+    public function delayed_init() {
+        $this->initialize_components();
         do_action('wupos_init');
     }
     
@@ -251,6 +279,30 @@ final class WUPOS {
     }
     
     /**
+     * Check if WooCommerce is ready for cart operations
+     *
+     * @return bool
+     */
+    public function is_woocommerce_ready() {
+        if (!$this->is_woocommerce_active()) {
+            return false;
+        }
+        
+        // Check if WooCommerce main functions are available
+        if (!function_exists('WC') || !function_exists('wc_get_products')) {
+            return false;
+        }
+        
+        // Check if WooCommerce is properly initialized
+        $wc = WC();
+        if (!$wc) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
      * Display notice when WooCommerce is not active
      */
     public function woocommerce_missing_notice() {
@@ -263,6 +315,121 @@ final class WUPOS {
         );
         
         printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), wp_kses_post($message));
+    }
+    
+    /**
+     * Prevent WooCommerce cart access before wp_loaded
+     */
+    public function prevent_early_cart_access() {
+        // Check if we're likely on a WUPOS page
+        if ($this->is_pos_page_request()) {
+            // Disable WooCommerce Blocks cart access during wp_head
+            add_filter('woocommerce_cart_ready_to_calc_shipping', '__return_false', 9999);
+            
+            // Remove problematic resource hints
+            remove_action('wp_head', 'wp_resource_hints', 2);
+            add_action('wp_head', array($this, 'safe_resource_hints'), 2);
+        }
+    }
+    
+    /**
+     * Disable WooCommerce Blocks resource hints that access cart
+     */
+    public function disable_wc_blocks_hints() {
+        if ($this->is_pos_page_request()) {
+            // Use a safer approach to prevent WC Blocks from accessing cart early
+            // Instead of instantiating the class directly, we'll hook into the appropriate actions
+            add_filter('woocommerce_blocks_asset_api_get_script_url', array($this, 'filter_wc_blocks_scripts'), 10, 2);
+            add_filter('wp_resource_hints', array($this, 'filter_wc_resource_hints'), 10, 2);
+        }
+    }
+    
+    /**
+     * Filter WooCommerce Blocks scripts to prevent early cart access
+     */
+    public function filter_wc_blocks_scripts($url, $handle) {
+        // Return the URL as-is but log the attempt for debugging
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('WUPOS: WC Blocks script filtered: ' . $handle);
+        }
+        return $url;
+    }
+    
+    /**
+     * Filter resource hints to prevent early cart access
+     */
+    public function filter_wc_resource_hints($urls, $relation_type) {
+        if (!is_array($urls)) {
+            return $urls;
+        }
+        
+        // Filter out any resource hints that might trigger early cart access
+        $filtered_urls = array();
+        foreach ($urls as $url) {
+            $href = is_array($url) ? $url['href'] : $url;
+            
+            // Skip WooCommerce Blocks resources that might access cart
+            if (strpos($href, 'wc-blocks') !== false || strpos($href, 'woocommerce-blocks') !== false) {
+                continue;
+            }
+            
+            $filtered_urls[] = $url;
+        }
+        
+        return $filtered_urls;
+    }
+    
+    /**
+     * Safe resource hints that don't access cart
+     */
+    public function safe_resource_hints($urls, $relation_type) {
+        // Ensure we have an array to work with
+        if (!is_array($urls)) {
+            $urls = array();
+        }
+        
+        // Only add safe hints that don't require cart access
+        if ('preload' === $relation_type) {
+            // Add only essential WUPOS resources
+            $urls[] = array(
+                'href' => WUPOS_PLUGIN_URL . 'assets/css/wupos.css',
+                'as'   => 'style',
+            );
+            $urls[] = array(
+                'href' => WUPOS_PLUGIN_URL . 'assets/js/wupos.js',
+                'as'   => 'script',
+            );
+        }
+        return $urls;
+    }
+    
+    /**
+     * Check if current request is for a WUPOS POS page
+     */
+    private function is_pos_page_request() {
+        global $post;
+        
+        // Safety check - ensure we don't access global $post too early
+        if (!function_exists('has_shortcode')) {
+            return false;
+        }
+        
+        // Check for shortcode in post content
+        if ($post && isset($post->post_content) && has_shortcode($post->post_content, 'wupos_pos')) {
+            return true;
+        }
+        
+        // Check for WUPOS AJAX requests
+        if (isset($_POST['action']) && is_string($_POST['action']) && strpos($_POST['action'], 'wupos_') === 0) {
+            return true;
+        }
+        
+        // Check for WUPOS specific parameters
+        if (isset($_GET['wupos']) || isset($_REQUEST['wupos_page'])) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**

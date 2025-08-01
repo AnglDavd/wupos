@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WUPOS Typography & Button Alignment Test</title>
+    <link rel="stylesheet" href="assets/css/wupos.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--wupos-gray-50);
+            font-family: 'Inter', sans-serif;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: var(--wupos-space-4);
+            margin-bottom: 40px;
+        }
+        .test-section {
+            margin-bottom: 40px;
+        }
+        .test-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--wupos-gray-800);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--wupos-primary);
+            padding-bottom: 10px;
+        }
+        .comparison-note {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: #92400e;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 style="text-align: center; color: var(--wupos-gray-800); margin-bottom: 40px;">
+            WUPOS Typography & Button Alignment Enhancement Test
+        </h1>
+        
+        <div class="comparison-note">
+            <strong>Typography Enhancements:</strong><br>
+            • Product Name: Now 1.375rem (was 1.125rem) - 22% larger for better visibility<br>
+            • Product Price: Now 1.625rem (was 1.25rem) - 30% larger for prominence<br>
+            • Button Alignment: Fixed to touch bottom edge of card with improved grid system
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">Enhanced Product Cards - Standard View</h2>
+            <div class="test-grid">
+                <!-- Sample Product Card 1 -->
+                <div class="wupos-product-card">
+                    <div class="wupos-product-content">
+                        <div class="wupos-stock-badge wupos-stock-high">In Stock</div>
+                        <div class="wupos-product-name">Premium Burger</div>
+                        <div class="wupos-product-price">$12.99</div>
+                        <button class="wupos-product-add-btn">
+                            <i class="fa fa-plus"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sample Product Card 2 -->
+                <div class="wupos-product-card">
+                    <div class="wupos-product-content">
+                        <div class="wupos-stock-badge wupos-stock-medium">Low Stock</div>
+                        <div class="wupos-product-name">Artisan Coffee Blend</div>
+                        <div class="wupos-product-price">$8.50</div>
+                        <button class="wupos-product-add-btn">
+                            <i class="fa fa-plus"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sample Product Card 3 -->
+                <div class="wupos-product-card">
+                    <div class="wupos-product-content">
+                        <div class="wupos-stock-badge wupos-stock-low">2 Left</div>
+                        <div class="wupos-product-name">Fresh Garden Salad with Extra Toppings</div>
+                        <div class="wupos-product-price">$15.75</div>
+                        <button class="wupos-product-add-btn">
+                            <i class="fa fa-plus"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sample Product Card 4 - Out of Stock -->
+                <div class="wupos-product-card" data-out-of-stock="true">
+                    <div class="wupos-product-content">
+                        <div class="wupos-stock-badge wupos-stock-out">Out of Stock</div>
+                        <div class="wupos-product-name">Grilled Chicken</div>
+                        <div class="wupos-product-price">$18.00</div>
+                        <button class="wupos-product-add-btn">
+                            <i class="fa fa-ban"></i>
+                            Unavailable
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sample Product Card 5 - In Cart -->
+                <div class="wupos-product-card" data-in-cart="true">
+                    <div class="wupos-product-content">
+                        <div class="wupos-stock-badge wupos-stock-high">In Stock</div>
+                        <div class="wupos-product-name">Ice Cream Sundae</div>
+                        <div class="wupos-product-price">$6.25</div>
+                        <button class="wupos-product-add-btn">
+                            <i class="fa fa-check"></i>
+                            Added
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sample Product Card 6 -->
+                <div class="wupos-product-card">
+                    <div class="wupos-product-content">
+                        <div class="wupos-stock-badge wupos-stock-high">Available</div>
+                        <div class="wupos-product-name">Pizza</div>
+                        <div class="wupos-product-price">$22.50</div>
+                        <button class="wupos-product-add-btn">
+                            <i class="fa fa-plus"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">Typography Hierarchy Verification</h2>
+            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--wupos-gray-200);">
+                <div style="margin-bottom: 20px;">
+                    <strong>Stock Badge:</strong> <span class="wupos-stock-badge wupos-stock-high">0.75rem - Small</span>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>Product Name:</strong> <span style="font-size: var(--wupos-product-title-size); font-weight: 700;">1.375rem - Medium-Large</span>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <strong>Product Price:</strong> <span style="font-size: var(--wupos-product-price-size); font-weight: 700; color: var(--wupos-success);">1.625rem - Large & Prominent</span>
+                </div>
+                <div>
+                    <strong>Button Text:</strong> <button class="wupos-product-add-btn" style="position: static; width: auto; height: auto;">0.75rem - Appropriately Sized</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="test-title">Responsive Verification</h2>
+            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--wupos-gray-200);">
+                <p><strong>Responsive Typography Notes:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><strong>1024x768:</strong> Title 1.25rem, Price 1.375rem</li>
+                    <li><strong>1366x768:</strong> Title 1.375rem, Price 1.625rem (Standard)</li>
+                    <li><strong>1920x1080:</strong> Title 1.5rem, Price 1.75rem</li>
+                    <li><strong>2560px+:</strong> Title 1.625rem, Price 1.875rem (Maximum)</li>
+                </ul>
+                <p><strong>Button Alignment:</strong> Uses CSS Grid with 'auto auto 1fr var(--button-height)' to ensure buttons touch bottom edge.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
