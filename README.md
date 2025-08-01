@@ -1,21 +1,40 @@
 # WUPOS - WordPress Point of Sale Plugin
 
-A comprehensive Point of Sale (POS) system for WordPress that integrates seamlessly with WooCommerce, featuring intelligent stock management, advanced cart UX optimization, and reliable real-time operations with enhanced WooCommerce timing integration.
+## ⚠️ DEVELOPMENT STATUS WARNING
 
-## Features
+**This plugin is currently in active development and is NOT ready for production use.**
 
-- **Complete POS Interface**: Modern, responsive point of sale interface with optimized cart UX
-- **Advanced Cart System**: Enhanced cart operations with WooCommerce timing fixes and component conflict resolution
-- **Intelligent Stock Management with Traffic Light System**: Dynamic stock level indicators with configurable thresholds (Red: critical, Yellow: low, Green: adequate)
-- **Product Management**: Easy product search, selection, and inventory management with real-time stock status  
-- **Transaction Processing**: Secure payment processing with multiple payment methods and enhanced reliability
-- **Receipt Generation**: Automatic receipt creation and printing
-- **Sales Reports**: Comprehensive reporting and analytics
-- **User Management**: Role-based access control for different user types
-- **WooCommerce Integration**: Full integration with existing WooCommerce stores with enhanced timing compatibility
-- **Real-time Tax Calculations**: Comprehensive tax handling with consistent minimalista display and dynamic updates
-- **Component Deconfliction**: Advanced system preventing visual conflicts and redundant components
-- **Enhanced Reliability**: Resolved fatal errors and timing issues for consistent performance
+- **Development Phase:** Active development in progress
+- **Production Readiness:** NOT RECOMMENDED for live/production websites
+- **Stability:** Features and functionality may change during development
+- **Testing Only:** Use only in development/staging environments
+- **Risk:** Use at your own risk - backup your site before testing
+- **Feedback Welcome:** Bug reports and contributions are appreciated during development
+
+**For production POS solutions, please wait for the official stable release.**
+
+---
+
+Professional Point of Sale system for WordPress with seamless WooCommerce integration. Features intelligent stock management with Traffic Light System, advanced cart optimization, and enhanced reliability for consistent POS operations.
+
+## Key Features
+
+### Core POS Capabilities
+- **Complete POS Interface** - Modern responsive design with optimized cart UX
+- **Advanced Cart System** - Enhanced operations with WooCommerce timing fixes and component deconfliction
+- **Transaction Processing** - Secure payment processing with multiple methods and enhanced reliability
+- **Receipt Generation** - Automatic receipt creation and printing capabilities
+
+### Intelligent Stock Management
+- **Traffic Light System** - Color-coded stock indicators (Red/Yellow/Green) with dynamic thresholds
+- **Real-time Updates** - Live stock level monitoring without page refresh
+- **WooCommerce Integration** - Seamless inventory synchronization with existing stores
+
+### Enhanced User Experience
+- **Real-time Tax Calculations** - Comprehensive tax handling with consistent minimalista display
+- **Component Deconfliction** - Prevents visual conflicts and eliminates redundant components
+- **Role-based Access Control** - Multi-user support with appropriate permissions
+- **Professional Reliability** - Resolved fatal errors and timing issues for consistent performance
 
 ## Installation
 
@@ -25,13 +44,13 @@ A comprehensive Point of Sale (POS) system for WordPress that integrates seamles
 4. Set up your products and payment methods
 5. Start using the POS interface at `/wp-admin/admin.php?page=wupos`
 
-## Requirements
+## Technical Requirements
 
-- WordPress 5.0 or higher
-- WooCommerce 5.0 or higher (tested up to 9.0)
-- PHP 7.4 or higher
-- MySQL 5.6 or higher
-- Active WooCommerce installation with products configured
+- **WordPress** 5.0+ (tested up to 6.6)
+- **WooCommerce** 5.0+ (tested up to 9.0)
+- **PHP** 7.4+ (recommended: 8.0+)
+- **MySQL** 5.6+ or MariaDB 10.0+
+- Active WooCommerce installation with configured products
 
 ## Configuration
 
@@ -60,27 +79,29 @@ WUPOS integrates with WooCommerce tax settings:
 3. **Price Display**: Choose whether to display prices including or excluding tax
 4. **WUPOS automatically handles**: Tax calculations, display suffixes, and breakdowns
 
-## Usage
+## Quick Start
 
-1. Access the POS interface from the WordPress admin menu
-2. **Stock Indicators**: Products display color-coded stock badges (Red/Yellow/Green)
-3. Search and select products to add to cart
-4. **Real-time Updates**: Stock levels update dynamically as you add items
-5. Process payments using configured payment methods
-6. Generate and print receipts
-7. View sales reports and analytics
+1. **Access POS** - Navigate to WordPress Admin → WUPOS from the admin menu
+2. **Visual Stock Management** - Products display color-coded badges (Red: critical, Yellow: low, Green: adequate)
+3. **Add Products** - Search and select products with real-time stock level updates
+4. **Process Transactions** - Complete sales using configured payment methods
+5. **Generate Receipts** - Automatic receipt creation with print functionality
+6. **Monitor Performance** - Access comprehensive sales reports and analytics
 
-## Support
+## Standards & Compliance
 
-For support and documentation, please visit our support channels.
+- **WordPress Coding Standards** - Fully compliant with WordPress development guidelines
+- **WordPress Security Guidelines** - Implements recommended security practices
+- **WooCommerce Compatibility** - Tested and optimized for WooCommerce integration
+- **Professional Documentation** - Comprehensive technical and user documentation
 
 ## License
 
-This plugin is licensed under the GPL v2 or later.
+Licensed under GPL v2 or later - WordPress compatible open source license.
 
-## Version
+---
 
-Current Version: 1.0.0
+**Current Version:** 1.0.0 | **WordPress Compatibility:** 5.0+ | **WooCommerce Compatibility:** 5.0-9.0+
 
 ### Recent Major Improvements (August 2025)
 
