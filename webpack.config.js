@@ -6,8 +6,6 @@ module.exports = {
     entry: {
         'pos': path.resolve(process.cwd(), 'assets/js/src', 'pos.js'),
         'admin': path.resolve(process.cwd(), 'assets/js/src', 'admin.js'),
-        'pos-style': path.resolve(process.cwd(), 'assets/css/src', 'pos.scss'),
-        'admin-style': path.resolve(process.cwd(), 'assets/css/src', 'admin.scss'),
     },
     output: {
         path: path.resolve(process.cwd(), 'assets/js/dist'),
@@ -19,19 +17,5 @@ module.exports = {
             ...defaultConfig.resolve.alias,
             '@': path.resolve(process.cwd(), 'assets/js/src'),
         },
-    },
-    module: {
-        ...defaultConfig.module,
-        rules: [
-            ...defaultConfig.module.rules,
-            {
-                test: /\.scss$/,
-                use: [
-                    'style-loader',
-                    'css-loader',
-                    'sass-loader',
-                ],
-            },
-        ],
     },
 };
