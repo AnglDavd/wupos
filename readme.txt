@@ -4,7 +4,7 @@ Tags: woocommerce, pos, point-of-sale, terminal, retail, ecommerce
 Requires at least: 6.0
 Tested up to: 6.4
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 0.1.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,24 +134,16 @@ We provide comprehensive documentation, video tutorials, and community support t
 
 == Changelog ==
 
-= 1.0.0 - 2025-08-08 =
-* Initial release
-* Complete POS functionality with product grid, cart, and checkout
-* Customer management with quick registration and lookup
-* Payment processing for cash, card, and split payments
-* Receipt system with customizable templates
-* Real-time inventory synchronization with WooCommerce
-* Multi-terminal support with conflict resolution
-* HPOS compatibility for high-performance order processing
-* WordPress 6.0+ and WooCommerce 8.0+ compatibility
-* Comprehensive REST API for extensibility
-* WCAG 2.1 AA accessibility compliance
-* Professional reporting and analytics integration
+= 0.1.0 - 2025-08-09 =
+* Alpha release - DEVELOPMENT ONLY
+* Basic plugin infrastructure and architecture
+* Documentation and specifications
+* NOT FUNCTIONAL - No POS features implemented yet
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial release of WUPOS - Professional Point of Sale for WooCommerce. Transform your WooCommerce store into a powerful retail terminal with modern POS functionality.
+= 0.1.0 =
+Alpha development release - NOT FOR PRODUCTION. Plugin infrastructure only, no functional features yet.
 
 == Developer Information ==
 

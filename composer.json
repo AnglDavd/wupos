@@ -1,5 +1,6 @@
 {
     "name": "wupos/wupos",
+    "version": "0.1.0",
     "description": "Professional Point of Sale for WooCommerce",
     "type": "wordpress-plugin",
     "keywords": [

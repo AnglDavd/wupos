@@ -3,7 +3,7 @@
  * Plugin Name: WUPOS - Professional Point of Sale for WooCommerce
  * Plugin URI: https://github.com/AnglDavd/wupos
  * Description: Professional Terminal POS for WooCommerce with modern interface and robust functionality. 100% WooCommerce native integration.
- * Version: 1.0.0
+ * Version: 0.1.0
  * Author: WooTPV Team
  * Author URI: https://github.com/AnglDavd/wupos
  * License: GPL v2 or later
@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WUPOS_VERSION', '1.0.0');
+define('WUPOS_VERSION', '0.1.0');
 define('WUPOS_PLUGIN_FILE', __FILE__);
 define('WUPOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WUPOS_PLUGIN_URL', plugin_dir_url(__FILE__));
