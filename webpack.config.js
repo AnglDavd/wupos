@@ -4,12 +4,18 @@ const path = require('path');
 module.exports = {
     ...defaultConfig,
     entry: {
-        'pos': path.resolve(process.cwd(), 'assets/js/src', 'pos.js'),
-        'admin': path.resolve(process.cwd(), 'assets/js/src', 'admin.js'),
+        'pos': [
+            path.resolve(process.cwd(), 'assets/js/src', 'pos.js'),
+            path.resolve(process.cwd(), 'assets/css/src', 'pos.scss'),
+        ],
+        'admin': [
+            path.resolve(process.cwd(), 'assets/js/src', 'admin.js'),
+            path.resolve(process.cwd(), 'assets/css/src', 'admin.scss'),
+        ],
     },
     output: {
-        path: path.resolve(process.cwd(), 'assets/js/dist'),
-        filename: '[name].js',
+        path: path.resolve(process.cwd(), 'assets'),
+        filename: 'js/dist/[name].js',
     },
     resolve: {
         ...defaultConfig.resolve,

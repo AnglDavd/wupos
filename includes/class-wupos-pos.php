@@ -21,6 +21,8 @@ class WUPOS_POS {
      */
     public function __construct() {
         add_action('wp_ajax_wupos_get_products', array($this, 'ajax_get_products'));
+        add_action('wp_ajax_wupos_search_products', array($this, 'ajax_search_products'));
+        add_action('wp_ajax_wupos_get_categories', array($this, 'ajax_get_categories'));
         add_action('wp_ajax_wupos_search_customers', array($this, 'ajax_search_customers'));
         add_action('wp_ajax_wupos_create_order', array($this, 'ajax_create_order'));
         add_action('wp_ajax_wupos_process_payment', array($this, 'ajax_process_payment'));
@@ -49,6 +51,50 @@ class WUPOS_POS {
         $products = $this->get_products_for_pos($page, $per_page, $search, $category);
 
         wp_send_json_success($products);
+    }
+
+    /**
+     * Search products via AJAX (for live search dropdown).
+     */
+    public function ajax_search_products() {
+        // Verify nonce
+        if (!wupos_verify_nonce()) {
+            wp_die(__('Security check failed.', 'wupos'));
+        }
+
+        // Check capabilities
+        if (!wupos_user_can_pos()) {
+            wp_die(__('Insufficient permissions.', 'wupos'));
+        }
+
+        $search = sanitize_text_field($_POST['search'] ?? '');
+        $limit = intval($_POST['limit'] ?? 10);
+
+        if (empty($search) || strlen($search) < 2) {
+            wp_send_json_success(array());
+            return;
+        }
+
+        $products = $this->search_products_quick($search, $limit);
+        wp_send_json_success($products);
+    }
+
+    /**
+     * Get product categories via AJAX.
+     */
+    public function ajax_get_categories() {
+        // Verify nonce
+        if (!wupos_verify_nonce()) {
+            wp_die(__('Security check failed.', 'wupos'));
+        }
+
+        // Check capabilities
+        if (!wupos_user_can_pos()) {
+            wp_die(__('Insufficient permissions.', 'wupos'));
+        }
+
+        $categories = $this->get_product_categories();
+        wp_send_json_success($categories);
     }
 
     /**
@@ -146,78 +192,6 @@ class WUPOS_POS {
         }
     }
 
-    /**
-     * Get products for POS display.
-     */
-    private function get_products_for_pos($page = 1, $per_page = 20, $search = '', $category = 0) {
-        $args = array(
-            'post_type'      => 'product',
-            'post_status'    => 'publish',
-            'posts_per_page' => $per_page,
-            'paged'          => $page,
-            'meta_query'     => array(
-                array(
-                    'key'     => '_stock_status',
-                    'value'   => 'instock',
-                    'compare' => '=',
-                ),
-            ),
-        );
-
-        // Add search
-        if (!empty($search)) {
-            $args['s'] = $search;
-        }
-
-        // Add category filter
-        if ($category > 0) {
-            $args['tax_query'] = array(
-                array(
-                    'taxonomy' => 'product_cat',
-                    'field'    => 'term_id',
-                    'terms'    => $category,
-                ),
-            );
-        }
-
-        $query = new WP_Query($args);
-        $products = array();
-
-        if ($query->have_posts()) {
-            while ($query->have_posts()) {
-                $query->the_post();
-                $product = wc_get_product(get_the_ID());
-                
-                if (!$product) {
-                    continue;
-                }
-
-                $products[] = array(
-                    'id'           => $product->get_id(),
-                    'name'         => $product->get_name(),
-                    'sku'          => $product->get_sku(),
-                    'price'        => $product->get_price(),
-                    'regular_price' => $product->get_regular_price(),
-                    'sale_price'   => $product->get_sale_price(),
-                    'stock_quantity' => $product->get_stock_quantity(),
-                    'manage_stock' => $product->get_manage_stock(),
-                    'stock_status' => $product->get_stock_status(),
-                    'image_url'    => wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'),
-                    'categories'   => wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'names')),
-                    'type'         => $product->get_type(),
-                );
-            }
-        }
-
-        wp_reset_postdata();
-
-        return array(
-            'products'     => $products,
-            'total_pages'  => $query->max_num_pages,
-            'current_page' => $page,
-            'total_products' => $query->found_posts,
-        );
-    }
 
     /**
      * Search customers.
@@ -386,6 +360,211 @@ class WUPOS_POS {
         );
 
         return $order_data;
+    }
+
+    /**
+     * Quick product search for live search dropdown.
+     */
+    private function search_products_quick($search, $limit = 10) {
+        $args = array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => $limit,
+            's'              => $search,
+            'meta_query'     => array(
+                array(
+                    'key'     => '_stock_status',
+                    'value'   => array('instock', 'onbackorder'),
+                    'compare' => 'IN',
+                ),
+            ),
+        );
+
+        // Also search by SKU
+        $sku_query = new WP_Query(array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => $limit,
+            'meta_query'     => array(
+                array(
+                    'key'     => '_sku',
+                    'value'   => $search,
+                    'compare' => 'LIKE',
+                ),
+                array(
+                    'key'     => '_stock_status',
+                    'value'   => array('instock', 'onbackorder'),
+                    'compare' => 'IN',
+                ),
+            ),
+        ));
+
+        $query = new WP_Query($args);
+        $products = array();
+        $product_ids = array();
+
+        // Get products from name search
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $product = wc_get_product(get_the_ID());
+                
+                if (!$product || in_array($product->get_id(), $product_ids)) {
+                    continue;
+                }
+
+                $product_ids[] = $product->get_id();
+                $products[] = array(
+                    'id'           => $product->get_id(),
+                    'name'         => $product->get_name(),
+                    'sku'          => $product->get_sku(),
+                    'price'        => $product->get_price(),
+                    'stock_status' => $product->get_stock_status(),
+                    'image_url'    => wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'),
+                );
+            }
+        }
+
+        // Add products from SKU search if we haven't reached the limit
+        if (count($products) < $limit && $sku_query->have_posts()) {
+            while ($sku_query->have_posts() && count($products) < $limit) {
+                $sku_query->the_post();
+                $product = wc_get_product(get_the_ID());
+                
+                if (!$product || in_array($product->get_id(), $product_ids)) {
+                    continue;
+                }
+
+                $products[] = array(
+                    'id'           => $product->get_id(),
+                    'name'         => $product->get_name(),
+                    'sku'          => $product->get_sku(),
+                    'price'        => $product->get_price(),
+                    'stock_status' => $product->get_stock_status(),
+                    'image_url'    => wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'),
+                );
+            }
+        }
+
+        wp_reset_postdata();
+
+        return $products;
+    }
+
+    /**
+     * Get product categories with counts.
+     */
+    private function get_product_categories() {
+        $terms = get_terms(array(
+            'taxonomy'   => 'product_cat',
+            'hide_empty' => true,
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+        ));
+
+        $categories = array();
+
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $term) {
+                $categories[] = array(
+                    'term_id'     => $term->term_id,
+                    'name'        => $term->name,
+                    'slug'        => $term->slug,
+                    'count'       => $term->count,
+                    'parent'      => $term->parent,
+                    'description' => $term->description,
+                );
+            }
+        }
+
+        return $categories;
+    }
+
+    /**
+     * Enhanced products query with better performance.
+     */
+    private function get_products_for_pos($page = 1, $per_page = 20, $search = '', $category = 0) {
+        $args = array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'paged'          => $page,
+            'orderby'        => 'menu_order title',
+            'order'          => 'ASC',
+            'meta_query'     => array(
+                array(
+                    'key'     => '_visibility',
+                    'value'   => array('visible', 'catalog'),
+                    'compare' => 'IN',
+                ),
+            ),
+        );
+
+        // Add search
+        if (!empty($search)) {
+            $args['s'] = $search;
+            
+            // Also search by SKU in meta query
+            $args['meta_query'][] = array(
+                'relation' => 'OR',
+                array(
+                    'key'     => '_sku',
+                    'value'   => $search,
+                    'compare' => 'LIKE',
+                ),
+            );
+        }
+
+        // Add category filter
+        if ($category > 0) {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'product_cat',
+                    'field'    => 'term_id',
+                    'terms'    => $category,
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $products = array();
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $product = wc_get_product(get_the_ID());
+                
+                if (!$product) {
+                    continue;
+                }
+
+                $products[] = array(
+                    'id'             => $product->get_id(),
+                    'name'           => $product->get_name(),
+                    'sku'            => $product->get_sku(),
+                    'price'          => $product->get_price(),
+                    'regular_price'  => $product->get_regular_price(),
+                    'sale_price'     => $product->get_sale_price(),
+                    'stock_quantity' => $product->get_stock_quantity(),
+                    'manage_stock'   => $product->get_manage_stock(),
+                    'stock_status'   => $product->get_stock_status(),
+                    'image_url'      => wp_get_attachment_image_url($product->get_image_id(), 'woocommerce_thumbnail'),
+                    'categories'     => wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'names')),
+                    'type'           => $product->get_type(),
+                    'featured'       => $product->is_featured(),
+                );
+            }
+        }
+
+        wp_reset_postdata();
+
+        return array(
+            'products'       => $products,
+            'total_pages'    => $query->max_num_pages,
+            'current_page'   => $page,
+            'total_products' => $query->found_posts,
+            'per_page'       => $per_page,
+        );
     }
 }
 

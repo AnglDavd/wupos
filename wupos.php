@@ -3,7 +3,7 @@
  * Plugin Name: WUPOS - Professional Point of Sale for WooCommerce
  * Plugin URI: https://github.com/AnglDavd/wupos
  * Description: Professional Terminal POS for WooCommerce with modern interface and robust functionality. 100% WooCommerce native integration.
- * Version: 0.1.0
+ * Version: 0.2.0-alpha
  * Author: WooTPV Team
  * Author URI: https://github.com/AnglDavd/wupos
  * License: GPL v2 or later
@@ -34,7 +34,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WUPOS_VERSION', '0.1.0');
+define('WUPOS_VERSION', '0.2.0-alpha');
 define('WUPOS_PLUGIN_FILE', __FILE__);
 define('WUPOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WUPOS_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -133,10 +133,16 @@ final class WUPOS {
      */
     public function includes() {
         /**
-         * Core classes.
+         * Core classes and functions.
          */
         include_once WUPOS_ABSPATH . 'includes/wupos-core-functions.php';
         include_once WUPOS_ABSPATH . 'includes/class-wupos-install.php';
+        
+        // Backend data integration classes
+        include_once WUPOS_ABSPATH . 'includes/class-wupos-cache-manager.php';
+        include_once WUPOS_ABSPATH . 'includes/class-wupos-inventory-sync.php';
+        include_once WUPOS_ABSPATH . 'includes/class-wupos-product-manager.php';
+        include_once WUPOS_ABSPATH . 'includes/class-wupos-hpos-compatibility.php';
         
         if ($this->is_request('admin')) {
             include_once WUPOS_ABSPATH . 'includes/admin/class-wupos-admin.php';
@@ -146,7 +152,7 @@ final class WUPOS {
             $this->frontend_includes();
         }
 
-        // REST API
+        // REST API (enhanced)
         include_once WUPOS_ABSPATH . 'includes/api/class-wupos-rest-api.php';
     }
 

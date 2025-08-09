@@ -104,8 +104,8 @@ class WUPOS_Frontend {
 
         // WUPOS POS styles
         wp_enqueue_style(
-            'wupos-pos',
-            WUPOS_PLUGIN_URL . 'assets/css/pos.css',
+            'wupos-pos-styles',
+            WUPOS_PLUGIN_URL . 'assets/css/dist/pos.css',
             array('bootstrap'),
             WUPOS_VERSION
         );
@@ -134,7 +134,7 @@ class WUPOS_Frontend {
         // WUPOS POS scripts
         wp_enqueue_script(
             'wupos-pos',
-            WUPOS_PLUGIN_URL . 'assets/js/pos.js',
+            WUPOS_PLUGIN_URL . 'assets/js/dist/pos.js',
             array('jquery', 'bootstrap', 'feather-icons'),
             WUPOS_VERSION,
             true

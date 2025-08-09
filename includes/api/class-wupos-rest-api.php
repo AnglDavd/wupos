@@ -2,6 +2,9 @@
 /**
  * WUPOS REST API
  *
+ * Enhanced REST API with WooCommerce integration, caching,
+ * and real-time inventory synchronization.
+ *
  * @package WUPOS\API
  * @since   1.0.0
  */
@@ -13,6 +16,9 @@ if (!defined('ABSPATH')) {
 
 /**
  * WUPOS_REST_API class.
+ *
+ * Handles all REST API endpoints for the WUPOS system with
+ * high-performance caching and WooCommerce native integration.
  */
 class WUPOS_REST_API {
 
@@ -22,26 +28,84 @@ class WUPOS_REST_API {
     const NAMESPACE_V1 = 'wupos/v1';
 
     /**
+     * Product Manager instance
+     *
+     * @var WUPOS_Product_Manager
+     */
+    private $product_manager;
+
+    /**
+     * Cache Manager instance
+     *
+     * @var WUPOS_Cache_Manager
+     */
+    private $cache_manager;
+
+    /**
+     * Inventory Sync instance
+     *
+     * @var WUPOS_Inventory_Sync
+     */
+    private $inventory_sync;
+
+    /**
+     * Rate limiting data
+     *
+     * @var array
+     */
+    private $rate_limits = array();
+
+    /**
      * Constructor.
      */
     public function __construct() {
+        $this->init_dependencies();
         add_action('rest_api_init', array($this, 'register_routes'));
+        add_action('init', array($this, 'init_rate_limiting'));
+    }
+
+    /**
+     * Initialize dependencies
+     */
+    private function init_dependencies() {
+        if (class_exists('WUPOS_Product_Manager')) {
+            $this->product_manager = new WUPOS_Product_Manager();
+        }
+        
+        if (class_exists('WUPOS_Cache_Manager')) {
+            $this->cache_manager = new WUPOS_Cache_Manager();
+        }
+        
+        if (class_exists('WUPOS_Inventory_Sync')) {
+            $this->inventory_sync = new WUPOS_Inventory_Sync();
+        }
+    }
+
+    /**
+     * Initialize rate limiting
+     */
+    public function init_rate_limiting() {
+        $this->rate_limits = get_transient('wupos_api_rate_limits') ?: array();
     }
 
     /**
      * Register API routes.
      */
     public function register_routes() {
-        // Products endpoints
+        // Products endpoints with enhanced functionality
         register_rest_route(self::NAMESPACE_V1, '/products', array(
             'methods'             => WP_REST_Server::READABLE,
             'callback'            => array($this, 'get_products'),
             'permission_callback' => array($this, 'check_pos_permissions'),
             'args'                => array(
-                'page'     => array('default' => 1, 'sanitize_callback' => 'absint'),
-                'per_page' => array('default' => 20, 'sanitize_callback' => 'absint'),
-                'search'   => array('default' => '', 'sanitize_callback' => 'sanitize_text_field'),
-                'category' => array('default' => 0, 'sanitize_callback' => 'absint'),
+                'page'          => array('default' => 1, 'sanitize_callback' => 'absint'),
+                'per_page'      => array('default' => 20, 'sanitize_callback' => 'absint'),
+                'search'        => array('default' => '', 'sanitize_callback' => 'sanitize_text_field'),
+                'category'      => array('default' => 0, 'sanitize_callback' => 'absint'),
+                'stock_status'  => array('default' => 'instock', 'sanitize_callback' => 'sanitize_text_field'),
+                'orderby'       => array('default' => 'date', 'sanitize_callback' => 'sanitize_text_field'),
+                'order'         => array('default' => 'DESC', 'sanitize_callback' => 'sanitize_text_field'),
+                'include_variations' => array('default' => false, 'sanitize_callback' => 'rest_sanitize_boolean'),
             ),
         ));
 
@@ -52,6 +116,89 @@ class WUPOS_REST_API {
             'args'                => array(
                 'id' => array('required' => true, 'sanitize_callback' => 'absint'),
             ),
+        ));
+
+        // Product search endpoint
+        register_rest_route(self::NAMESPACE_V1, '/products/search', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'search_products'),
+            'permission_callback' => array($this, 'check_pos_permissions'),
+            'args'                => array(
+                'q'              => array('required' => true, 'sanitize_callback' => 'sanitize_text_field'),
+                'limit'          => array('default' => 50, 'sanitize_callback' => 'absint'),
+                'search_fields'  => array('default' => array('name', 'sku', 'barcode'), 'sanitize_callback' => array($this, 'sanitize_array')),
+            ),
+        ));
+
+        // Product categories endpoint
+        register_rest_route(self::NAMESPACE_V1, '/categories', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_categories'),
+            'permission_callback' => array($this, 'check_pos_permissions'),
+            'args'                => array(
+                'hide_empty'     => array('default' => false, 'sanitize_callback' => 'rest_sanitize_boolean'),
+                'hierarchical'   => array('default' => true, 'sanitize_callback' => 'rest_sanitize_boolean'),
+                'include_count'  => array('default' => true, 'sanitize_callback' => 'rest_sanitize_boolean'),
+            ),
+        ));
+
+        // Stock management endpoints
+        register_rest_route(self::NAMESPACE_V1, '/stock/(?P<id>\d+)', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_stock_info'),
+            'permission_callback' => array($this, 'check_pos_permissions'),
+            'args'                => array(
+                'id' => array('required' => true, 'sanitize_callback' => 'absint'),
+            ),
+        ));
+
+        register_rest_route(self::NAMESPACE_V1, '/stock/(?P<id>\d+)', array(
+            'methods'             => WP_REST_Server::EDITABLE,
+            'callback'            => array($this, 'update_stock'),
+            'permission_callback' => array($this, 'check_stock_permissions'),
+            'args'                => array(
+                'id'        => array('required' => true, 'sanitize_callback' => 'absint'),
+                'quantity'  => array('required' => true, 'sanitize_callback' => 'floatval'),
+                'operation' => array('default' => 'set', 'sanitize_callback' => 'sanitize_text_field'),
+                'reason'    => array('default' => 'pos_adjustment', 'sanitize_callback' => 'sanitize_text_field'),
+                'note'      => array('default' => '', 'sanitize_callback' => 'sanitize_textarea_field'),
+            ),
+        ));
+
+        // Stock reservations
+        register_rest_route(self::NAMESPACE_V1, '/stock/reserve', array(
+            'methods'             => WP_REST_Server::CREATABLE,
+            'callback'            => array($this, 'reserve_stock'),
+            'permission_callback' => array($this, 'check_pos_permissions'),
+            'args'                => array(
+                'product_id' => array('required' => true, 'sanitize_callback' => 'absint'),
+                'quantity'   => array('required' => true, 'sanitize_callback' => 'absint'),
+                'order_key'  => array('required' => true, 'sanitize_callback' => 'sanitize_text_field'),
+                'timeout'    => array('default' => 300, 'sanitize_callback' => 'absint'),
+            ),
+        ));
+
+        register_rest_route(self::NAMESPACE_V1, '/stock/release', array(
+            'methods'             => WP_REST_Server::CREATABLE,
+            'callback'            => array($this, 'release_stock'),
+            'permission_callback' => array($this, 'check_pos_permissions'),
+            'args'                => array(
+                'order_key'  => array('required' => true, 'sanitize_callback' => 'sanitize_text_field'),
+                'product_id' => array('default' => null, 'sanitize_callback' => 'absint'),
+            ),
+        ));
+
+        // Cache management endpoints
+        register_rest_route(self::NAMESPACE_V1, '/cache/clear', array(
+            'methods'             => WP_REST_Server::CREATABLE,
+            'callback'            => array($this, 'clear_cache'),
+            'permission_callback' => array($this, 'check_admin_permissions'),
+        ));
+
+        register_rest_route(self::NAMESPACE_V1, '/cache/stats', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_cache_stats'),
+            'permission_callback' => array($this, 'check_admin_permissions'),
         ));
 
         // Customers endpoints
@@ -124,68 +271,332 @@ class WUPOS_REST_API {
     }
 
     /**
-     * Get products.
+     * Get products using enhanced Product Manager.
      */
     public function get_products($request) {
-        try {
-            $page = $request->get_param('page');
-            $per_page = $request->get_param('per_page');
-            $search = $request->get_param('search');
-            $category = $request->get_param('category');
-
-            $args = array(
-                'post_type'      => 'product',
-                'post_status'    => 'publish',
-                'posts_per_page' => $per_page,
-                'paged'          => $page,
-                'meta_query'     => array(
-                    array(
-                        'key'     => '_stock_status',
-                        'value'   => 'instock',
-                        'compare' => '=',
-                    ),
-                ),
+        // Apply rate limiting
+        if (!$this->check_rate_limit($request)) {
+            return new WP_Error('rate_limit_exceeded', 
+                __('Rate limit exceeded. Please try again later.', 'wupos'), 
+                array('status' => 429)
             );
+        }
 
-            if (!empty($search)) {
-                $args['s'] = $search;
+        try {
+            // Fallback if Product Manager not available
+            if (!$this->product_manager) {
+                return $this->get_products_legacy($request);
             }
 
-            if ($category > 0) {
-                $args['tax_query'] = array(
-                    array(
-                        'taxonomy' => 'product_cat',
-                        'field'    => 'term_id',
-                        'terms'    => $category,
-                    ),
+            $args = array(
+                'page'          => $request->get_param('page'),
+                'per_page'      => $request->get_param('per_page'),
+                'search'        => $request->get_param('search'),
+                'category'      => $request->get_param('category'),
+                'stock_status'  => $request->get_param('stock_status'),
+                'orderby'       => $request->get_param('orderby'),
+                'order'         => $request->get_param('order'),
+                'include_variations' => $request->get_param('include_variations'),
+            );
+
+            $result = $this->product_manager->get_products($args);
+            
+            if (isset($result['error']) && $result['error']) {
+                return new WP_Error($result['code'], $result['message'], array('status' => 500));
+            }
+
+            // Add performance metadata
+            $result['api_version'] = '1.0.0';
+            $result['timestamp'] = current_time('timestamp');
+            $result['hpos_enabled'] = wupos_is_hpos_enabled();
+
+            return new WP_REST_Response($result, 200);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in get_products: ' . $e->getMessage(), 'error');
+            return new WP_Error('wupos_api_error', 
+                __('An error occurred while fetching products.', 'wupos'), 
+                array('status' => 500)
+            );
+        }
+    }
+
+    /**
+     * Search products using enhanced search functionality.
+     */
+    public function search_products($request) {
+        if (!$this->check_rate_limit($request)) {
+            return new WP_Error('rate_limit_exceeded', 
+                __('Rate limit exceeded. Please try again later.', 'wupos'), 
+                array('status' => 429)
+            );
+        }
+
+        try {
+            if (!$this->product_manager) {
+                return new WP_Error('service_unavailable', 
+                    __('Product search service is not available.', 'wupos'), 
+                    array('status' => 503)
                 );
             }
 
-            $query = new WP_Query($args);
-            $products = array();
+            $search_term = $request->get_param('q');
+            $args = array(
+                'limit' => $request->get_param('limit'),
+                'search_fields' => $request->get_param('search_fields'),
+            );
 
-            if ($query->have_posts()) {
-                while ($query->have_posts()) {
-                    $query->the_post();
-                    $product = wc_get_product(get_the_ID());
-                    
-                    if ($product) {
-                        $products[] = $this->prepare_product_response($product);
-                    }
-                }
+            $result = $this->product_manager->search_products($search_term, $args);
+            $result['timestamp'] = current_time('timestamp');
+
+            return new WP_REST_Response($result, 200);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in search_products: ' . $e->getMessage(), 'error');
+            return new WP_Error('search_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Get product categories.
+     */
+    public function get_categories($request) {
+        if (!$this->check_rate_limit($request)) {
+            return new WP_Error('rate_limit_exceeded', 
+                __('Rate limit exceeded. Please try again later.', 'wupos'), 
+                array('status' => 429)
+            );
+        }
+
+        try {
+            if (!$this->product_manager) {
+                return $this->get_categories_legacy($request);
             }
 
-            wp_reset_postdata();
+            $args = array(
+                'hide_empty' => $request->get_param('hide_empty'),
+                'hierarchical' => $request->get_param('hierarchical'),
+                'include_count' => $request->get_param('include_count'),
+            );
+
+            $result = $this->product_manager->get_categories($args);
+            
+            if (isset($result['error']) && $result['error']) {
+                return new WP_Error('categories_error', $result['error'], array('status' => 500));
+            }
+
+            $result['timestamp'] = current_time('timestamp');
+            return new WP_REST_Response($result, 200);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in get_categories: ' . $e->getMessage(), 'error');
+            return new WP_Error('categories_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Get stock information for a product.
+     */
+    public function get_stock_info($request) {
+        if (!$this->check_rate_limit($request)) {
+            return new WP_Error('rate_limit_exceeded', 
+                __('Rate limit exceeded. Please try again later.', 'wupos'), 
+                array('status' => 429)
+            );
+        }
+
+        try {
+            $product_id = $request->get_param('id');
+
+            if (!$this->inventory_sync) {
+                return new WP_Error('service_unavailable', 
+                    __('Inventory service is not available.', 'wupos'), 
+                    array('status' => 503)
+                );
+            }
+
+            $result = $this->inventory_sync->get_real_time_stock($product_id);
+            
+            if (isset($result['error']) && $result['error']) {
+                return new WP_Error($result['code'], $result['message'], array('status' => 400));
+            }
+
+            return new WP_REST_Response($result, 200);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in get_stock_info: ' . $e->getMessage(), 'error');
+            return new WP_Error('stock_info_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Update product stock.
+     */
+    public function update_stock($request) {
+        if (!$this->check_rate_limit($request, 'write')) {
+            return new WP_Error('rate_limit_exceeded', 
+                __('Rate limit exceeded. Please try again later.', 'wupos'), 
+                array('status' => 429)
+            );
+        }
+
+        try {
+            if (!$this->inventory_sync) {
+                return new WP_Error('service_unavailable', 
+                    __('Inventory service is not available.', 'wupos'), 
+                    array('status' => 503)
+                );
+            }
+
+            $product_id = $request->get_param('id');
+            $quantity = $request->get_param('quantity');
+            $operation = $request->get_param('operation');
+            
+            $options = array(
+                'terminal_id' => wupos_get_session_id(),
+                'user_id' => get_current_user_id(),
+                'reason' => $request->get_param('reason'),
+                'note' => $request->get_param('note'),
+            );
+
+            $result = $this->inventory_sync->update_stock($product_id, $quantity, $operation, $options);
+            
+            if (is_wp_error($result)) {
+                return $result;
+            }
+
+            return new WP_REST_Response($result, 200);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in update_stock: ' . $e->getMessage(), 'error');
+            return new WP_Error('stock_update_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Reserve stock for pending orders.
+     */
+    public function reserve_stock($request) {
+        if (!$this->check_rate_limit($request, 'write')) {
+            return new WP_Error('rate_limit_exceeded', 
+                __('Rate limit exceeded. Please try again later.', 'wupos'), 
+                array('status' => 429)
+            );
+        }
+
+        try {
+            if (!$this->inventory_sync) {
+                return new WP_Error('service_unavailable', 
+                    __('Inventory service is not available.', 'wupos'), 
+                    array('status' => 503)
+                );
+            }
+
+            $product_id = $request->get_param('product_id');
+            $quantity = $request->get_param('quantity');
+            $order_key = $request->get_param('order_key');
+            $timeout = $request->get_param('timeout');
+
+            $result = $this->inventory_sync->reserve_stock($product_id, $quantity, $order_key, $timeout);
+            
+            if (is_wp_error($result)) {
+                return $result;
+            }
+
+            return new WP_REST_Response($result, 201);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in reserve_stock: ' . $e->getMessage(), 'error');
+            return new WP_Error('stock_reservation_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Release stock reservations.
+     */
+    public function release_stock($request) {
+        if (!$this->check_rate_limit($request, 'write')) {
+            return new WP_Error('rate_limit_exceeded', 
+                __('Rate limit exceeded. Please try again later.', 'wupos'), 
+                array('status' => 429)
+            );
+        }
+
+        try {
+            if (!$this->inventory_sync) {
+                return new WP_Error('service_unavailable', 
+                    __('Inventory service is not available.', 'wupos'), 
+                    array('status' => 503)
+                );
+            }
+
+            $order_key = $request->get_param('order_key');
+            $product_id = $request->get_param('product_id');
+
+            $result = $this->inventory_sync->release_stock_reservation($order_key, $product_id);
+            
+            if (is_wp_error($result)) {
+                return $result;
+            }
+
+            return new WP_REST_Response($result, 200);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in release_stock: ' . $e->getMessage(), 'error');
+            return new WP_Error('stock_release_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Clear cache.
+     */
+    public function clear_cache($request) {
+        try {
+            if (!$this->cache_manager) {
+                return new WP_Error('service_unavailable', 
+                    __('Cache service is not available.', 'wupos'), 
+                    array('status' => 503)
+                );
+            }
+
+            $this->cache_manager->clear_all_cache();
 
             return new WP_REST_Response(array(
-                'products'       => $products,
-                'total_pages'    => $query->max_num_pages,
-                'current_page'   => $page,
-                'total_products' => $query->found_posts,
+                'success' => true,
+                'message' => __('All caches cleared successfully.', 'wupos'),
+                'timestamp' => current_time('timestamp'),
             ), 200);
 
         } catch (Exception $e) {
-            return new WP_Error('wupos_error', $e->getMessage(), array('status' => 500));
+            wupos_log('API Error in clear_cache: ' . $e->getMessage(), 'error');
+            return new WP_Error('cache_clear_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Get cache statistics.
+     */
+    public function get_cache_stats($request) {
+        try {
+            if (!$this->cache_manager) {
+                return new WP_Error('service_unavailable', 
+                    __('Cache service is not available.', 'wupos'), 
+                    array('status' => 503)
+                );
+            }
+
+            $stats = $this->cache_manager->get_cache_stats();
+            $health = $this->cache_manager->get_cache_health();
+
+            return new WP_REST_Response(array(
+                'stats' => $stats,
+                'health' => $health,
+                'timestamp' => current_time('timestamp'),
+            ), 200);
+
+        } catch (Exception $e) {
+            wupos_log('API Error in get_cache_stats: ' . $e->getMessage(), 'error');
+            return new WP_Error('cache_stats_error', $e->getMessage(), array('status' => 500));
         }
     }
 
@@ -489,6 +900,214 @@ class WUPOS_REST_API {
                 'change_given'   => $order->get_meta('_wupos_change_given'),
             ),
         );
+    }
+
+    /**
+     * Check rate limiting for API requests
+     *
+     * @param WP_REST_Request $request Request object
+     * @param string $type Request type (read/write)
+     * @return bool True if within limits
+     */
+    private function check_rate_limit($request, $type = 'read') {
+        $user_id = get_current_user_id();
+        
+        if (!$user_id) {
+            return false; // No anonymous access
+        }
+
+        // Get rate limits based on user role
+        $limits = $this->get_rate_limits($user_id, $type);
+        $current_time = current_time('timestamp');
+        $window_start = $current_time - HOUR_IN_SECONDS;
+        
+        // Generate rate limit key
+        $rate_key = sprintf('user_%d_%s_%d', $user_id, $type, floor($current_time / HOUR_IN_SECONDS));
+        
+        // Get current count
+        $current_count = get_transient($rate_key) ?: 0;
+        
+        if ($current_count >= $limits) {
+            wupos_log(sprintf('Rate limit exceeded for user %d: %d/%d (%s)', $user_id, $current_count, $limits, $type), 'warning');
+            return false;
+        }
+        
+        // Increment counter
+        set_transient($rate_key, $current_count + 1, HOUR_IN_SECONDS);
+        
+        return true;
+    }
+
+    /**
+     * Get rate limits for user
+     *
+     * @param int $user_id User ID
+     * @param string $type Request type
+     * @return int Rate limit
+     */
+    private function get_rate_limits($user_id, $type = 'read') {
+        $user = get_userdata($user_id);
+        $limits = array(
+            'read' => 1000,   // Default read limit per hour
+            'write' => 200,   // Default write limit per hour
+        );
+        
+        if ($user && in_array('administrator', $user->roles)) {
+            $limits = array(
+                'read' => 5000,
+                'write' => 1000,
+            );
+        } elseif ($user && in_array('shop_manager', $user->roles)) {
+            $limits = array(
+                'read' => 2000,
+                'write' => 500,
+            );
+        }
+        
+        $limits = apply_filters('wupos_api_rate_limits', $limits, $user_id, $type);
+        
+        return isset($limits[$type]) ? $limits[$type] : 1000;
+    }
+
+    /**
+     * Check admin permissions
+     */
+    public function check_admin_permissions($request) {
+        return current_user_can('manage_options') && wupos_user_can_pos();
+    }
+
+    /**
+     * Check stock management permissions
+     */
+    public function check_stock_permissions($request) {
+        return current_user_can('manage_woocommerce') && wupos_user_can_pos();
+    }
+
+    /**
+     * Sanitize array input
+     *
+     * @param mixed $value Input value
+     * @return array Sanitized array
+     */
+    public function sanitize_array($value) {
+        if (!is_array($value)) {
+            return array();
+        }
+        
+        return array_map('sanitize_text_field', $value);
+    }
+
+    /**
+     * Legacy fallback for get_products (without Product Manager)
+     */
+    private function get_products_legacy($request) {
+        try {
+            $page = $request->get_param('page');
+            $per_page = $request->get_param('per_page');
+            $search = $request->get_param('search');
+            $category = $request->get_param('category');
+
+            $args = array(
+                'post_type'      => 'product',
+                'post_status'    => 'publish',
+                'posts_per_page' => $per_page,
+                'paged'          => $page,
+                'meta_query'     => array(
+                    array(
+                        'key'     => '_stock_status',
+                        'value'   => 'instock',
+                        'compare' => '=',
+                    ),
+                ),
+            );
+
+            if (!empty($search)) {
+                $args['s'] = $search;
+            }
+
+            if ($category > 0) {
+                $args['tax_query'] = array(
+                    array(
+                        'taxonomy' => 'product_cat',
+                        'field'    => 'term_id',
+                        'terms'    => $category,
+                    ),
+                );
+            }
+
+            $query = new WP_Query($args);
+            $products = array();
+
+            if ($query->have_posts()) {
+                while ($query->have_posts()) {
+                    $query->the_post();
+                    $product = wc_get_product(get_the_ID());
+                    
+                    if ($product) {
+                        $products[] = $this->prepare_product_response($product);
+                    }
+                }
+            }
+
+            wp_reset_postdata();
+
+            return new WP_REST_Response(array(
+                'products'       => $products,
+                'total_pages'    => $query->max_num_pages,
+                'current_page'   => $page,
+                'total_products' => $query->found_posts,
+                'api_version'    => '1.0.0-legacy',
+                'timestamp'      => current_time('timestamp'),
+                'hpos_enabled'   => wupos_is_hpos_enabled(),
+                'from_cache'     => false,
+            ), 200);
+
+        } catch (Exception $e) {
+            return new WP_Error('wupos_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
+     * Legacy fallback for get_categories (without Product Manager)
+     */
+    private function get_categories_legacy($request) {
+        try {
+            $hide_empty = $request->get_param('hide_empty');
+            
+            $terms = get_terms(array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => $hide_empty,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            ));
+            
+            if (is_wp_error($terms)) {
+                throw new Exception($terms->get_error_message());
+            }
+
+            $categories = array();
+            
+            foreach ($terms as $term) {
+                $categories[] = array(
+                    'id'          => $term->term_id,
+                    'name'        => $term->name,
+                    'slug'        => $term->slug,
+                    'parent'      => $term->parent,
+                    'description' => $term->description,
+                    'count'       => $term->count,
+                );
+            }
+            
+            return new WP_REST_Response(array(
+                'categories' => $categories,
+                'total' => count($categories),
+                'timestamp' => current_time('timestamp'),
+                'from_cache' => false,
+            ), 200);
+
+        } catch (Exception $e) {
+            return new WP_Error('categories_error', $e->getMessage(), array('status' => 500));
+        }
     }
 }
 

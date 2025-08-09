@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WooTPV POS Catalog Interface Test</title>
+    
+    <!-- Bootstrap 5.3 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Test Styles -->
+    <link rel="stylesheet" href="../assets/css/src/pos.scss" type="text/css">
+    
+    <style>
+        /* Test-specific styles */
+        .test-container {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 20px;
+        }
+        
+        @media (min-width: 1366px) and (max-width: 1599px) {
+            .test-product-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+        
+        @media (min-width: 1600px) {
+            .test-product-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        
+        /* Mock product cards */
+        .mock-product-card {
+            width: 100%;
+            aspect-ratio: 5/6;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+        
+        .mock-product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+            border-color: #3b82f6;
+        }
+        
+        .mock-product-image {
+            flex: 1;
+            background: #f1f5f9;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        
+        .mock-product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .mock-product-info .product-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #334155;
+            line-height: 1.25;
+            margin-bottom: 8px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .mock-product-info .product-price {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .stock-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .stock-indicator.in-stock {
+            background-color: #059669;
+        }
+        
+        .stock-indicator.low-stock {
+            background-color: #d97706;
+        }
+        
+        .stock-indicator.out-of-stock {
+            background-color: #dc2626;
+        }
+    </style>
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1 class="mb-4">WooTPV POS Catalog Interface Test</h1>
+        
+        <!-- Layout Test Section -->
+        <div class="test-section">
+            <h2 class="mb-3">3-Column Layout Test (1366px+ screens)</h2>
+            <div class="wootpv-pos-layout" style="height: 600px; border: 2px solid #ddd;">
+                
+                <!-- Header -->
+                <div style="grid-area: header; background: #f8f9fa; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; padding: 0 20px;">
+                    <strong>WooTPV Header (65px)</strong>
+                </div>
+                
+                <!-- Sidebar -->
+                <div style="grid-area: sidebar; background: #ffffff; border-right: 1px solid #dee2e6; padding: 10px;">
+                    <strong>Categories</strong><br>
+                    <small>100px width</small>
+                </div>
+                
+                <!-- Products Grid -->
+                <div style="grid-area: products; background: #f8fafc; padding: 20px; overflow: auto;">
+                    <strong>Products Grid Area</strong>
+                    <div class="test-product-grid">
+                        <!-- Sample Product Cards -->
+                        <div class="mock-product-card">
+                            <div class="stock-indicator in-stock"></div>
+                            <div class="mock-product-image">
+                                <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                            </div>
+                            <div class="mock-product-info">
+                                <div class="product-name">Sample Product 1</div>
+                                <div class="product-price">$29.99</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mock-product-card">
+                            <div class="stock-indicator low-stock"></div>
+                            <div class="mock-product-image">
+                                <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                            </div>
+                            <div class="mock-product-info">
+                                <div class="product-name">Sample Product with Long Name</div>
+                                <div class="product-price">$49.99</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mock-product-card">
+                            <div class="stock-indicator in-stock"></div>
+                            <div class="mock-product-image">
+                                <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                            </div>
+                            <div class="mock-product-info">
+                                <div class="product-name">Product 3</div>
+                                <div class="product-price">$19.99</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mock-product-card">
+                            <div class="stock-indicator out-of-stock"></div>
+                            <div class="mock-product-image">
+                                <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                            </div>
+                            <div class="mock-product-info">
+                                <div class="product-name">Out of Stock Item</div>
+                                <div class="product-price">$39.99</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mock-product-card">
+                            <div class="stock-indicator in-stock"></div>
+                            <div class="mock-product-image">
+                                <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                            </div>
+                            <div class="mock-product-info">
+                                <div class="product-name">Product 5</div>
+                                <div class="product-price">$59.99</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mock-product-card">
+                            <div class="stock-indicator in-stock"></div>
+                            <div class="mock-product-image">
+                                <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                            </div>
+                            <div class="mock-product-info">
+                                <div class="product-name">Product 6</div>
+                                <div class="product-price">$24.99</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cart -->
+                <div style="grid-area: cart; background: #ffffff; border-left: 1px solid #dee2e6; padding: 10px;">
+                    <strong>Shopping Cart</strong><br>
+                    <small>320px width</small>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Product Grid Responsiveness Test -->
+        <div class="test-section">
+            <h2 class="mb-3">Product Grid Responsiveness Test</h2>
+            <p>Grid should show:</p>
+            <ul>
+                <li><strong>6 columns</strong> on screens 1600px+</li>
+                <li><strong>5 columns</strong> on screens 1366px-1599px</li>
+                <li><strong>4 columns</strong> on screens 992px-1365px</li>
+                <li><strong>3 columns</strong> on screens 768px-991px</li>
+                <li><strong>2 columns</strong> on screens below 768px</li>
+            </ul>
+            
+            <div class="test-product-grid" style="border: 2px solid #ddd; min-height: 400px;">
+                <!-- More sample cards for responsiveness testing -->
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 1</div>
+                        <div class="product-price">$15.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 2</div>
+                        <div class="product-price">$25.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator low-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Low Stock Product</div>
+                        <div class="product-price">$35.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 4</div>
+                        <div class="product-price">$45.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 5</div>
+                        <div class="product-price">$55.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 6</div>
+                        <div class="product-price">$65.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 7</div>
+                        <div class="product-price">$75.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 8</div>
+                        <div class="product-price">$85.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 9</div>
+                        <div class="product-price">$95.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 10</div>
+                        <div class="product-price">$105.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 11</div>
+                        <div class="product-price">$115.99</div>
+                    </div>
+                </div>
+                
+                <div class="mock-product-card">
+                    <div class="stock-indicator in-stock"></div>
+                    <div class="mock-product-image">
+                        <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 4px;"></div>
+                    </div>
+                    <div class="mock-product-info">
+                        <div class="product-name">Responsive Product 12</div>
+                        <div class="product-price">$125.99</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Accessibility Test Section -->
+        <div class="test-section">
+            <h2 class="mb-3">Accessibility Features Test</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Touch Targets</h4>
+                    <p>All interactive elements should have minimum 44px touch targets:</p>
+                    <button class="btn btn-primary" style="min-width: 44px; min-height: 44px;">
+                        <i data-feather="plus"></i>
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <h4>Focus Management</h4>
+                    <p>Tab through these elements to test focus ring:</p>
+                    <input type="text" class="form-control mb-2" placeholder="Search products...">
+                    <button class="btn btn-outline-primary">Category 1</button>
+                    <button class="btn btn-outline-primary ms-2">Category 2</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Test Section -->
+        <div class="test-section">
+            <h2 class="mb-3">Performance Test Information</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>Load Time Target</h4>
+                    <p><strong>&lt;2 seconds</strong> for POS page</p>
+                </div>
+                <div class="col-md-4">
+                    <h4>Search Response</h4>
+                    <p><strong>&lt;300ms</strong> for search results</p>
+                </div>
+                <div class="col-md-4">
+                    <h4>Bundle Size</h4>
+                    <p><strong>&lt;300KB</strong> JS + CSS combined</p>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <h4>Browser Support</h4>
+                <ul>
+                    <li>Chrome 90+</li>
+                    <li>Firefox 88+</li>
+                    <li>Safari 14+</li>
+                    <li>Edge 90+</li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Test Scripts -->
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+        
+        // Test interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to product cards for testing
+            const productCards = document.querySelectorAll('.mock-product-card');
+            productCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Simulate cart addition visual feedback
+                    this.style.backgroundColor = '#e6fffa';
+                    setTimeout(() => {
+                        this.style.backgroundColor = '';
+                    }, 300);
+                });
+            });
+            
+            // Add current screen size indicator
+            function updateScreenSize() {
+                const width = window.innerWidth;
+                let columns = 'auto-fill';
+                
+                if (width >= 1600) {
+                    columns = '6 columns';
+                } else if (width >= 1366) {
+                    columns = '5 columns';
+                } else if (width >= 992) {
+                    columns = '4 columns';
+                } else if (width >= 768) {
+                    columns = '3 columns';
+                } else {
+                    columns = '2 columns';
+                }
+                
+                // Add screen size indicator to page
+                let indicator = document.getElementById('screen-size-indicator');
+                if (!indicator) {
+                    indicator = document.createElement('div');
+                    indicator.id = 'screen-size-indicator';
+                    indicator.style.cssText = 'position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 4px; font-family: monospace; z-index: 9999;';
+                    document.body.appendChild(indicator);
+                }
+                
+                indicator.textContent = `${width}px (${columns})`;
+            }
+            
+            updateScreenSize();
+            window.addEventListener('resize', updateScreenSize);
+        });
+    </script>
+    
+</body>
+</html>
