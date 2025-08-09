@@ -1,0 +1,57 @@
+{
+  "name": "wupos",
+  "version": "1.0.0",
+  "description": "Professional Point of Sale for WooCommerce",
+  "main": "assets/js/pos.js",
+  "scripts": {
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
+    "build:production": "wp-scripts build --mode=production",
+    "dev": "wp-scripts start --mode=development",
+    "lint:js": "wp-scripts lint-js",
+    "lint:css": "wp-scripts lint-style",
+    "format:js": "wp-scripts format-js",
+    "test:unit": "wp-scripts test-unit-js",
+    "test:e2e": "wp-scripts test-e2e",
+    "packages-update": "wp-scripts packages-update"
+  },
+  "keywords": [
+    "wordpress",
+    "woocommerce",
+    "pos",
+    "point-of-sale",
+    "terminal"
+  ],
+  "author": "WUPOS Team",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/AnglDavd/wupos",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnglDavd/wupos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AnglDavd/wupos/issues"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^26.19.0",
+    "@wordpress/eslint-plugin": "^17.4.0",
+    "@wordpress/stylelint-config": "^21.19.0",
+    "eslint": "^8.57.0",
+    "stylelint": "^15.11.0",
+    "sass": "^1.69.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^6.39.0",
+    "@wordpress/element": "^5.19.0",
+    "@wordpress/i18n": "^4.42.0",
+    "@wordpress/components": "^25.8.0",
+    "@wordpress/data": "^9.12.0"
+  },
+  "browserslist": [
+    "extends @wordpress/browserslist-config"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

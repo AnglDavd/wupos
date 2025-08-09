@@ -1,0 +1,126 @@
+name: Build & Test WUPOS
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-versions: ['8.0', '8.1', '8.2']
+        wordpress-versions: ['6.0', '6.1', '6.2', '6.3', '6.4']
+    
+    name: PHP ${{ matrix.php-versions }} - WP ${{ matrix.wordpress-versions }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        coverage: xdebug
+        tools: composer, cs2pr
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install PHP dependencies
+      run: composer install --prefer-dist --no-progress --no-dev
+
+    - name: Install Node.js dependencies
+      run: npm ci
+
+    - name: WordPress Coding Standards
+      run: |
+        ./vendor/bin/phpcs --config-set installed_paths ./vendor/wp-coding-standards/wpcs
+        ./vendor/bin/phpcs --standard=WordPress --extensions=php --ignore=vendor/ .
+
+    - name: PHP Compatibility Check
+      run: ./vendor/bin/phpcs --standard=PHPCompatibilityWP --runtime-set testVersion 8.0- --extensions=php --ignore=vendor/ .
+
+    - name: JavaScript Linting
+      run: npm run lint:js
+
+    - name: CSS Linting  
+      run: npm run lint:css
+
+    - name: Build Assets
+      run: npm run build
+
+    - name: WordPress Plugin Check
+      uses: wordpress/plugin-check-action@v1
+      with:
+        build-dir: '.'
+        exclude-checks: 'plugin_header_text_domain'
+
+    - name: Security Scan
+      run: |
+        if [ -f "composer.lock" ]; then
+          composer audit --no-dev
+        fi
+
+    - name: Archive build artifacts
+      if: matrix.php-versions == '8.1' && matrix.wordpress-versions == '6.4'
+      uses: actions/upload-artifact@v4
+      with:
+        name: wupos-build
+        path: |
+          .
+          !node_modules/
+          !.git/
+          !tests/
+          !.github/
+        retention-days: 5
+
+  integration-test:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mysql, zip, curl, gd, mbstring, xml
+        coverage: xdebug
+
+    - name: Setup WordPress Test Environment
+      run: |
+        bash bin/install-wp-tests.sh wordpress_test root '' localhost:3306 latest
+        
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run Integration Tests
+      run: ./vendor/bin/phpunit --configuration phpunit-integration.xml --coverage-clover coverage.xml
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: integration
+        name: codecov-wupos

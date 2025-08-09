@@ -1,0 +1,132 @@
+name: Release WUPOS
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        tools: composer
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        composer install --no-dev --optimize-autoloader --no-interaction
+        npm ci
+
+    - name: Build production assets
+      run: npm run build:production
+
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Update plugin version
+      run: |
+        sed -i "s/Version: .*/Version: ${{ steps.get_version.outputs.VERSION }}/" wupos.php
+        sed -i "s/define('WUPOS_VERSION', '.*');/define('WUPOS_VERSION', '${{ steps.get_version.outputs.VERSION }}');/" wupos.php
+
+    - name: Create plugin package
+      run: |
+        # Create temporary directory
+        mkdir -p /tmp/wupos
+        
+        # Copy plugin files excluding development files
+        rsync -av --progress . /tmp/wupos/ \
+          --exclude='.git*' \
+          --exclude='node_modules' \
+          --exclude='tests' \
+          --exclude='bin' \
+          --exclude='.github' \
+          --exclude='composer.json' \
+          --exclude='composer.lock' \
+          --exclude='package*.json' \
+          --exclude='webpack.config.js' \
+          --exclude='phpunit.xml*' \
+          --exclude='.phpcs.xml*' \
+          --exclude='README.md' \
+          --exclude='CHANGELOG.md' \
+          --exclude='LICENSE' \
+          --exclude='.editorconfig' \
+          --exclude='.gitignore'
+        
+        # Create zip file
+        cd /tmp
+        zip -r wupos-${{ steps.get_version.outputs.VERSION }}.zip wupos/
+        
+        # Copy back to workspace
+        cp wupos-${{ steps.get_version.outputs.VERSION }}.zip $GITHUB_WORKSPACE/
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        if [ -f CHANGELOG.md ]; then
+          # Extract changelog for current version
+          awk '/^## \[?'${{ steps.get_version.outputs.VERSION }}'\]?/{p=1; next} /^## \[?[0-9]/{p=0} p' CHANGELOG.md > current_changelog.txt
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          cat current_changelog.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        else
+          echo "CHANGELOG=Release version ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: WUPOS v${{ steps.get_version.outputs.VERSION }}
+        body: ${{ steps.changelog.outputs.CHANGELOG }}
+        files: |
+          wupos-${{ steps.get_version.outputs.VERSION }}.zip
+        draft: false
+        prerelease: ${{ contains(steps.get_version.outputs.VERSION, '-') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update latest release
+      run: |
+        # Copy the zip file as wupos.zip for easy download
+        cp wupos-${{ steps.get_version.outputs.VERSION }}.zip wupos.zip
+
+    - name: Upload latest zip
+      uses: softprops/action-gh-release@v1
+      with:
+        name: WUPOS v${{ steps.get_version.outputs.VERSION }}
+        files: wupos.zip
+        draft: false
+        prerelease: ${{ contains(steps.get_version.outputs.VERSION, '-') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  wordpress-org-deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: "!contains(github.ref, '-')" # Only for stable releases, not pre-releases
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: WordPress.org Plugin Deploy
+      uses: 10up/action-wordpress-plugin-deploy@stable
+      env:
+        SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_USERNAME }}
+        SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_PASSWORD }}
+        SLUG: wupos
+      with:
+        dry-run: true # Remove this line when ready for actual deployment

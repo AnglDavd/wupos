@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
+    backupGlobals="false"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    cacheResult="false"
+    verbose="true">
+    
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./includes</directory>
+            <file>./wupos.php</file>
+        </include>
+        <exclude>
+            <directory>./vendor</directory>
+            <directory>./tests</directory>
+            <directory>./node_modules</directory>
+            <directory>./assets</directory>
+            <directory>./templates</directory>
+        </exclude>
+        <report>
+            <html outputDirectory="./coverage/html"/>
+            <text outputFile="./coverage/coverage.txt"/>
+            <clover outputFile="./coverage/clover.xml"/>
+        </report>
+    </coverage>
+
+    <testsuites>
+        <testsuite name="WUPOS Test Suite">
+            <directory>./tests</directory>
+        </testsuite>
+        <testsuite name="Unit Tests">
+            <directory>./tests/unit</directory>
+        </testsuite>
+        <testsuite name="Integration Tests">
+            <directory>./tests/integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <const name="WP_TESTS_DOMAIN" value="example.org" />
+        <const name="WP_TESTS_EMAIL" value="admin@example.org" />
+        <const name="WP_TESTS_TITLE" value="Test Blog" />
+        <const name="WP_PHP_BINARY" value="php" />
+        <const name="WP_TESTS_TABLE_PREFIX" value="wptests_" />
+        <const name="WP_TESTS_MULTISITE" value="0" />
+        
+        <server name="SERVER_NAME" value="http://example.org"/>
+        
+        <!-- WordPress Test Suite Configuration -->
+        <env name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib"/>
+        <env name="WP_CORE_DIR" value="/tmp/wordpress"/>
+    </php>
+
+    <logging>
+        <junit outputFile="./tests/results/junit.xml"/>
+    </logging>
+
+</phpunit>

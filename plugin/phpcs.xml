@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WUPOS" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+
+    <description>WordPress Coding Standards for WUPOS plugin</description>
+
+    <!-- What to scan -->
+    <file>.</file>
+    
+    <!-- Exclude paths -->
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+    <exclude-pattern>/build/*</exclude-pattern>
+    <exclude-pattern>/assets/js/dist/*</exclude-pattern>
+    <exclude-pattern>/assets/css/dist/*</exclude-pattern>
+    <exclude-pattern>/tests/*</exclude-pattern>
+    <exclude-pattern>/coverage/*</exclude-pattern>
+
+    <!-- How to scan -->
+    <!-- Usage instructions: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
+    <!-- Annotated ruleset: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml -->
+    <arg value="sp"/> <!-- Show sniff and progress -->
+    <arg name="basepath" value="./"/><!-- Strip the file paths down to the relevant bit -->
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="8"/><!-- Enables parallel processing when available for faster results -->
+
+    <!-- Rules: Check PHP version compatibility -->
+    <!-- https://github.com/PHPCompatibility/PHPCompatibility#sniffing-your-code-for-compatibility-with-specific-php-versions -->
+    <config name="testVersion" value="8.0-"/>
+    <!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
+    <rule ref="PHPCompatibilityWP"/>
+
+    <!-- Rules: WordPress Coding Standards -->
+    <!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards -->
+    <!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
+    <config name="minimum_supported_wp_version" value="6.0"/>
+    <rule ref="WordPress">
+        <!-- Allow . in hook names -->
+        <exclude name="WordPress.NamingConventions.ValidHookName.UseUnderscores"/>
+        
+        <!-- Allow short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+        
+        <!-- Allow short open tags in templates -->
+        <exclude name="Generic.PHP.DisallowShortOpenTag.EchoFound"/>
+    </rule>
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <!-- Value: replace the function, class, and variable prefixes used. Separate multiple prefixes with a comma. -->
+            <property name="prefixes" type="array" value="wupos,WUPOS"/>
+        </properties>
+    </rule>
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <!-- Value: replace the text domain used. -->
+            <property name="text_domain" type="array" value="wupos"/>
+        </properties>
+    </rule>
+    <rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
+        <properties>
+            <property name="blank_line_check" value="true"/>
+        </properties>
+    </rule>
+
+    <!-- Rules: Additional WordPress rules -->
+    <rule ref="WordPress.Security.EscapeOutput"/>
+    <rule ref="WordPress.Security.NonceVerification"/>
+    <rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+    <rule ref="WordPress.DB.DirectDatabaseQuery"/>
+    <rule ref="WordPress.DB.PreparedSQL"/>
+    <rule ref="WordPress.WP.EnqueuedResources"/>
+    <rule ref="WordPress.WP.PostsPerPage"/>
+    <rule ref="WordPress.WP.TimezoneChange"/>
+
+    <!-- Allow for CLI scripts -->
+    <rule ref="WordPress.Security.EscapeOutput">
+        <exclude-pattern>*/bin/*</exclude-pattern>
+    </rule>
+
+    <!-- Allow for plugin activation/deactivation hooks -->
+    <rule ref="WordPress.Security.NonceVerification">
+        <exclude-pattern>*/wupos.php</exclude-pattern>
+    </rule>
+
+</ruleset>
